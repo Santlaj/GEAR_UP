@@ -6,7 +6,8 @@
  * In production (e.g. Vercel), uses VITE_API_BASE_URL if set.
  */
 
-export const API_BASE = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/+$/, '');
+const metaEnv = (import.meta as any).env;
+export const API_BASE = ((metaEnv && metaEnv.VITE_API_BASE_URL) || '/api').replace(/\/+$/, '');
 
 export function getBackendOrigin(): string {
   if (API_BASE.startsWith('http://') || API_BASE.startsWith('https://')) {

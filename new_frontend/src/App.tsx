@@ -99,7 +99,7 @@ export function App() {
   useEffect(() => {
     if (authSession) {
       validateSession()
-        .then((validated) => {
+        .then((validated: AuthSession | null) => {
           if (validated) {
             setAuthSession(validated);
             setCurrentUser(validated.user);

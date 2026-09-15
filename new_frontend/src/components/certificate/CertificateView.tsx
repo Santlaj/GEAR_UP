@@ -53,7 +53,7 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
   const mrpDecl = declarations.find((d) => d.field === 'mrp');
   const dateDecl = declarations.find((d) => d.field === 'date_of_manufacture' || d.field === 'month_year_packing');
   const batchDecl = declarations.find((d) => d.field === 'batch_number');
-  const barcodeVal = scanRecord.product?.barcode || declarations.find((d) => d.field === 'barcode')?.detected_value || 'NOT DECLARED';
+  const barcodeVal = declarations.find((d) => d.field === 'barcode')?.detected_value || (scanRecord.product as any)?.barcode || 'NOT DECLARED';
 
   const nonCompliantDecls = declarations.filter((d) => d.status !== 'pass');
   const inspectorName = scanRecord.inspector_id ? `Insp. ${scanRecord.inspector_id.toUpperCase()}` : 'Authorized Field Inspector';
