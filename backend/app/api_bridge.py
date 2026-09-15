@@ -147,6 +147,14 @@ _FIELD_ALIASES: dict[str, str] = {
     "country_of_origin": "country_of_origin",
     "origin": "country_of_origin",
     "made_in": "country_of_origin",
+
+    # Spatial Geometry & Numeral Height
+    "font_size_mm": "font_size_mm",
+    "font_size": "font_size_mm",
+    "numeral_height_mm": "numeral_height_mm",
+    "numeral_height": "numeral_height_mm",
+    "pdp_area_cm2": "pdp_area_cm2",
+    "pdp_area": "pdp_area_cm2",
 }
 
 
@@ -245,6 +253,19 @@ def _normalize_field_name(raw_name: str) -> str:
     return _FIELD_ALIASES.get(raw_name.strip().lower(), raw_name.strip().lower())
 
 
+def _resolve_source_model(src_val: str) -> ExtractionSource:
+    s = str(src_val).lower()
+    if "tesseract" in s or "ocr" in s:
+        return ExtractionSource.TESSERACT
+    if "vlm" in s or "groq" in s or "vision" in s:
+        return ExtractionSource.VLM
+    if "barcode" in s or "qr" in s:
+        return ExtractionSource.BARCODE_QR
+    if "detector" in s or "yolo" in s:
+        return ExtractionSource.OBJECT_DETECTOR
+    return ExtractionSource.MANUAL
+
+
 def _dict_to_extraction(
     raw_data: dict[str, Any],
     scan_id: str | None = None,
@@ -287,7 +308,7 @@ def _dict_to_extraction(
                         ExtractionCandidate(
                             value=c_val,
                             source=SourceInfo(
-                                model=ExtractionSource.MANUAL,
+                                model=_resolve_source_model(c_source),
                                 model_version=c_source,
                                 timestamp=now_dt,
                             ),
@@ -310,13 +331,14 @@ def _dict_to_extraction(
             for c in raw_cands:
                 if isinstance(c, dict):
                     c_val = str(c.get("value", "")).strip()
+                    c_src_str = str(c.get("source", source))
                     if c_val:
                         candidates.append(
                             ExtractionCandidate(
                                 value=c_val,
                                 source=SourceInfo(
-                                    model=ExtractionSource.MANUAL,
-                                    model_version=str(c.get("source", source)),
+                                    model=_resolve_source_model(c_src_str),
+                                    model_version=c_src_str,
                                     timestamp=now_dt,
                                 ),
                                 confidence=float(c.get("confidence", 1.0)),
@@ -340,7 +362,7 @@ def _dict_to_extraction(
                 ExtractionCandidate(
                     value=value_str,
                     source=SourceInfo(
-                        model=ExtractionSource.MANUAL,
+                        model=_resolve_source_model(source),
                         model_version=source,
                         timestamp=now_dt,
                     ),
@@ -354,7 +376,7 @@ def _dict_to_extraction(
             resolved_value=resolved_val,
             confidence=candidates[0].confidence if candidates else 1.0,
             source=SourceInfo(
-                model=ExtractionSource.MANUAL,
+                model=candidates[0].source.model if candidates else _resolve_source_model(source),
                 model_version=source,
                 timestamp=now_dt,
             ),

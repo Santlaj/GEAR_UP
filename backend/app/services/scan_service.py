@@ -175,8 +175,16 @@ class ScanService:
         # scan_id MUST be generated BEFORE the engine call
         scan_id = str(uuid4())
 
+        pdp_area_cm2 = None
+        try:
+            parsed_geo = json.loads(geometry_json) if geometry_json else {}
+            if isinstance(parsed_geo, dict) and parsed_geo.get("pdp_area_cm2") is not None:
+                pdp_area_cm2 = float(parsed_geo["pdp_area_cm2"])
+        except Exception:
+            pass
+
         compliance_fields = self._compliance.build_compliance_fields(
-            product, evaluated, ingredients
+            product, evaluated, ingredients, pdp_area_cm2=pdp_area_cm2
         )
         compliance_detail, engine_verdict = self._compliance.run_authoritative(
             compliance_fields=compliance_fields,
@@ -324,8 +332,14 @@ class ScanService:
             raise HTTPException(status_code=404, detail="Scan not found in scope")
 
         record = ScanRecord.model_validate(row.payload)
+        pdp_area = None
+        if record.compliance_detail and isinstance(record.compliance_detail.get("classification"), dict):
+            pdp_area = record.compliance_detail.get("classification", {}).get("pdp_area_cm2")
         compliance_fields = self._compliance.build_compliance_fields(
-            record.product, record.declarations, record.ingredients
+            record.product,
+            record.declarations,
+            record.ingredients,
+            pdp_area_cm2=float(pdp_area) if pdp_area is not None else None,
         )
 
         self._compliance.invalidate_cache()
@@ -411,8 +425,14 @@ class ScanService:
         record.declarations = evaluated
         record.remarks_summary = summary
 
+        pdp_area = None
+        if record.compliance_detail and isinstance(record.compliance_detail.get("classification"), dict):
+            pdp_area = record.compliance_detail.get("classification", {}).get("pdp_area_cm2")
         compliance_fields = self._compliance.build_compliance_fields(
-            record.product, record.declarations, record.ingredients
+            record.product,
+            record.declarations,
+            record.ingredients,
+            pdp_area_cm2=float(pdp_area) if pdp_area is not None else None,
         )
         compliance_detail, engine_verdict = self._compliance.run_authoritative(
             compliance_fields=compliance_fields,

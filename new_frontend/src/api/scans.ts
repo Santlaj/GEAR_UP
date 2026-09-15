@@ -2,7 +2,7 @@
  * Scans API functions — calls the existing backend scan endpoints.
  */
 
-import { apiFetch } from './client';
+import { apiFetch, API_BASE } from './client';
 import { ScanRecord } from '../shared/schema';
 
 /**
@@ -60,14 +60,14 @@ export async function confirmFieldMissing(
  * Returns the direct URL to download the authentic WeasyPrint PDF report
  */
 export function getScanPdfUrl(scanId: string): string {
-  return `/api/scans/${encodeURIComponent(scanId)}/report.pdf`;
+  return `${API_BASE}/scans/${encodeURIComponent(scanId)}/report.pdf`;
 }
 
 /**
  * Returns the direct URL to download the authentic DOCX report
  */
 export function getScanDocxUrl(scanId: string): string {
-  return `/api/scans/${encodeURIComponent(scanId)}/report.docx`;
+  return `${API_BASE}/scans/${encodeURIComponent(scanId)}/report.docx`;
 }
 
 export interface ScanVerificationResult {

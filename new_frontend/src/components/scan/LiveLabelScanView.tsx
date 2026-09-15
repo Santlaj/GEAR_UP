@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ScanRecord, BoundingBox } from '../../shared/schema';
 import { useLanguage } from '../../lib/i18n';
 import { submitScan, reevaluateScan } from '../../api/scans';
+import { resolveAssetUrl } from '../../api/client';
 import {
   Camera,
   FolderOpen,
@@ -160,9 +161,11 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
   // Determine active display image: real backend image from product or custom preview
   const rawImagePath = scanRecord.product?.image_path;
   const resolvedBackendImage = rawImagePath
-    ? rawImagePath.startsWith('http') || rawImagePath.startsWith('/')
-      ? rawImagePath
-      : `/captures/${rawImagePath}`
+    ? rawImagePath.startsWith('captures/')
+      ? resolveAssetUrl(rawImagePath)
+      : rawImagePath.startsWith('http') || rawImagePath.startsWith('/')
+        ? rawImagePath
+        : resolveAssetUrl(`captures/${rawImagePath}`)
     : null;
 
   const activeImage = customImage || resolvedBackendImage;

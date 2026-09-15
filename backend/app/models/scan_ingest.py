@@ -33,20 +33,31 @@ class CaptureGeometry(BaseModel):
     blocks: list[dict] = Field(default_factory=list)
     barcode_module_width_px: float | None = None
     coin_diameter_px: float | None = None
+    pdp_area_cm2: float | None = None
 
 
-def parse_geometry_json(geometry_json: str) -> CaptureGeometry:
+def parse_geometry_json(geometry_json: str | Any) -> CaptureGeometry:
     raw_geo = geometry_json.default if hasattr(geometry_json, "default") else geometry_json
-    return CaptureGeometry.model_validate(json.loads(raw_geo or "{}"))
+    try:
+        data = json.loads(raw_geo or "{}") if isinstance(raw_geo, str) else (raw_geo or {})
+        return CaptureGeometry.model_validate(data)
+    except Exception:
+        return CaptureGeometry()
 
 
 def build_compliance_fields(
     product: Product,
     declarations: list[Declaration],
     ingredients: list[Ingredient] | None = None,
-) -> dict[str, str | None]:
-    """Single builder for submit / reevaluate / confirm-missing (CONFIRMED_MISSING omitted)."""
-    compliance_fields: dict[str, str | None] = {
+    geometry: CaptureGeometry | None = None,
+) -> dict[str, Any]:
+    """Single builder for submit / reevaluate / confirm-missing (CONFIRMED_MISSING omitted).
+    
+    Preserves OCR physical measurements (numeral_height_mm, font_size_mm, pdp_area_cm2)
+    and multi-source candidates so statutory strategies and conflict resolution
+    receive accurate spatial evidence.
+    """
+    compliance_fields: dict[str, Any] = {
         "product_name": product.name,
         "manufacturer_name": product.manufacturer,
         "product_category": product.category,
@@ -54,8 +65,29 @@ def build_compliance_fields(
     for d in declarations:
         if d.status == DeclarationFieldStatus.CONFIRMED_MISSING:
             continue
-        if d.detected_value:
+
+        # Preserve multi-source conflict structure if OCR spatial evidence disagreed with VLM
+        if d.verification_method == "vlm_ocr_conflict" or (d.context_evidence and "conflict" in d.context_evidence.lower()):
+            compliance_fields[d.field] = {
+                "resolved_value": d.detected_value,
+                "conflict_status": "CONFLICT",
+                "conflict_details": d.context_evidence or d.remark,
+                "candidates": [
+                    {"value": d.detected_value, "source": "vlm", "confidence": d.confidence or 0.85},
+                    {"value": "conflicting_ocr_value", "source": "tesseract", "confidence": 0.70},
+                ],
+            }
+        elif d.detected_value:
             compliance_fields[d.field] = d.detected_value
+
+        # Propagate OCR physical font / numeral measurements
+        if d.font_size_mm is not None:
+            compliance_fields["font_size_mm"] = str(d.font_size_mm)
+            compliance_fields["numeral_height_mm"] = str(d.font_size_mm)
+
+    if geometry and geometry.pdp_area_cm2 is not None:
+        compliance_fields["pdp_area_cm2"] = str(geometry.pdp_area_cm2)
+
     if ingredients:
         ing_text = ", ".join(f"{i.name} {i.quantity or ''}".strip() for i in ingredients)
         compliance_fields["ingredients"] = ing_text

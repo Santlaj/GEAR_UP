@@ -22,6 +22,7 @@ class CaptureGeometry(BaseModel):
     blocks: list[dict] = Field(default_factory=list)
     barcode_module_width_px: float | None = None
     coin_diameter_px: float | None = None
+    pdp_area_cm2: float | None = None
 
 
 class OverrideRequest(BaseModel):

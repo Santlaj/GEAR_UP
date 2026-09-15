@@ -2,9 +2,36 @@
  * Centralized API client for the mm inspector frontend.
  * All backend calls go through this module.
  *
- * Uses the Vite dev proxy (/api → http://127.0.0.1:8000)
- * so no hardcoded backend URL is needed.
+ * In development, uses Vite dev proxy (/api → http://127.0.0.1:8000).
+ * In production (e.g. Vercel), uses VITE_API_BASE_URL if set.
  */
+
+export const API_BASE = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/+$/, '');
+
+export function getBackendOrigin(): string {
+  if (API_BASE.startsWith('http://') || API_BASE.startsWith('https://')) {
+    try {
+      return new URL(API_BASE).origin;
+    } catch {
+      return '';
+    }
+  }
+  return '';
+}
+
+/**
+ * Resolves static assets (like captured images) to full URLs in production
+ * or relative paths in local development.
+ */
+export function resolveAssetUrl(path: string | null | undefined): string | null {
+  if (!path) return null;
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+    return path;
+  }
+  const clean = path.startsWith('/') ? path.slice(1) : path;
+  const origin = getBackendOrigin();
+  return origin ? `${origin}/${clean}` : `/${clean}`;
+}
 
 function getToken(): string | null {
   return localStorage.getItem('lmcs_token');
@@ -53,7 +80,9 @@ export async function apiFetch<T>(
     }
   }
 
-  const res = await fetch(`/api${path}`, { ...init, headers });
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  const url = `${API_BASE}${cleanPath}`;
+  const res = await fetch(url, { ...init, headers });
 
   if (!res.ok) {
     // Handle 401 without infinite page reload loops

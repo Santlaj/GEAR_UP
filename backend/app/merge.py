@@ -1785,6 +1785,29 @@ def merge_geometry_and_fields(
                     "validated for this field — requires physical verification"
                 )
 
+            elif not normalized_blocks:
+                # Client supplied no OCR geometry (e.g. geometry_json: "{}").
+                # High-confidence semantic VLM extraction is accepted as observed,
+                # while physical font_size_mm remains unmeasured.
+                vlm_conf = confidence if confidence is not None else 0.70
+                if vlm_conf >= 0.70:
+                    status = DeclarationFieldStatus.PASS
+                    observation_state = ObservationState.OBSERVED
+                    source = "vlm"
+                    verification_method = "vlm_semantic_unanchored"
+                    remark = None
+                    context_evidence = f"VLM semantic extraction ({vlm_conf:.2f} conf)"
+                else:
+                    status = DeclarationFieldStatus.NEEDS_REVIEW
+                    observation_state = ObservationState.UNCERTAIN
+                    source = "vlm"
+                    verification_method = "vlm_low_confidence_unanchored"
+                    remark = (
+                        "VLM returned a low-confidence semantic value without spatial "
+                        "evidence — requires physical verification"
+                    )
+                    context_evidence = f"VLM candidate: {detected_value} (conf={vlm_conf:.2f})"
+
             else:
                 verification_method = (
                     "vlm_value_unlocated"
@@ -1797,7 +1820,8 @@ def merge_geometry_and_fields(
                 )
 
             context_evidence = (
-                f"VLM candidate: {detected_value}"
+                context_evidence
+                or f"VLM candidate: {detected_value}"
             )
 
         # --------------------------------------------------------------
@@ -1839,12 +1863,14 @@ def merge_geometry_and_fields(
         if bbox is None:
             font_mm = None
 
-            if status == DeclarationFieldStatus.PASS:
-                # A PASS at observation level without evidence would violate
-                # the merge invariant.
-                status = DeclarationFieldStatus.NEEDS_REVIEW
+            # Only downgrade to UNCERTAIN if spatial blocks were present but this token failed grounding,
+            # or if format was invalid. If client supplied no blocks and VLM had high confidence,
+            # preserve the observed semantic state while font_mm remains None (unmeasured).
+            if not (not normalized_blocks and detected_value and format_valid and (confidence or 0.0) >= 0.70):
+                if status == DeclarationFieldStatus.PASS:
+                    status = DeclarationFieldStatus.NEEDS_REVIEW
 
-            observation_state = ObservationState.UNCERTAIN
+                observation_state = ObservationState.UNCERTAIN
 
         # Automated pipeline can never create human confirmation.
         confirmation_state = ConfirmationState.UNCONFIRMED

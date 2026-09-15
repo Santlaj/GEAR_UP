@@ -18,6 +18,7 @@ from app.models import get_rules_engine
 from app.models.audit import append_audit
 from app.models.scan import ScanReportRow
 from app.models.scan_ingest import (
+    CaptureGeometry,
     assemble_from_capture,
     build_compliance_fields,
     parse_geometry_json,
@@ -74,7 +75,7 @@ async def submit_scan(
     # scan_id MUST be generated BEFORE the engine call
     scan_id = str(uuid4())
     compliance_fields = build_compliance_fields(
-        material.product, material.declarations, material.ingredients
+        material.product, material.declarations, material.ingredients, geometry=geometry
     )
     compliance_detail, engine_verdict = ScanReportRow.evaluate(compliance_fields, scan_id)
 
@@ -224,8 +225,13 @@ async def reevaluate_scan(
         raise HTTPException(status_code=404, detail="Scan not found in scope")
 
     record = scan_view.to_scan_record(row)
+    geometry = None
+    if record.compliance_detail and isinstance(record.compliance_detail.get("classification"), dict):
+        pdp_area = record.compliance_detail.get("classification", {}).get("pdp_area_cm2")
+        if pdp_area is not None:
+            geometry = CaptureGeometry(pdp_area_cm2=float(pdp_area))
     compliance_fields = build_compliance_fields(
-        record.product, record.declarations, record.ingredients
+        record.product, record.declarations, record.ingredients, geometry=geometry
     )
     get_rules_engine().invalidate_cache()
     new_compliance, engine_verdict = ScanReportRow.evaluate(compliance_fields, scan_id)
@@ -309,8 +315,13 @@ async def confirm_field_missing(
     record.declarations = evaluated
     record.remarks_summary = summary
 
+    geometry = None
+    if record.compliance_detail and isinstance(record.compliance_detail.get("classification"), dict):
+        pdp_area = record.compliance_detail.get("classification", {}).get("pdp_area_cm2")
+        if pdp_area is not None:
+            geometry = CaptureGeometry(pdp_area_cm2=float(pdp_area))
     compliance_fields = build_compliance_fields(
-        record.product, record.declarations, record.ingredients
+        record.product, record.declarations, record.ingredients, geometry=geometry
     )
     compliance_detail, engine_verdict = ScanReportRow.evaluate(compliance_fields, scan_id)
     record.compliance_detail = compliance_detail

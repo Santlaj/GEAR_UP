@@ -17,12 +17,14 @@ class ComplianceService:
         product: Product,
         declarations: list[Declaration],
         ingredients: list[Ingredient] | None = None,
-    ) -> dict[str, str | None]:
+        pdp_area_cm2: float | None = None,
+    ) -> dict[str, Any]:
         """Consolidate the three identical compliance_fields builders from routes.
 
         Omits CONFIRMED_MISSING fields and any declaration without detected_value.
+        Preserves physical font measurements and pdp_area_cm2.
         """
-        compliance_fields: dict[str, str | None] = {
+        compliance_fields: dict[str, Any] = {
             "product_name": product.name,
             "manufacturer_name": product.manufacturer,
             "product_category": product.category,
@@ -32,6 +34,11 @@ class ComplianceService:
                 continue
             if d.detected_value:
                 compliance_fields[d.field] = d.detected_value
+            if d.font_size_mm is not None:
+                compliance_fields["font_size_mm"] = str(d.font_size_mm)
+                compliance_fields["numeral_height_mm"] = str(d.font_size_mm)
+        if pdp_area_cm2 is not None:
+            compliance_fields["pdp_area_cm2"] = str(pdp_area_cm2)
         if ingredients:
             ing_text = ", ".join(f"{i.name} {i.quantity or ''}".strip() for i in ingredients)
             compliance_fields["ingredients"] = ing_text

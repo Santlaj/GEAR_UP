@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ScanRecord } from '../../shared/schema';
 import { QRCodeCanvas } from '../common/QRCodeCanvas';
 import { useLanguage } from '../../lib/i18n';
+import { resolveAssetUrl } from '../../api/client';
 
 interface CertificateViewProps {
   scanRecord: ScanRecord;
@@ -371,10 +372,11 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
                   {scanRecord.product?.image_path ? (
                     <img
                       src={
-                        scanRecord.product.image_path.startsWith('http') ||
-                        scanRecord.product.image_path.startsWith('/')
-                          ? scanRecord.product.image_path
-                          : `/captures/${scanRecord.product.image_path}`
+                        scanRecord.product.image_path.startsWith('captures/')
+                          ? resolveAssetUrl(scanRecord.product.image_path) || scanRecord.product.image_path
+                          : scanRecord.product.image_path.startsWith('http') || scanRecord.product.image_path.startsWith('/')
+                            ? scanRecord.product.image_path
+                            : resolveAssetUrl(`captures/${scanRecord.product.image_path}`) || scanRecord.product.image_path
                       }
                       alt="Seized Evidence Annexure"
                       className="max-h-[220px] w-auto object-contain block"
