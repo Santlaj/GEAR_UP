@@ -1,0 +1,126 @@
+# ==============================================================================
+# Legal Metrology Compliance Scanning Platform (LMCS)
+# Git Ignore Configuration
+# ==============================================================================
+
+# ── 1. Secrets, Environment Files & Credentials (CRITICAL) ─────────────────────
+.env
+.env.*
+!.env.example
+*.env
+*.env.*
+!*.env.example
+
+# Private keys, certificates, secrets
+*.pem
+*.key
+*.pkcs12
+*.pfx
+*.p12
+*.crt
+*.cer
+*.der
+id_rsa*
+id_ed25519*
+credentials.json
+client_secret*.json
+service-account*.json
+
+# ── 2. Python & Virtual Environments ───────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+.venv*/
+venv/
+venv*/
+env/
+env*/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Pytest & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# ── 3. Node.js & Web Frontends ─────────────────────────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+*.tsbuildinfo
+.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ── 4. Application Storage & Generated Reports ─────────────────────────────────
+# Ignore dynamically generated inspection images & report exports, preserve folders
+backend/captures/*
+!backend/captures/.gitkeep
+backend/storage/reports/*
+!backend/storage/reports/.gitkeep
+captures/*
+!captures/.gitkeep
+storage/reports/*
+!storage/reports/.gitkeep
+
+# ── 5. Databases & Local Caches ────────────────────────────────────────────────
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# ── 6. Operating System & Local Editor Configs ──────────────────────────────────
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# VS Code & Cursor personal preferences/caches
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.cursor/cache/
+.cursor/*.log
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.bak
+*.tmp
+*.temp

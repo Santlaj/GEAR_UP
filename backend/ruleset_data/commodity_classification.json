@@ -1,0 +1,2056 @@
+{
+  "dataset_name": "lmcp_commodity_classification",
+  "dataset_version": "2.0.0",
+  "jurisdiction": "India",
+  "purpose": "Audit-safe commodity classification layer for LMPC packaged-commodity scanning.",
+  "IMPORTANT_STATUS": "Prototype classification dataset. It must not be used as a standalone final legal decision engine.",
+  "source_policy": {
+    "required_source": "Uploaded consolidated/legal source PDFs and authoritative amendments",
+    "source_only_mode": true,
+    "independent_legal_verification": false,
+    "reason": "The retrieved project files contain the classification specification, but an independently retrievable consolidated legal PDF was not present in the retrieved file results for this generation. Legal mappings are therefore explicitly marked SOURCE_VERIFICATION_REQUIRED rather than falsely claimed as independently verified.",
+    "project_specification_basis": "The uploaded LMCS project specification requires commodity_class, full Second/Fourth Schedule mapping, effective dating, applicability gates and human review."
+  },
+  "classification_pipeline": [
+    "normalize_product_text",
+    "exact_product_name_match",
+    "high_confidence_keyword_match",
+    "multi_keyword_scoring",
+    "brand_plus_product_match",
+    "negative_keyword_penalty",
+    "candidate_category_generation",
+    "ambiguity_resolution",
+    "vision_model_fallback",
+    "human_review_if_uncertain"
+  ],
+  "classification_output_contract": {
+    "required_fields": [
+      "classification_status",
+      "category_id",
+      "confidence",
+      "candidate_categories",
+      "matched_keywords",
+      "matched_patterns",
+      "rejected_keywords",
+      "human_review_required",
+      "human_review_reasons",
+      "legal_mapping_status"
+    ],
+    "statuses": [
+      "CLASSIFIED",
+      "AMBIGUOUS",
+      "NO_MATCH",
+      "INSUFFICIENT_EVIDENCE",
+      "HUMAN_REVIEW_REQUIRED"
+    ],
+    "minimum_confidence_for_auto_classification": 0.85,
+    "auto_decision_rule": "Auto-classify only when one candidate exceeds the threshold and no high-priority conflicting candidate remains.",
+    "conflict_rule": "If two candidates are close in score or a higher-priority exclusion is triggered, return AMBIGUOUS/HUMAN_REVIEW_REQUIRED.",
+    "legal_safety_rule": "Category classification never directly produces a final compliance decision."
+  },
+  "applicability_context_required": {
+    "package_type": [
+      "retail",
+      "wholesale"
+    ],
+    "is_imported": "boolean",
+    "country_of_origin": "string|null",
+    "is_industrial_or_institutional": "boolean",
+    "net_quantity_value": "number|null",
+    "net_quantity_unit": "g|kg|ml|l|cm|m|sq_cm|sq_m|count|null",
+    "package_capacity_cc": "number|null",
+    "principal_display_panel_area_cm2": "number|null",
+    "evaluation_date": "date"
+  },
+  "scope_gates_from_project_specification": [
+    {
+      "gate_id": "rule_3a_bulk_package",
+      "rule": "Rule 3(a)",
+      "condition": "net content > 25 kg or 25 L",
+      "exceptions": [
+        "cement and fertilizer sold in bags up to 50 kg"
+      ],
+      "result": "CHAPTER_II_NOT_APPLICABLE",
+      "source_verification": "REQUIRED"
+    },
+    {
+      "gate_id": "rule_3b_industrial_institutional",
+      "rule": "Rule 3(b)",
+      "condition": "industrial_or_institutional package",
+      "result": "CHAPTER_II_NOT_APPLICABLE",
+      "source_verification": "REQUIRED"
+    },
+    {
+      "gate_id": "rule_26_small_package",
+      "rule": "Rule 26",
+      "condition": "net weight/measure <= 10 g or <= 10 ml",
+      "result": "FULL_CHAPTER_II_EXEMPTION",
+      "source_verification": "REQUIRED"
+    },
+    {
+      "gate_id": "rule_26_fast_food",
+      "rule": "Rule 26",
+      "condition": "fast food packed by restaurant/hotel",
+      "result": "FULL_CHAPTER_II_EXEMPTION",
+      "source_verification": "REQUIRED"
+    },
+    {
+      "gate_id": "rule_26_drugs",
+      "rule": "Rule 26",
+      "condition": "scheduled/non-scheduled drug formulations under the specified price-control regime",
+      "result": "FULL_CHAPTER_II_EXEMPTION",
+      "source_verification": "REQUIRED"
+    },
+    {
+      "gate_id": "rule_26_agricultural_produce",
+      "rule": "Rule 26",
+      "condition": "agricultural produce package > 50 kg",
+      "result": "FULL_CHAPTER_II_EXEMPTION",
+      "source_verification": "REQUIRED"
+    }
+  ],
+  "third_schedule": {
+    "rule": "Rule 11(4)",
+    "entries": [
+      {
+        "category_id": "soap",
+        "qualifier": "when packed"
+      },
+      {
+        "category_id": "lotions",
+        "qualifier": "when packed"
+      },
+      {
+        "category_id": "cream",
+        "qualifier": "when packed; cream of milk excluded"
+      }
+    ],
+    "source_status": "SOURCE_VERIFICATION_REQUIRED"
+  },
+  "fourth_schedule": {
+    "rule": "Rule 12(2)",
+    "entries": {
+      "aerosol_products": {
+        "entry": "Aerosol Products",
+        "allowed_units": [
+          "weight"
+        ]
+      },
+      "acids_liquid_form": {
+        "entry": "Acids in liquid form",
+        "allowed_units": [
+          "weight",
+          "volume"
+        ]
+      },
+      "compressed_liquefied_gas_other_than_lpg": {
+        "entry": "Compressed/liquefied gas (not LPG)",
+        "allowed_units": [
+          "weight",
+          "equivalent_volume_at_stated_temperature_and_pressure"
+        ]
+      },
+      "curd": {
+        "entry": "Curd",
+        "allowed_units": [
+          "weight"
+        ]
+      },
+      "electric_cables": {
+        "entry": "Electric cables",
+        "allowed_units": [
+          "length",
+          "weight"
+        ]
+      },
+      "electric_wire": {
+        "entry": "Electric wire",
+        "allowed_units": [
+          "length",
+          "weight"
+        ]
+      },
+      "fencing_wire": {
+        "entry": "Fencing wire",
+        "allowed_units": [
+          "number",
+          "weight"
+        ]
+      },
+      "fruits": {
+        "entry": "Fruits",
+        "allowed_units": [
+          "number",
+          "weight"
+        ]
+      },
+      "furnace_oil": {
+        "entry": "Furnace oil",
+        "allowed_units": [
+          "weight",
+          "volume"
+        ]
+      },
+      "non_edible_vegetable_oil": {
+        "entry": "Non-edible vegetable oil",
+        "allowed_units": [
+          "weight",
+          "volume"
+        ]
+      },
+      "edible_oil_vanaspati_ghee_butter_oil": {
+        "entry": "Edible oil, Vanaspati ghee and butter oil",
+        "allowed_units": [
+          "weight",
+          "volume"
+        ]
+      },
+      "heavy_residual_fuel_oil": {
+        "entry": "Heavy residual fuel oil",
+        "allowed_units": [
+          "weight"
+        ]
+      },
+      "industrial_diesel_fuel": {
+        "entry": "Industrial diesel fuel",
+        "allowed_units": [
+          "volume"
+        ]
+      },
+      "honey_malt_extract_golden_syrup_treacle": {
+        "entry": "Honey, malt-extract, golden syrup, treacle",
+        "allowed_units": [
+          "weight"
+        ]
+      },
+      "ice_cream_and_similar_frozen_products": {
+        "entry": "Ice cream and similar frozen products",
+        "allowed_units": [
+          "weight"
+        ]
+      },
+      "liquid_chemicals": {
+        "entry": "Liquid chemicals",
+        "allowed_units": [
+          "weight",
+          "volume"
+        ]
+      },
+      "lpg": {
+        "entry": "LPG",
+        "allowed_units": [
+          "weight"
+        ]
+      },
+      "nails_wood_screws": {
+        "entry": "Nails, wood screws",
+        "allowed_units": [
+          "number",
+          "weight"
+        ]
+      },
+      "paints_varnishes_varnish_stains_enamels": {
+        "entry": "Paints other than paste/solid paint, varnish, varnish stains, enamels",
+        "allowed_units": [
+          "volume"
+        ]
+      },
+      "paste_solid_paint": {
+        "entry": "Paste paint, solid paint",
+        "allowed_units": [
+          "weight"
+        ]
+      },
+      "rasgulla_gulabjamun_sweet_preparations": {
+        "entry": "Rasgulla, Gulabjamun and other sweet preparations",
+        "allowed_units": [
+          "weight"
+        ]
+      },
+      "ready_made_garments": {
+        "entry": "Ready-made garments",
+        "allowed_units": [
+          "number"
+        ]
+      },
+      "sauces": {
+        "entry": "Sauces, all kinds",
+        "allowed_units": [
+          "weight"
+        ]
+      },
+      "tyres_tubes": {
+        "entry": "Tyres and tubes",
+        "allowed_units": [
+          "number"
+        ]
+      },
+      "yarn": {
+        "entry": "Yarn",
+        "allowed_units": [
+          "weight",
+          "length"
+        ]
+      },
+      "cosmetics": {
+        "entry": "Cosmetics including creams, shampoo, lotions, perfumes",
+        "allowed_units": [
+          "weight",
+          "measure"
+        ]
+      }
+    },
+    "source_status": "SOURCE_VERIFICATION_REQUIRED"
+  },
+  "second_schedule": {
+    "status": "SOURCE_VERIFICATION_REQUIRED",
+    "commodity_groups_named_in_uploaded_project_specification": [
+      "baby_food_weaning_food",
+      "biscuits",
+      "bread",
+      "butter_margarine",
+      "cereals_pulses",
+      "coffee",
+      "tea",
+      "reconstitutable_beverage_materials",
+      "edible_oils_vanaspati_ghee_butter_oil",
+      "milk_powder",
+      "non_soapy_detergent_powder",
+      "rice_flour_atta_rawa_suji",
+      "salt",
+      "laundry_soap",
+      "detergent_cake_bar",
+      "toilet_soap",
+      "aerated_soft_drinks_non_alcoholic_beverages",
+      "mineral_drinking_water",
+      "cement_in_bags",
+      "paint_varnish_enamel"
+    ],
+    "required_engine_behavior": "If and only if a dated legal source confirms the entry is active, evaluate exact permitted sizes or multiples-of-N rules. Do not rely on category keywords alone.",
+    "source_status": "SOURCE_VERIFICATION_REQUIRED"
+  },
+  "negative_and_exception_cases": {
+    "NO_MATCH": "No category meets minimum evidence threshold.",
+    "AMBIGUOUS": "Two or more plausible categories remain after scoring.",
+    "INSUFFICIENT_EVIDENCE": "OCR/product name is incomplete, unreadable, or contradictory.",
+    "HUMAN_REVIEW_REQUIRED": "Commodity-specific legal mapping, scope, exemption, or rule version cannot be established safely.",
+    "CONFLICTING_OCR_VISION": "OCR and Vision model disagree materially on product identity.",
+    "EXCLUSION_CONFLICT": "A negative keyword/exclusion conflicts with a positive category match.",
+    "unknown_unit": "Unit is missing or cannot be normalized.",
+    "unknown_package_type": "Retail/wholesale context is unavailable where relevant."
+  },
+  "effective_date_model": {
+    "rule_fields": [
+      "effective_from",
+      "effective_until",
+      "superseded_by",
+      "source_document",
+      "source_locator"
+    ],
+    "evaluation_rule": "Only use a mapping whose effective interval contains evaluation_date.",
+    "unknown_date_behavior": "HUMAN_REVIEW_REQUIRED",
+    "amendment_behavior": "New version supersedes old mapping; never mutate historical evaluation results."
+  },
+  "categories": [
+    {
+      "category_id": "baby_food_weaning_food",
+      "category_name": "Baby Food / Weaning Food",
+      "aliases_keywords": [
+        "baby food",
+        "weaning food",
+        "infant food"
+      ],
+      "detection_patterns": [
+        "\\bbaby\\s+food\\b",
+        "\\bweaning\\s+food\\b"
+      ],
+      "classification_priority": 95,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "food_snacks",
+      "category_name": "Food Snacks / Namkeen",
+      "aliases_keywords": [
+        "namkeen",
+        "bhujia",
+        "sev",
+        "mixture",
+        "snacks",
+        "chips",
+        "potato chips",
+        "banana chips",
+        "peanuts"
+      ],
+      "detection_patterns": [
+        "\\bnamkeen\\b",
+        "\\bbhujia\\b",
+        "\\bsev\\b",
+        "\\bmixture\\b",
+        "\\bchips?\\b"
+      ],
+      "classification_priority": 70,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "biscuits",
+      "category_name": "Biscuits / Cookies / Wafers",
+      "aliases_keywords": [
+        "biscuit",
+        "biscuits",
+        "cookie",
+        "cookies",
+        "wafer",
+        "cream biscuit",
+        "glucose biscuit",
+        "digestive biscuit",
+        "cracker",
+        "crackers"
+      ],
+      "detection_patterns": [
+        "\\bbiscuits?\\b",
+        "\\bcookies?\\b",
+        "\\bwafers?\\b",
+        "\\bcrackers?\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "bread",
+      "category_name": "Bread",
+      "aliases_keywords": [
+        "bread",
+        "loaf",
+        "bun",
+        "bread loaf"
+      ],
+      "detection_patterns": [
+        "\\bbread\\b",
+        "\\bloaf\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "butter_margarine",
+      "category_name": "Butter / Margarine",
+      "aliases_keywords": [
+        "butter",
+        "margarine",
+        "table butter"
+      ],
+      "detection_patterns": [
+        "\\bbutter\\b",
+        "\\bmargarine\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "cereals_pulses",
+      "category_name": "Cereals / Pulses / Grains / Breakfast Cereals",
+      "aliases_keywords": [
+        "oats",
+        "rolled oats",
+        "instant oats",
+        "steel cut oats",
+        "masala oats",
+        "oat",
+        "muesli",
+        "granola",
+        "cereal",
+        "cereals",
+        "breakfast cereal",
+        "cornflakes",
+        "wheat flakes",
+        "porridge",
+        "millet",
+        "millets",
+        "ragi",
+        "jowar",
+        "bajra",
+        "barley",
+        "quinoa",
+        "poha",
+        "flattened rice",
+        "beaten rice",
+        "murmura",
+        "puffed rice",
+        "vermicelli",
+        "sewai",
+        "pasta",
+        "macaroni",
+        "noodles",
+        "instant noodles",
+        "spaghetti",
+        "rice",
+        "basmati",
+        "wheat",
+        "atta",
+        "flour",
+        "maida",
+        "suji",
+        "sooji",
+        "rava",
+        "besan",
+        "dal",
+        "pulses",
+        "lentils",
+        "chana",
+        "rajma",
+        "moong",
+        "urad",
+        "toor dal",
+        "tur dal",
+        "chickpeas",
+        "kidney beans",
+        "soya chunks"
+      ],
+      "detection_patterns": [
+        "\\b(oats?|muesli|granola|cereal|cereals|cornflakes|porridge)\\b",
+        "\\b(millet|millets|ragi|jowar|bajra|barley|quinoa)\\b",
+        "\\b(poha|vermicelli|pasta|macaroni|noodles?|spaghetti)\\b",
+        "\\b(rice|wheat|atta|flour|maida|suji|sooji|rava|besan|dal|pulses|lentils|chana|rajma)\\b"
+      ],
+      "classification_priority": 85,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "health_supplements_protein",
+      "category_name": "Health Supplements / Protein / Nut Butters",
+      "aliases_keywords": [
+        "peanut butter",
+        "nut butter",
+        "almond butter",
+        "chocolate spread",
+        "protein powder",
+        "whey protein",
+        "plant protein",
+        "protein bar",
+        "energy bar",
+        "granola bar",
+        "nutrition bar",
+        "food supplement",
+        "food supplements",
+        "health supplement",
+        "dietary supplement",
+        "nutritional supplement",
+        "whey",
+        "protein"
+      ],
+      "detection_patterns": [
+        "\\b(peanut\\s+butter|nut\\s+butter|almond\\s+butter)\\b",
+        "\\b(protein\\s+(powder|bar)|whey(\\s+protein)?|health\\s+supplement)\\b",
+        "\\b(food|dietary|nutritional)\\s+supplements?\\b"
+      ],
+      "classification_priority": 85,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "spices_condiments",
+      "category_name": "Spices / Condiments / Masalas",
+      "aliases_keywords": [
+        "spices",
+        "masala",
+        "garam masala",
+        "turmeric",
+        "haldi",
+        "chilli powder",
+        "chili powder",
+        "mirch powder",
+        "coriander powder",
+        "dhaniya powder",
+        "cumin",
+        "jeera",
+        "black pepper",
+        "kali mirch",
+        "cardamom",
+        "elaichi",
+        "cloves",
+        "laung",
+        "cinnamon",
+        "dalchini",
+        "mustard seeds",
+        "rai",
+        "fenugreek",
+        "methi",
+        "asafoetida",
+        "hing",
+        "sambar powder",
+        "rasam powder",
+        "biryani masala",
+        "curry powder"
+      ],
+      "detection_patterns": [
+        "\\b(spices?|masala|turmeric|haldi|chilli\\s+powder|jeera|cumin)\\b",
+        "\\b(garam\\s+masala|sambar\\s+powder|curry\\s+powder)\\b"
+      ],
+      "classification_priority": 85,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "nuts_dry_fruits",
+      "category_name": "Nuts / Dry Fruits / Seeds",
+      "aliases_keywords": [
+        "almonds",
+        "badam",
+        "cashews",
+        "kaju",
+        "walnuts",
+        "akhrot",
+        "pistachios",
+        "pista",
+        "raisins",
+        "kishmish",
+        "dates",
+        "khajoor",
+        "figs",
+        "anjeer",
+        "dry fruits",
+        "nuts",
+        "makhana",
+        "fox nuts",
+        "chia seeds",
+        "flax seeds",
+        "pumpkin seeds",
+        "sunflower seeds"
+      ],
+      "detection_patterns": [
+        "\\b(almonds?|badam|cashews?|kaju|walnuts?|pistachios?|pista|raisins?|kishmish|dates|makhana|dry\\s+fruits?)\\b"
+      ],
+      "classification_priority": 85,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "coffee",
+      "category_name": "Coffee",
+      "aliases_keywords": [
+        "coffee",
+        "instant coffee",
+        "roasted coffee"
+      ],
+      "detection_patterns": [
+        "\\bcoffee\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "tea",
+      "category_name": "Tea",
+      "aliases_keywords": [
+        "tea",
+        "green tea",
+        "black tea",
+        "tea bags",
+        "chai"
+      ],
+      "detection_patterns": [
+        "\\btea\\b",
+        "\\bchai\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "reconstitutable_beverage_materials",
+      "category_name": "Reconstitutable Beverage Materials",
+      "aliases_keywords": [
+        "reconstitutable beverage",
+        "drink mix",
+        "beverage mix",
+        "instant drink mix"
+      ],
+      "detection_patterns": [
+        "\\bbeverage\\s+mix\\b",
+        "\\bdrink\\s+mix\\b"
+      ],
+      "classification_priority": 85,
+      "default_confidence": "low",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": [
+        "Product may belong to another beverage category; require product-form confirmation"
+      ]
+    },
+    {
+      "category_id": "edible_oils",
+      "category_name": "Edible Oils / Vanaspati / Ghee / Butter Oil",
+      "aliases_keywords": [
+        "edible oil",
+        "cooking oil",
+        "mustard oil",
+        "sunflower oil",
+        "groundnut oil",
+        "soybean oil",
+        "rice bran oil",
+        "coconut oil",
+        "olive oil",
+        "vanaspati",
+        "ghee",
+        "butter oil"
+      ],
+      "detection_patterns": [
+        "\\b(edible|cooking|mustard|sunflower|groundnut|soybean|rice bran|coconut|olive)\\s+oil\\b",
+        "\\bvanaspati\\b",
+        "\\bghee\\b",
+        "\\bbutter oil\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Edible oil, Vanaspati ghee and butter oil"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "milk_products",
+      "category_name": "Milk / Dairy / Curd",
+      "aliases_keywords": [
+        "milk",
+        "milk powder",
+        "skimmed milk powder",
+        "dairy",
+        "curd",
+        "dahi",
+        "yogurt",
+        "yoghurt"
+      ],
+      "detection_patterns": [
+        "\\bmilk\\b",
+        "\\bcurd\\b",
+        "\\bdahi\\b",
+        "\\byogurt\\b",
+        "\\byoghurt\\b"
+      ],
+      "classification_priority": 85,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Curd"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "milk_powder",
+      "category_name": "Milk Powder",
+      "aliases_keywords": [
+        "milk powder",
+        "skimmed milk powder"
+      ],
+      "detection_patterns": [
+        "\\bmilk\\s+powder\\b"
+      ],
+      "classification_priority": 95,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "salt",
+      "category_name": "Salt",
+      "aliases_keywords": [
+        "salt",
+        "iodized salt",
+        "iodised salt",
+        "rock salt",
+        "black salt",
+        "sendha namak"
+      ],
+      "detection_patterns": [
+        "\\bsalt\\b",
+        "\\bnamak\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "honey_syrups",
+      "category_name": "Honey / Syrups",
+      "aliases_keywords": [
+        "honey",
+        "malt extract",
+        "golden syrup",
+        "treacle"
+      ],
+      "detection_patterns": [
+        "\\bhoney\\b",
+        "\\bmalt extract\\b",
+        "\\bgolden syrup\\b",
+        "\\btreacle\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Honey, malt-extract, golden syrup, treacle"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "ice_cream",
+      "category_name": "Ice Cream / Similar Frozen Products",
+      "aliases_keywords": [
+        "ice cream",
+        "frozen dessert",
+        "frozen product",
+        "kulfi"
+      ],
+      "detection_patterns": [
+        "\\bice cream\\b",
+        "\\bfrozen dessert\\b",
+        "\\bkulfi\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Ice cream and similar frozen products"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "sauces",
+      "category_name": "Sauces",
+      "aliases_keywords": [
+        "sauce",
+        "tomato sauce",
+        "tomato ketchup",
+        "ketchup",
+        "chilli sauce",
+        "chili sauce",
+        "soy sauce"
+      ],
+      "detection_patterns": [
+        "\\bsauces?\\b",
+        "\\bketchup\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Sauces, all kinds"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "sweets",
+      "category_name": "Traditional Sweets / Sweet Preparations",
+      "aliases_keywords": [
+        "rasgulla",
+        "gulab jamun",
+        "gulabjamun",
+        "sweet preparation",
+        "sweets"
+      ],
+      "detection_patterns": [
+        "\\brasgulla\\b",
+        "\\bgulab\\s*jamun\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Rasgulla, Gulabjamun and other sweet preparations"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "soap",
+      "category_name": "Soap",
+      "aliases_keywords": [
+        "soap",
+        "toilet soap",
+        "bathing soap",
+        "laundry soap"
+      ],
+      "detection_patterns": [
+        "\\bsoap\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 11(4)",
+            "schedule": "Third Schedule",
+            "schedule_entry": "Soap; 'when packed' context"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "laundry_soap",
+      "category_name": "Laundry Soap",
+      "aliases_keywords": [
+        "laundry soap",
+        "washing soap"
+      ],
+      "detection_patterns": [
+        "\\blaundry\\s+soap\\b",
+        "\\bwashing\\s+soap\\b"
+      ],
+      "classification_priority": 100,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "detergent_powder",
+      "category_name": "Non-soapy Detergent Powder",
+      "aliases_keywords": [
+        "detergent powder",
+        "washing powder",
+        "laundry detergent"
+      ],
+      "detection_patterns": [
+        "\\bdetergent\\s+powder\\b",
+        "\\bwashing\\s+powder\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "detergent_cake_bar",
+      "category_name": "Detergent Cake / Bar",
+      "aliases_keywords": [
+        "detergent cake",
+        "detergent bar"
+      ],
+      "detection_patterns": [
+        "\\bdetergent\\s+(cake|bar)\\b"
+      ],
+      "classification_priority": 95,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "lotions",
+      "category_name": "Lotions",
+      "aliases_keywords": [
+        "lotion",
+        "body lotion",
+        "hand lotion",
+        "skin lotion"
+      ],
+      "detection_patterns": [
+        "\\blotion(s)?\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 11(4)",
+            "schedule": "Third Schedule",
+            "schedule_entry": "Lotions; 'when packed' context"
+          },
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Cosmetics including creams, shampoo, lotions, perfumes"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "cream",
+      "category_name": "Creams",
+      "aliases_keywords": [
+        "cream",
+        "face cream",
+        "skin cream",
+        "cold cream",
+        "moisturizing cream",
+        "moisturiser",
+        "moisturizer"
+      ],
+      "detection_patterns": [
+        "\\bcream(s)?\\b",
+        "\\bmoisturi[sz]er\\b"
+      ],
+      "classification_priority": 88,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 11(4)",
+            "schedule": "Third Schedule",
+            "schedule_entry": "Cream other than cream of milk; 'when packed' context"
+          },
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Cosmetics including creams, shampoo, lotions, perfumes"
+          }
+        ]
+      },
+      "human_review_reasons": [
+        "Confirm product is cosmetic cream and not cream of milk"
+      ]
+    },
+    {
+      "category_id": "cosmetics",
+      "category_name": "Cosmetics",
+      "aliases_keywords": [
+        "cosmetic",
+        "cosmetics",
+        "shampoo",
+        "conditioner",
+        "perfume",
+        "deodorant",
+        "face wash",
+        "body wash",
+        "makeup",
+        "foundation",
+        "lipstick",
+        "mascara",
+        "sunscreen"
+      ],
+      "detection_patterns": [
+        "\\bcosmetics?\\b",
+        "\\bshampoo\\b",
+        "\\bconditioner\\b",
+        "\\bperfume\\b",
+        "\\bdeodorant\\b",
+        "\\bmake[- ]?up\\b",
+        "\\blipstick\\b",
+        "\\bmascara\\b"
+      ],
+      "classification_priority": 60,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Cosmetics including creams, shampoo, lotions, perfumes"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "aerosol_products",
+      "category_name": "Aerosol Products",
+      "aliases_keywords": [
+        "aerosol",
+        "aerosol spray",
+        "air freshener",
+        "insect spray"
+      ],
+      "detection_patterns": [
+        "\\baerosol\\b",
+        "\\bspray\\b"
+      ],
+      "classification_priority": 75,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Aerosol Products"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "paint_varnish_enamel",
+      "category_name": "Paint / Varnish / Enamel",
+      "aliases_keywords": [
+        "paint",
+        "wall paint",
+        "emulsion",
+        "enamel",
+        "varnish",
+        "wood varnish",
+        "paint stain"
+      ],
+      "detection_patterns": [
+        "\\bpaint(s)?\\b",
+        "\\bemulsion\\b",
+        "\\benamel(s)?\\b",
+        "\\bvarnish(es)?\\b"
+      ],
+      "classification_priority": 80,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Paints other than paste/solid paint, varnish, varnish stains, enamels"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "paste_solid_paint",
+      "category_name": "Paste Paint / Solid Paint",
+      "aliases_keywords": [
+        "paste paint",
+        "solid paint"
+      ],
+      "detection_patterns": [
+        "\\bpaste paint\\b",
+        "\\bsolid paint\\b"
+      ],
+      "classification_priority": 100,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Paste paint, solid paint"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "cement",
+      "category_name": "Cement",
+      "aliases_keywords": [
+        "cement",
+        "opc",
+        "ppc",
+        "portland cement",
+        "ordinary portland cement",
+        "portland pozzolana cement"
+      ],
+      "detection_patterns": [
+        "\\bcement\\b",
+        "\\bOPC\\b",
+        "\\bPPC\\b"
+      ],
+      "classification_priority": 95,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": [
+        "Package type and applicable rule version must be confirmed before any standard-pack-size conclusion"
+      ]
+    },
+    {
+      "category_id": "ready_made_garments",
+      "category_name": "Ready-made Garments",
+      "aliases_keywords": [
+        "shirt",
+        "t-shirt",
+        "tshirt",
+        "trousers",
+        "pants",
+        "jeans",
+        "kurta",
+        "dress",
+        "garment",
+        "ready made garment",
+        "hosiery"
+      ],
+      "detection_patterns": [
+        "\\b(t[- ]?shirt|shirt|trousers?|pants|jeans|kurta|dress|garment|hosiery)\\b"
+      ],
+      "classification_priority": 75,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Ready-made garments"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "tyres_tubes",
+      "category_name": "Tyres / Tubes",
+      "aliases_keywords": [
+        "tyre",
+        "tire",
+        "tyres",
+        "tires",
+        "tube",
+        "inner tube",
+        "car tyre",
+        "bike tyre",
+        "truck tyre"
+      ],
+      "detection_patterns": [
+        "\\btyres?\\b",
+        "\\btires?\\b",
+        "\\binner tube\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Tyres and tubes"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "yarn",
+      "category_name": "Yarn",
+      "aliases_keywords": [
+        "yarn",
+        "cotton yarn",
+        "polyester yarn",
+        "wool yarn",
+        "thread yarn"
+      ],
+      "detection_patterns": [
+        "\\byarn\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Yarn"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "electric_wire_cable",
+      "category_name": "Electric Wire / Cable",
+      "aliases_keywords": [
+        "electric cable",
+        "electrical cable",
+        "electric wire",
+        "copper wire",
+        "power cable",
+        "cable"
+      ],
+      "detection_patterns": [
+        "\\b(electric|electrical|power)\\s+(wire|cable)\\b",
+        "\\bcopper wire\\b"
+      ],
+      "classification_priority": 80,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Electric cables"
+          },
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Electric wire"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "fruits",
+      "category_name": "Fruits",
+      "aliases_keywords": [
+        "apple",
+        "mango",
+        "orange",
+        "banana",
+        "grapes",
+        "fruit",
+        "fresh fruit",
+        "packed fruit"
+      ],
+      "detection_patterns": [
+        "\\b(apple|mango|orange|banana|grapes?|fruit)\\b"
+      ],
+      "classification_priority": 70,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Fruits"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "nails_screws",
+      "category_name": "Nails / Wood Screws",
+      "aliases_keywords": [
+        "nail",
+        "nails",
+        "wood screw",
+        "wood screws",
+        "screw",
+        "screws"
+      ],
+      "detection_patterns": [
+        "\\bnails?\\b",
+        "\\bwood screws?\\b"
+      ],
+      "classification_priority": 75,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Nails, wood screws"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "liquid_chemicals",
+      "category_name": "Liquid / Industrial Chemicals",
+      "aliases_keywords": [
+        "chemical",
+        "liquid chemical",
+        "industrial chemical",
+        "cleaning chemical",
+        "chemical solution"
+      ],
+      "detection_patterns": [
+        "\\bchemical(s)?\\b",
+        "\\bchemical solution\\b"
+      ],
+      "classification_priority": 45,
+      "default_confidence": "low",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Liquid chemicals"
+          }
+        ]
+      },
+      "human_review_reasons": [
+        "Confirm commodity is a liquid chemical; keyword alone is insufficient"
+      ]
+    },
+    {
+      "category_id": "lpg",
+      "category_name": "LPG",
+      "aliases_keywords": [
+        "lpg",
+        "liquefied petroleum gas",
+        "cooking gas",
+        "gas cylinder"
+      ],
+      "detection_patterns": [
+        "\\bLPG\\b",
+        "\\bliquefied petroleum gas\\b"
+      ],
+      "classification_priority": 100,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "LPG"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "furnace_oil",
+      "category_name": "Furnace Oil",
+      "aliases_keywords": [
+        "furnace oil"
+      ],
+      "detection_patterns": [
+        "\\bfurnace oil\\b"
+      ],
+      "classification_priority": 100,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Furnace oil"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "non_edible_vegetable_oil",
+      "category_name": "Non-edible Vegetable Oil",
+      "aliases_keywords": [
+        "non edible oil",
+        "non-edible oil",
+        "industrial vegetable oil"
+      ],
+      "detection_patterns": [
+        "\\bnon[- ]edible\\s+(vegetable\\s+)?oil\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Non-edible vegetable oil"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "heavy_residual_fuel_oil",
+      "category_name": "Heavy Residual Fuel Oil",
+      "aliases_keywords": [
+        "heavy residual fuel oil",
+        "HRFO"
+      ],
+      "detection_patterns": [
+        "\\bheavy residual fuel oil\\b",
+        "\\bHRFO\\b"
+      ],
+      "classification_priority": 100,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Heavy residual fuel oil"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "industrial_diesel_fuel",
+      "category_name": "Industrial Diesel Fuel",
+      "aliases_keywords": [
+        "industrial diesel fuel"
+      ],
+      "detection_patterns": [
+        "\\bindustrial diesel fuel\\b"
+      ],
+      "classification_priority": 100,
+      "default_confidence": "high",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Industrial diesel fuel"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "acids_liquid_form",
+      "category_name": "Acids in Liquid Form",
+      "aliases_keywords": [
+        "acid",
+        "hydrochloric acid",
+        "sulphuric acid",
+        "sulfuric acid",
+        "nitric acid",
+        "liquid acid"
+      ],
+      "detection_patterns": [
+        "\\b(hydrochloric|sulphuric|sulfuric|nitric) acid\\b",
+        "\\bliquid acid\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Acids in liquid form"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "compressed_liquefied_gas_other_than_lpg",
+      "category_name": "Compressed / Liquefied Gas Other Than LPG",
+      "aliases_keywords": [
+        "compressed gas",
+        "liquefied gas",
+        "industrial gas"
+      ],
+      "detection_patterns": [
+        "\\bcompressed gas\\b",
+        "\\bliquefied gas\\b"
+      ],
+      "classification_priority": 55,
+      "default_confidence": "low",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Compressed/liquefied gas (not LPG)"
+          }
+        ]
+      },
+      "human_review_reasons": [
+        "Confirm gas identity and exclude LPG"
+      ]
+    },
+    {
+      "category_id": "fencing_wire",
+      "category_name": "Fencing Wire",
+      "aliases_keywords": [
+        "fencing wire",
+        "barbed wire",
+        "fence wire"
+      ],
+      "detection_patterns": [
+        "\\bfenc(e|ing)\\s+wire\\b",
+        "\\bbarbed wire\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": [
+          {
+            "source_status": "SOURCE_VERIFICATION_REQUIRED",
+            "rule": "Rule 12(2)",
+            "schedule": "Fourth Schedule",
+            "schedule_entry": "Fencing wire"
+          }
+        ]
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "electronics",
+      "category_name": "Electronics",
+      "aliases_keywords": [
+        "mobile",
+        "smartphone",
+        "laptop",
+        "television",
+        "tv",
+        "monitor",
+        "charger",
+        "adapter",
+        "earphones",
+        "headphones",
+        "speaker",
+        "keyboard",
+        "mouse",
+        "electronic"
+      ],
+      "detection_patterns": [
+        "\\bmobile\\b",
+        "\\bsmartphone\\b",
+        "\\blaptop\\b",
+        "\\btelevision\\b",
+        "\\bmonitor\\b",
+        "\\bcharger\\b",
+        "\\badapter\\b",
+        "\\bearphones?\\b",
+        "\\bheadphones?\\b",
+        "\\bspeaker\\b"
+      ],
+      "classification_priority": 40,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": [
+        "Broad classifier; confirm exact commodity and any other applicable legislation"
+      ]
+    },
+    {
+      "category_id": "aerated_soft_drinks_non_alcoholic_beverages",
+      "category_name": "Aerated Soft Drinks / Non-alcoholic Beverages",
+      "aliases_keywords": [
+        "aerated drink",
+        "soft drink",
+        "non alcoholic beverage",
+        "non-alcoholic beverage",
+        "carbonated drink",
+        "soda"
+      ],
+      "detection_patterns": [
+        "\\bsoft drinks?\\b",
+        "\\bcarbonated\\b",
+        "\\baerated\\b"
+      ],
+      "classification_priority": 80,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "mineral_drinking_water",
+      "category_name": "Mineral / Drinking Water",
+      "aliases_keywords": [
+        "mineral water",
+        "drinking water",
+        "packaged drinking water"
+      ],
+      "detection_patterns": [
+        "\\bmineral water\\b",
+        "\\bdrinking water\\b"
+      ],
+      "classification_priority": 90,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": []
+    },
+    {
+      "category_id": "general_packaged_commodity",
+      "category_name": "General Packaged Commodity",
+      "aliases_keywords": [],
+      "detection_patterns": [],
+      "classification_priority": 0,
+      "default_confidence": "fallback",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": [
+        "No reliable category match; use general LMPC scope checks and require human review if commodity-specific mapping is needed"
+      ]
+    },
+    {
+      "category_id": "edible_oils_vanaspati_ghee_butter_oil",
+      "category_name": "Edible Oils Vanaspati Ghee Butter Oil",
+      "aliases_keywords": [
+        "edible oils vanaspati ghee butter oil"
+      ],
+      "detection_patterns": [
+        "\\bedible\\s+oils\\s+vanaspati\\s+ghee\\s+butter\\s+oil\\b"
+      ],
+      "classification_priority": 85,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": [
+        "Exact legal mapping/standard-size status must be verified against the applicable dated source before legal evaluation."
+      ]
+    },
+    {
+      "category_id": "non_soapy_detergent_powder",
+      "category_name": "Non Soapy Detergent Powder",
+      "aliases_keywords": [
+        "non-soapy detergent powder",
+        "non soapy detergent powder"
+      ],
+      "detection_patterns": [
+        "\\bnon-soapy\\s+detergent\\s+powder\\b",
+        "\\bnon\\s+soapy\\s+detergent\\s+powder\\b"
+      ],
+      "classification_priority": 85,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": [
+        "Exact legal mapping/standard-size status must be verified against the applicable dated source before legal evaluation."
+      ]
+    },
+    {
+      "category_id": "rice_flour_atta_rawa_suji",
+      "category_name": "Rice Flour Atta Rawa Suji",
+      "aliases_keywords": [
+        "rice flour",
+        "atta",
+        "rawa",
+        "rava",
+        "suji",
+        "sooji"
+      ],
+      "detection_patterns": [
+        "\\brice\\s+flour\\b",
+        "\\batta\\b",
+        "\\brawa\\b",
+        "\\brava\\b",
+        "\\bsuji\\b",
+        "\\bsooji\\b"
+      ],
+      "classification_priority": 85,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": [
+        "Exact legal mapping/standard-size status must be verified against the applicable dated source before legal evaluation."
+      ]
+    },
+    {
+      "category_id": "toilet_soap",
+      "category_name": "Toilet Soap",
+      "aliases_keywords": [
+        "toilet soap"
+      ],
+      "detection_patterns": [
+        "\\btoilet\\s+soap\\b"
+      ],
+      "classification_priority": 85,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": [
+        "Exact legal mapping/standard-size status must be verified against the applicable dated source before legal evaluation."
+      ]
+    },
+    {
+      "category_id": "cement_in_bags",
+      "category_name": "Cement In Bags",
+      "aliases_keywords": [
+        "cement in bags"
+      ],
+      "detection_patterns": [
+        "\\bcement\\s+in\\s+bags\\b"
+      ],
+      "classification_priority": 85,
+      "default_confidence": "medium",
+      "negative_keywords": [],
+      "legal_mapping": {
+        "general_lmpc": true,
+        "legal_source_status": "SOURCE_VERIFICATION_REQUIRED",
+        "schedule_refs": []
+      },
+      "human_review_reasons": [
+        "Exact legal mapping/standard-size status must be verified against the applicable dated source before legal evaluation."
+      ]
+    }
+  ],
+  "legal_source_audit_fields_required_per_mapping": [
+    "source_document",
+    "source_version_or_date",
+    "source_locator",
+    "rule",
+    "schedule",
+    "schedule_entry",
+    "effective_from",
+    "effective_until",
+    "superseded_by",
+    "verification_status",
+    "verified_by",
+    "verified_at"
+  ],
+  "out_of_scope_or_not_inferred_from_single_image": [
+    "physical weighing and MPE testing",
+    "sampling/laboratory procedures",
+    "manufacturer registration lookup unless a separate authoritative registry is connected",
+    "advertising compliance",
+    "unauthorized sticker/price alteration from a single image",
+    "legal liability or penalty imposition"
+  ]
+}

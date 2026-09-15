@@ -1,0 +1,3930 @@
+[
+  {
+    "rule_id": "LM-R1",
+    "domain": "legal_metrology",
+    "description": "Rules are called The Legal Metrology (Packaged Commodities) Rules, 2011 and came into force on 1 April 2011.",
+    "applicability": {
+      "commodity_category": "all",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Rule title: The Legal Metrology (Packaged Commodities) Rules, 2011; commencement: 01-04-2011.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 1(1)-(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-R2",
+    "domain": "legal_metrology",
+    "description": "Rule 2 defines the terms used throughout these Rules, including Act, dealer, lot, manufacturer, maximum permissible error, net quantity, packer, principal display panel, quantity, retail dealer, retail package, retail sale, retail sale price, section, Schedule, standard package, wholesale dealer and wholesale package. Undefined terms that are defined in the Act have the meanings assigned in the Act.",
+    "applicability": {
+      "commodity_category": "all",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Definitions shall be interpreted according to Rule 2; wholesale package includes the categories specified in Rule 2(r).",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 2(a)-(r)",
+      "schedule_reference": "First Schedule is incorporated into the definition of maximum permissible error."
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "OUT_OF_SCOPE"
+  },
+  {
+    "rule_id": "LM-CH2-R3-01",
+    "domain": "legal_metrology",
+    "description": "Chapter II does not apply to packages containing more than 25 kg or 25 litre.",
+    "applicability": {
+      "commodity_category": "packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Chapter II excluded when quantity exceeds 25 kg or 25 litre."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Exclude Chapter II when quantity >25 kg or >25 litre.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 3(a)",
+      "schedule_reference": "GSR 629(E), effective 01-01-2018"
+    },
+    "effective_from": "01-01-2018",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R3-02",
+    "domain": "legal_metrology",
+    "description": "Chapter II does not apply to packaged commodities meant for industrial consumers or institutional consumers.",
+    "applicability": {
+      "commodity_category": "industrial/institutional consumer packages",
+      "package_type": "non-retail",
+      "exemption_conditions": "Industrial and institutional consumer packages are outside Chapter II."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Exclude Chapter II for industrial/institutional consumer packages.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 3(c)",
+      "schedule_reference": "GSR 629(E), effective 01-01-2018"
+    },
+    "effective_from": "01-01-2018",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R4-01",
+    "domain": "legal_metrology",
+    "description": "A person shall not pre-pack or cause or permit a commodity to be pre-packed for sale, distribution or delivery unless the package or securely affixed label bears the declarations required by the Rules.",
+    "applicability": {
+      "commodity_category": "Commodities in packaged form",
+      "package_type": "retail",
+      "exemption_conditions": "Packages covered by Chapter II; manufacturer-premises exception concerning absence of retail sale price is stated separately."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "All declarations required by the Rules must be present on the package or securely affixed label.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 4",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R4-02",
+    "domain": "legal_metrology",
+    "description": "Packages existing without a retail sale price declaration within the manufacturer's premises are not treated as violating the Rules, but all packages leaving the manufacturer's premises for destination must bear the required retail sale price declaration.",
+    "applicability": {
+      "commodity_category": "Packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Temporary absence of retail sale price is permitted while packages remain within the manufacturer's premises."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Retail sale price declaration must be present when package leaves manufacturer's premises.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 4, Explanation",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R5-01",
+    "domain": "legal_metrology",
+    "description": "Commodities specified in the Second Schedule shall be packed for sale, distribution or delivery in the standard quantities specified in that Schedule.",
+    "applicability": {
+      "commodity_category": "Commodities specified in the Second Schedule",
+      "package_type": "retail",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "Package quantity must correspond to the applicable standard quantity specified in the Second Schedule.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 5",
+      "schedule_reference": "Second Schedule"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-CH2-R5-02-HISTORICAL",
+    "domain": "legal_metrology",
+    "description": "The source contains a proviso requiring a prominent declaration that the package is not a standard pack size when a Second Schedule commodity is packed in a size other than prescribed. The source expressly states that this proviso was withdrawn with effect from 01.07.2012.",
+    "applicability": {
+      "commodity_category": "Commodities specified in the Second Schedule packed in non-prescribed sizes",
+      "package_type": "retail",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Historical declaration: 'Not a standard pack size under the Legal Metrology (Packaged Commodities) Rules, 2011' or 'non standard size under the Legal Metrology (packaged Commodities) Rules, 2011'.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 5 proviso",
+      "schedule_reference": "Second Schedule"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "30-06-2012",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-CH2-R6-01",
+    "domain": "legal_metrology",
+    "description": "Every package must bear a definite, plain and conspicuous declaration in accordance with Chapter II.",
+    "applicability": {
+      "commodity_category": "Every package covered by Chapter II",
+      "package_type": "retail",
+      "exemption_conditions": "Subject to specific exemptions/provisos in Rule 6."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Required declarations must be definite, plain and conspicuous.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-02",
+    "domain": "legal_metrology",
+    "description": "The package must declare the name and address of the manufacturer; where the manufacturer is not the packer, the name and address of both manufacturer and packer; and for an imported package, the name and address of the importer.",
+    "applicability": {
+      "commodity_category": "Packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Food articles are subject to the alternative requirement identified in Rule 6(1)(a) Explanation III."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Manufacturer name/address; manufacturer + packer name/address where applicable; importer name/address for imported packages.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(a)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "alternative_field_groups": [
+      [
+        "manufacturer_name",
+        "manufacturer_address"
+      ],
+      [
+        "packer_name",
+        "packer_address"
+      ],
+      [
+        "importer_name",
+        "importer_address"
+      ]
+    ]
+  },
+  {
+    "rule_id": "LM-CH2-R6-03",
+    "domain": "legal_metrology",
+    "description": "Where a company name and address appears without qualifying words such as 'manufactured by' or 'packed by', it is presumed to be the manufacturer's name and address.",
+    "applicability": {
+      "commodity_category": "Packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Applies to interpretation of company name/address appearing on the label."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Unqualified company name/address is treated as manufacturer identification.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(a), Explanation I",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-04",
+    "domain": "legal_metrology",
+    "description": "Where the brand name and address of the brand owner appear on the label as marketer, the brand owner is held responsible for violations and action may be initiated against the deemed manufacturer; where multiple names and addresses appear, prosecution is to be launched against the manufacturer indicated first.",
+    "applicability": {
+      "commodity_category": "Packaged commodities bearing brand-owner/marketer information",
+      "package_type": "retail",
+      "exemption_conditions": "Applies where the specified label-identification circumstances exist."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Brand-owner/marketer identification and ordering of manufacturer identification operate as specified in Explanation II.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(a), Explanation II",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-05",
+    "domain": "legal_metrology",
+    "description": "For packages containing food articles, the Rule 6(1)(a) provision does not apply; the applicable requirements are those under the Food Safety and Standards Act, 2006 and rules made thereunder.",
+    "applicability": {
+      "commodity_category": "Food articles",
+      "package_type": "retail",
+      "exemption_conditions": "Specific Rule 6(1)(a) requirement displaced by the alternative legal framework identified in the source."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Food-article packages follow the applicable FSS Act/FSS regulations for this manufacturer/packer/importer declaration.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(a), Explanation III",
+      "schedule_reference": "Current wording reflects the FSS Act/FSS regulations cross-reference."
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-06",
+    "domain": "legal_metrology",
+    "description": "The common or generic name of the commodity must be mentioned; for packages containing more than one product, the name and number or quantity of each product must be mentioned.",
+    "applicability": {
+      "commodity_category": "Packaged commodities; multi-product packages",
+      "package_type": "retail",
+      "exemption_conditions": "No specific exemption stated in the cited clause."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Common/generic commodity name; for multiple products, each product's name and number/quantity.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(b)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-07",
+    "domain": "legal_metrology",
+    "description": "The net quantity must be mentioned in the standard unit of weight or measure; where the commodity is packed or sold by number, the number of commodities must be mentioned.",
+    "applicability": {
+      "commodity_category": "Packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Subject to Rule 12 and the Fourth Schedule."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Net quantity expressed using applicable standard unit of weight/measure, or number where sold by number.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(c)",
+      "schedule_reference": "Fourth Schedule applies through Rule 12"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-08",
+    "domain": "legal_metrology",
+    "description": "The month and year in which the commodity is manufactured must be mentioned on the package, subject to the applicable provisos/exemptions.",
+    "applicability": {
+      "commodity_category": "Packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Specific exemptions are provided for bidis, incense sticks, specified domestic LPG cylinders, seeds, food products and cosmetics under the provisos."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Month and year of manufacture; do not substitute packing/import month under the current Rule 6(1)(d).",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(d)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-01-2024",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-09",
+    "domain": "legal_metrology",
+    "description": "The month/year declaration requirement does not apply to packages containing bidis or incense sticks.",
+    "applicability": {
+      "commodity_category": "Bidis and incense sticks",
+      "package_type": "retail",
+      "exemption_conditions": "Specific exemption from month/year manufacture or pre-packing declaration."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Month/year manufacture or pre-packing declaration may be omitted.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(g)(A)(i)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-10",
+    "domain": "legal_metrology",
+    "description": "The month/year manufacture or pre-packing declaration requirement does not apply to domestic LPG cylinders of 14.2 kg or 5 kg bottled and marketed by a public sector undertaking.",
+    "applicability": {
+      "commodity_category": "Domestic LPG cylinders of 14.2 kg or 5 kg bottled and marketed by a public sector undertaking",
+      "package_type": "retail",
+      "exemption_conditions": "Specific LPG-cylinder exemption."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Month/year manufacture or pre-packing declaration may be omitted.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(g)(A)(ii)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-11",
+    "domain": "legal_metrology",
+    "description": "Packaging material bearing the month in which a commodity was expected to be pre-packed may be used for the concerned commodity during the next succeeding month if not exhausted during the indicated month, and may be extended by the Central Government where circumstances beyond the manufacturer's or packer's control prevented exhaustion.",
+    "applicability": {
+      "commodity_category": "Packaging material bearing a pre-packing month",
+      "package_type": "retail",
+      "exemption_conditions": "Not applicable to food products where the Best before/Use before period is 90 days or less from manufacture/packing."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Packaging material may roll over only to the next succeeding month, subject to the source's conditions and exception.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(g)(B)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-12",
+    "domain": "legal_metrology",
+    "description": "The retail sale price declaration is not required on packages containing bidi.",
+    "applicability": {
+      "commodity_category": "Bidi",
+      "package_type": "retail",
+      "exemption_conditions": "Specific exemption from retail sale price declaration."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "MRP declaration may be omitted.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(g)(C)(i)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-13",
+    "domain": "legal_metrology",
+    "description": "The retail sale price declaration is not required on domestic LPG cylinders whose price is covered under the Government's Administrative Price Mechanism.",
+    "applicability": {
+      "commodity_category": "Domestic LPG cylinders covered by the Administrative Price Mechanism",
+      "package_type": "retail",
+      "exemption_conditions": "Specific MRP exemption."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "MRP declaration may be omitted.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(g)(C)(ii)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-14",
+    "domain": "legal_metrology",
+    "description": "The month and year declaration may be expressed in words, numerals indicating the month and year, or both, subject to the current Rule 6(1)(d) framework.",
+    "applicability": {
+      "commodity_category": "Commodities for which month/year declaration is required",
+      "package_type": "retail",
+      "exemption_conditions": "Does not override specific exemptions from the month/year declaration."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Month/year may be expressed as words, numerals, or both.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1), Explanation I",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-15",
+    "domain": "legal_metrology",
+    "description": "Every package must bear the name, address, telephone number and, if available, email address of the person or office that can be contacted for consumer complaints.",
+    "applicability": {
+      "commodity_category": "Every package covered by Chapter II",
+      "package_type": "retail",
+      "exemption_conditions": "No specific exemption stated in the cited sub-rule."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Name + address + telephone number + email address if available.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "target_field": "customer_care_details"
+  },
+  {
+    "rule_id": "LM-CH2-R6-16",
+    "domain": "legal_metrology",
+    "description": "Individual stickers may not be affixed to a package for altering or making declarations required under the Rules.",
+    "applicability": {
+      "commodity_category": "Packages covered by Chapter II",
+      "package_type": "retail",
+      "exemption_conditions": "A sticker with a revised lower MRP inclusive of all taxes is permitted, provided it does not cover the original MRP declaration."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "No sticker-based alteration/addition of required declarations, except permitted reduced-MRP sticker.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(3)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-17",
+    "domain": "legal_metrology",
+    "description": "A sticker with a revised lower MRP inclusive of all taxes may be affixed, but it must not cover the MRP declaration made by the manufacturer or packer.",
+    "applicability": {
+      "commodity_category": "Packages whose MRP is being reduced",
+      "package_type": "retail",
+      "exemption_conditions": "Only reduction of MRP is covered by this sticker permission."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Revised lower MRP sticker is permitted and must not obscure original MRP declaration.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(3), proviso",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-18",
+    "domain": "legal_metrology",
+    "description": "Stickers may be used for declarations other than declarations required under the Rules.",
+    "applicability": {
+      "commodity_category": "Packages covered by Chapter II",
+      "package_type": "retail",
+      "exemption_conditions": "Only declarations outside those required by the Rules may be made through stickers."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Sticker permitted only for non-Legal-Metrology-required declarations.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(4)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-19",
+    "domain": "legal_metrology",
+    "description": "For a commodity consisting of multiple components packed in two or more units and sold as one commodity, the declarations under Rule 6(1) must appear on the main package, which must also carry information about accompanying packages; alternatively, declarations may be placed on individual packages with intimation on the main package.",
+    "applicability": {
+      "commodity_category": "Multi-component commodities packed in two or more units",
+      "package_type": "retail",
+      "exemption_conditions": "Where components are sold as spare parts, all declarations must be given on each package."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Required declarations on main package plus accompanying-package information, or permitted individual-package declaration arrangement.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-20",
+    "domain": "legal_metrology",
+    "description": "Where components are sold as spare parts, all required declarations must be given on each package.",
+    "applicability": {
+      "commodity_category": "Components sold as spare parts",
+      "package_type": "retail",
+      "exemption_conditions": "Applies to spare-part components within the multi-unit provision."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "All required declarations present on each individual spare-part package.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-21-HISTORICAL",
+    "domain": "legal_metrology",
+    "description": "Unused packaging material/wrapper could historically be used until 31.03.2012 or until exhausted, whichever was earlier, after corrections required under the Rules by stamping, sticker or online printing. The source notes that the date was extended by GSR 734(E) dated 30.09.2011.",
+    "applicability": {
+      "commodity_category": "Existing packaging material/wrapper",
+      "package_type": "retail",
+      "exemption_conditions": "Historical transitional provision; source specifies the period."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Historical transitional use subject to correction of declarations.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(6)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "31-03-2012",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-CH2-R7-01",
+    "domain": "legal_metrology",
+    "description": "For a package having capacity of 10 cubic centimetres or less, the principal display panel may be a card or tape affixed firmly to the package and bearing the required information.",
+    "applicability": {
+      "commodity_category": "Packages of capacity <=5 cm3",
+      "package_type": "retail",
+      "exemption_conditions": "Special principal-display-panel arrangement."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Firmly affixed card or tape may constitute the principal display panel and must bear required information.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 7(1)",
+      "schedule_reference": "Table I / Table II under Rule 7(2)"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R7-02",
+    "domain": "legal_metrology",
+    "description": "For net quantity declared by weight or volume, the height of numerals on the principal display panel must meet the minimum heights in Table I.",
+    "applicability": {
+      "commodity_category": "Packages with net quantity declared by weight or volume",
+      "package_type": "retail",
+      "exemption_conditions": "Rule 7(4) provides an exception where the same information is required by another law. Medical-device packages follow Medical Devices Rules, 2017 for applicable height/width requirements."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "Up to 200 g/ml: 1 mm normal, 2 mm blown/formed/molded/embossed/perforated; >200 to 500 g/ml: 2 mm, 4 mm; >500 g/ml: 4 mm, 6 mm.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 7(2)(i), Table I",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R7-03",
+    "domain": "legal_metrology",
+    "description": "For net quantity declared by length, area or number, numeral height must meet Table II according to the area of the principal display panel.",
+    "applicability": {
+      "commodity_category": "Packages with net quantity declared by length, area or number",
+      "package_type": "retail",
+      "exemption_conditions": "Rule 7(4) provides an exception where the same information is required by another law. Medical-device packages follow Medical Devices Rules, 2017 for applicable height/width requirements."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "PDP up to 100 cm2: 1/2 mm; >100 to 500 cm2: 2/4 mm; >500 to 2500 cm2: 4/6 mm; >2500 cm2: 6/6 mm, normal/blown etc. respectively.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 7(2)(ii), Table II",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R7-04",
+    "domain": "legal_metrology",
+    "description": "Letters in declarations must be at least 1 mm high; when blown, formed, molded, embossed or perforated, letters must be at least 2 mm high.",
+    "applicability": {
+      "commodity_category": "Declarations on packages",
+      "package_type": "retail",
+      "exemption_conditions": "Subject to Rule 7(4). Medical-device packages follow Medical Devices Rules, 2017 for applicable height/width requirements."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Letter height >=1 mm; >=2 mm when blown/formed/molded/embossed/perforated.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 7(3)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R7-05",
+    "domain": "legal_metrology",
+    "description": "The width of a letter or numeral must not be less than one-third of its height, except numeral 1 and letters i, I and l.",
+    "applicability": {
+      "commodity_category": "Letters and numerals in declarations",
+      "package_type": "retail",
+      "exemption_conditions": "Exceptions are numeral '1' and letters '(i), (I) and (l)'. Medical-device packages follow Medical Devices Rules, 2017 for applicable height/width requirements."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Width >= one-third of height, except specified characters.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 7(3), proviso",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R7-06",
+    "domain": "legal_metrology",
+    "description": "Rule 7(1)-(3) do not apply where the information required under Rule 7 is also required to be given by or under another law in force.",
+    "applicability": {
+      "commodity_category": "Packages where the same information is mandated by another law",
+      "package_type": "retail",
+      "exemption_conditions": "Information must also be required by or under another law."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Rule 7(1)-(3) applicability = exempt when identical information is required by another law.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 7(4)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R8-01",
+    "domain": "legal_metrology",
+    "description": "Every declaration required under the Rules must appear on the principal display panel.",
+    "applicability": {
+      "commodity_category": "Packages covered by Chapter II",
+      "package_type": "retail",
+      "exemption_conditions": "Subject to the specific placement provisions in Rule 8."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Required declarations located on principal display panel.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 8(1)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R8-02",
+    "domain": "legal_metrology",
+    "description": "The area surrounding the quantity declaration must be free from printed information: above and below by at least the height of the numeral, and left and right by at least twice the numeral height.",
+    "applicability": {
+      "commodity_category": "Packages bearing quantity declarations",
+      "package_type": "retail",
+      "exemption_conditions": "Applies to the quantity declaration area."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Vertical clearance >= numeral height; horizontal clearance >= 2 x numeral height.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 8(1), proviso",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R8-03",
+    "domain": "legal_metrology",
+    "description": "For returnable bottles used for soft drinks, ready-to-serve fruit beverages or similar products, MRP may be indicated on the crown cap, bottle, or both; when indicated on crown cap or bottle, the form 'MRP Rs....' is sufficient.",
+    "applicability": {
+      "commodity_category": "Soft drinks, ready-to-serve fruit beverages or like commodities in consumer-returnable refillable bottles",
+      "package_type": "retail",
+      "exemption_conditions": "Specific returnable-bottle provision."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "MRP on crown cap, bottle, or both; 'MRP Rs....' is sufficient.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 8(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R9-01",
+    "domain": "legal_metrology",
+    "description": "Every package declaration must be legible and prominent.",
+    "applicability": {
+      "commodity_category": "Declarations on packages",
+      "package_type": "retail",
+      "exemption_conditions": "No specific exemption stated."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Declaration is legible and prominent.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 9(1)(a)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "HUMAN_REVIEW_REQUIRED"
+  },
+  {
+    "rule_id": "LM-CH2-R9-02",
+    "domain": "legal_metrology",
+    "description": "Numerals of the retail sale price and net quantity declarations must be printed, painted or inscribed in a colour that contrasts conspicuously with the background of the label.",
+    "applicability": {
+      "commodity_category": "Packages bearing MRP and net quantity",
+      "package_type": "retail",
+      "exemption_conditions": "Blown, formed or molded label information on glass or plastic need not use contrasting colour."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "MRP and net-quantity numerals use conspicuously contrasting colour unless stated glass/plastic exception applies.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 9(1)(b)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R9-03",
+    "domain": "legal_metrology",
+    "description": "Where label information is blown, formed or molded on a glass or plastic surface, contrasting colour is not required.",
+    "applicability": {
+      "commodity_category": "Packages with blown/formed/molded glass or plastic label information",
+      "package_type": "retail",
+      "exemption_conditions": "Specific colour-contrast exception."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Contrast-colour requirement is not mandatory for specified glass/plastic information.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 9(1)(b), proviso (a)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R9-04",
+    "domain": "legal_metrology",
+    "description": "Handwritten or hand-script declarations must be clear, unambiguous and legible.",
+    "applicability": {
+      "commodity_category": "Packages with handwritten/hand-script declarations",
+      "package_type": "retail",
+      "exemption_conditions": "Specific presentation requirement."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Clear + unambiguous + legible.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 9(1)(b), proviso (b)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "HUMAN_REVIEW_REQUIRED"
+  },
+  {
+    "rule_id": "LM-CH2-R9-05",
+    "domain": "legal_metrology",
+    "description": "No declaration may be made in a manner requiring it to be read through the liquid commodity contained in the package.",
+    "applicability": {
+      "commodity_category": "Liquid commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Applies to declarations positioned so they would have to be read through the liquid."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Declarations must remain readable without reading through liquid contents.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 9(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R9-06",
+    "domain": "legal_metrology",
+    "description": "An outside container or wrapper must also contain all declarations required on the package, unless the outside container/wrapper is transparent and the declarations on the package are easily readable through it.",
+    "applicability": {
+      "commodity_category": "Packages having an outside container or wrapper",
+      "package_type": "retail",
+      "exemption_conditions": "Transparent outside wrapper with easily readable inner declarations."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Outer wrapper repeats all required declarations unless transparent/readable exception applies.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 9(3)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R9-07",
+    "domain": "legal_metrology",
+    "description": "No declaration on the inner package is required where the inner package does not contain any declaration on its outer cover.",
+    "applicability": {
+      "commodity_category": "Inner packages in multi-layer packaging",
+      "package_type": "retail",
+      "exemption_conditions": "Specific inner-package proviso."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Inner-package declaration requirement follows the specific proviso.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 9(3), proviso",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R9-08",
+    "domain": "legal_metrology",
+    "description": "Required declaration particulars must be in Hindi in Devanagari script or in English; additional languages may also be used.",
+    "applicability": {
+      "commodity_category": "Packages covered by Chapter II",
+      "package_type": "retail",
+      "exemption_conditions": "Other languages are permitted in addition to Hindi or English."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Hindi in Devanagari and/or English; additional languages permitted.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 9(4)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R10-01",
+    "domain": "legal_metrology",
+    "description": "Every package kept, offered, exposed for sale or sold must conspicuously bear the name and complete address of the manufacturer; where manufacturer is not packer, manufacturer and packer; and for imported packages, importer name/address.",
+    "applicability": {
+      "commodity_category": "Packages kept/offered/exposed for sale or sold",
+      "package_type": "retail",
+      "exemption_conditions": "Capacity <=5 cm3 has an identification-mark alternative; additional requirement applies where commodity manufactured outside India is packed in India."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Conspicuous actual manufacturer/packer/importer identity and complete address as applicable.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 10(1)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "alternative_field_groups": [
+      [
+        "manufacturer_name",
+        "manufacturer_address"
+      ],
+      [
+        "packer_name",
+        "packer_address"
+      ],
+      [
+        "importer_name",
+        "importer_address"
+      ]
+    ]
+  },
+  {
+    "rule_id": "LM-CH2-R10-02",
+    "domain": "legal_metrology",
+    "description": "For packages of capacity 10 cubic centimetres or less, a mark or inscription enabling the consumer to identify the manufacturer, packer or importer is sufficient.",
+    "applicability": {
+      "commodity_category": "Packages <=5 cm3",
+      "package_type": "retail",
+      "exemption_conditions": "Alternative compliance for very small packages."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Identifying mark/inscription for manufacturer, packer or importer.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 10(1), first proviso",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R10-03",
+    "domain": "legal_metrology",
+    "description": "Where a commodity manufactured outside India is packed in India, the package must also contain on the principal display panel the name and complete address of the packer or importer in India.",
+    "applicability": {
+      "commodity_category": "Commodities manufactured outside India and packed in India",
+      "package_type": "retail",
+      "exemption_conditions": "Specific imported-manufactured/India-packed requirement."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Indian packer or importer name + complete address on principal display panel.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 10(1), second proviso",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R10-04",
+    "domain": "legal_metrology",
+    "description": "The 'complete address' must enable the consumer to identify and locate the manufacturer, packer or importer and includes the specified postal/street/premises/city-State or PIN information.",
+    "applicability": {
+      "commodity_category": "Manufacturer/packer/importer address declarations",
+      "package_type": "retail",
+      "exemption_conditions": "No specific exemption stated."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Address must contain the source-specified location-identifying particulars.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 10(1), Explanation",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R10-05",
+    "domain": "legal_metrology",
+    "description": "The manufacturer, packer or importer name must be the actual corporate name or, if unincorporated, the name under which the business is conducted in India.",
+    "applicability": {
+      "commodity_category": "Manufacturer/packer/importer declarations",
+      "package_type": "retail",
+      "exemption_conditions": "No specific exemption stated."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Actual corporate name or actual business name in India.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 10(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R11-01",
+    "domain": "legal_metrology",
+    "description": "The weight of wrappers and materials other than the commodity must be excluded when declaring net quantity.",
+    "applicability": {
+      "commodity_category": "Packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "No specific exemption stated."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Net quantity = commodity quantity excluding wrappers and other non-commodity materials.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 11(1)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "HUMAN_REVIEW_REQUIRED"
+  },
+  {
+    "rule_id": "LM-CH2-R11-02",
+    "domain": "legal_metrology",
+    "description": "Where a commodity is not likely to vary in weight or measure due to environmental conditions, the declared quantity must correspond to the net quantity received by the consumer and must not be qualified by words such as 'when packed' or similar.",
+    "applicability": {
+      "commodity_category": "Commodities not likely to undergo environmental weight/measure variation",
+      "package_type": "retail",
+      "exemption_conditions": "No significant environmental variation."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Declared quantity = net quantity received; no 'when packed' or similar qualification.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 11(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "HUMAN_REVIEW_REQUIRED"
+  },
+  {
+    "rule_id": "LM-CH2-R11-03",
+    "domain": "legal_metrology",
+    "description": "Where a commodity is likely to undergo environmental variation but the variation is negligible, the declared quantity must account for the variation so that the consumer receives not less than the declared net quantity; 'when packed' or similar qualification is not permitted.",
+    "applicability": {
+      "commodity_category": "Commodities subject to negligible environmental variation",
+      "package_type": "retail",
+      "exemption_conditions": "Variation is likely but negligible."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Declared quantity adjusted so consumer receives at least declared net quantity; no 'when packed' qualification.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 11(3)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R11-04",
+    "domain": "legal_metrology",
+    "description": "Commodities likely to undergo significant variations in weight or measure due to environmental or other conditions may have the quantity declaration qualified by the words 'when packed', as specified in the Third Schedule.",
+    "applicability": {
+      "commodity_category": "Commodities subject to significant environmental/other variation",
+      "package_type": "retail",
+      "exemption_conditions": "Significant variation must exist; Third Schedule specification applies."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Permitted qualification: 'when packed' according to Third Schedule.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 11(4)",
+      "schedule_reference": "Third Schedule"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "HUMAN_REVIEW_REQUIRED"
+  },
+  {
+    "rule_id": "LM-CH2-R12-01",
+    "domain": "legal_metrology",
+    "description": "Quantity must be expressed in a unit of weight, measure or number, or combination, that gives accurate and adequate information to the consumer.",
+    "applicability": {
+      "commodity_category": "Packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Subject to specific Fourth Schedule cases."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Quantity declaration uses an accurate and adequate unit/combinational expression.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 12(1)",
+      "schedule_reference": "Fourth Schedule"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R12-02",
+    "domain": "legal_metrology",
+    "description": "Except for commodities specified in the Fourth Schedule, quantity must be declared in mass for solid/semi-solid/viscous/mixed solid-liquid commodities, length for linear measure, area for area measure, volume for liquids/cubic measure, and number for commodities sold by number.",
+    "applicability": {
+      "commodity_category": "Packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Fourth Schedule commodities are exceptions."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Solid/semi-solid/viscous/mixed = mass; linear = length; area = area; liquid/cubic = volume; sold by number = number.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 12(2)",
+      "schedule_reference": "Fourth Schedule"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R12-03",
+    "domain": "legal_metrology",
+    "description": "Where quantity is declared by mass, the manufacturer/importer/packer may additionally declare the number of commodities contained in the package.",
+    "applicability": {
+      "commodity_category": "Commodities with quantity declared by mass",
+      "package_type": "retail",
+      "exemption_conditions": "Optional additional declaration."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Optional count declaration in addition to mass declaration.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 12(3)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R12-04",
+    "domain": "legal_metrology",
+    "description": "Where weight, measure or number alone is insufficient to provide full information about dimensions or number, the declaration must be accompanied by dimensions or number, or both, where necessary.",
+    "applicability": {
+      "commodity_category": "Commodities for which basic quantity declaration is insufficient",
+      "package_type": "retail",
+      "exemption_conditions": "Additional dimensions/number required only where necessary for full consumer information."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Additional dimensions and/or number as necessary.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 12(4)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R12-05",
+    "domain": "legal_metrology",
+    "description": "Where additional information about the commodity is necessary to communicate to the consumer, it must appear on the same panel as the other information required under the Rules.",
+    "applicability": {
+      "commodity_category": "Packages requiring additional consumer information",
+      "package_type": "retail",
+      "exemption_conditions": "Applies when additional information is necessary."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Additional information appears on same panel as other required information.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 12(5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R12-06",
+    "domain": "legal_metrology",
+    "description": "The quantity declaration must not contain wording that creates or tends to create an exaggerated, misleading or inadequate impression about the quantity, including terms such as 'minimum', 'not less than', 'average', 'about' or 'approximately'.",
+    "applicability": {
+      "commodity_category": "Packages with quantity declarations",
+      "package_type": "retail",
+      "exemption_conditions": "No specific exemption stated in the current provision shown in the source."
+    },
+    "evaluator_type": "regex_pattern_match",
+    "expected_value_or_format": "Reject misleading quantity qualifiers such as 'minimum', 'not less than', 'average', 'about', 'approximately' and similar expressions.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 12(6)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.07.2012",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "target_field": "net_quantity",
+    "check_mode": "prohibit",
+    "forbidden_patterns": [
+      "\\bminimum\\b",
+      "\\bnot\\s+less\\s+than\\b",
+      "\\baverage\\b",
+      "\\babout\\b",
+      "\\bapprox(?:imately)?\\b",
+      "\\bwhen\\s+packed\\b"
+    ],
+    "pattern": "\\b(minimum|not\\s+less\\s+than|average|about|approx(?:imately)?|when\\s+packed)\\b"
+  },
+  {
+    "rule_id": "LM-CH2-R12-07-HISTORICAL",
+    "domain": "legal_metrology",
+    "description": "The source records an earlier wording of Rule 12(6) and states that it was amended with effect from 01.07.2012 by GSR 748(E) dated 24.10.2011.",
+    "applicability": {
+      "commodity_category": "Packages with quantity declarations",
+      "package_type": "retail",
+      "exemption_conditions": "Historical wording only."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Historical wording not to be treated as current where the source records the amendment.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 12(6), amendment note",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "30-06-2012",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-CH2-R12-08",
+    "domain": "legal_metrology",
+    "description": "For packages having capacity 10 cubic centimetres or less, quantity must be declared on a tag, card, tape or similar device affixed so it cannot be removed without opening the container, and the device must contain a mark or inscription identifying the manufacturer or packer.",
+    "applicability": {
+      "commodity_category": "Packages <=5 cm3",
+      "package_type": "retail",
+      "exemption_conditions": "Special small-package quantity declaration arrangement."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Securely affixed tag/card/tape/similar device; quantity + manufacturer/packer identification.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 12(7)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R13-01",
+    "domain": "legal_metrology",
+    "description": "Units of weight, measure or number must be specified in accordance with Rule 13(2) or 13(3).",
+    "applicability": {
+      "commodity_category": "Packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Subject to the specific unit rules and proviso."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Units must follow Rule 13's prescribed unit hierarchy.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 13(1)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R13-02",
+    "domain": "legal_metrology",
+    "description": "Quantities below one kilogram must use gram; below one metre centimetre; below one square metre square decimetre; below one cubic metre cubic centimetre; below one cubic decimetre cubic centimetre; below one litre millilitre.",
+    "applicability": {
+      "commodity_category": "Quantities below the stated base units",
+      "package_type": "retail",
+      "exemption_conditions": "Subject to Rule 13 and specified alternatives at equality thresholds."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "<1 kg = gram; <1 m = centimetre; <1 m2 = square decimetre; <1 m3 = cubic centimetre; <1 dm3 = cubic centimetre; <1 L = millilitre.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 13(2)(a)-(f)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R13-03",
+    "domain": "legal_metrology",
+    "description": "Quantities equal to or above the base units must use kilogram/metre/square metre/cubic metre/litre respectively, with fractions expressed as prescribed decimal sub-multiples or specified smaller units.",
+    "applicability": {
+      "commodity_category": "Quantities equal to or greater than the stated base units",
+      "package_type": "retail",
+      "exemption_conditions": "Subject to the equality alternatives in the proviso."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": ">=1 kg = kg; >=1 m = m; >=1 m2 = m2; >=1 m3 = m3; >=1 L = L, with permitted fractional representations.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 13(3)(a)-(e)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R13-04",
+    "domain": "legal_metrology",
+    "description": "At exact quantities of one kilogram, one metre, one square metre, one cubic decimetre, one cubic metre or one litre, the manufacturer/packer/importer may optionally express the quantity using the smaller units specified in the proviso.",
+    "applicability": {
+      "commodity_category": "Packages containing exact threshold quantities",
+      "package_type": "retail",
+      "exemption_conditions": "Optional representation at exact threshold quantities."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "1 kg may be expressed as gram; 1 m as centimetre; 1 m2 as square decimetre; 1 dm3 as cubic centimetre; 1 m3 as cubic decimetre; 1 L as millilitre.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 13(3), proviso",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R13-05",
+    "domain": "legal_metrology",
+    "description": "Numbers such as dozen, score, gross, great gross or the like must not be specified or indicated on any package.",
+    "applicability": {
+      "commodity_category": "Commodities sold by number",
+      "package_type": "retail",
+      "exemption_conditions": "No specific exemption stated."
+    },
+    "evaluator_type": "regex_pattern_match",
+    "expected_value_or_format": "Reject quantity expressions using dozen/score/gross/great gross or similar number groupings.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 13(4)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "target_field": "net_quantity",
+    "check_mode": "prohibit",
+    "forbidden_patterns": [
+      "\\bdozen\\b",
+      "\\bdoz\\b",
+      "\\bscore\\b",
+      "\\bgreat\\s+gross\\b",
+      "\\bgross\\b"
+    ],
+    "pattern": "\\b(dozen|doz|score|great\\s+gross|gross)\\b"
+  },
+  {
+    "rule_id": "LM-CH2-R13-06",
+    "domain": "legal_metrology",
+    "description": "No system of units other than the International System of Units may be used for furnishing the net quantity of packages.",
+    "applicability": {
+      "commodity_category": "Packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "No specific exemption stated."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "International System of Units only.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 13(5)(i)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R13-07",
+    "domain": "legal_metrology",
+    "description": "For items sold by number, the symbol must be N or U.",
+    "applicability": {
+      "commodity_category": "Items sold by number",
+      "package_type": "retail",
+      "exemption_conditions": "Applies specifically to number-based quantity declarations."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Symbol = N or U.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 13(5)(ii)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R14-01",
+    "domain": "legal_metrology",
+    "description": "Packages containing bed-sheets, hemmed fabric materials, dhoties, sarees, napkins, pillow-covers, towels, table cloths or similar commodities must declare the number and finished-size dimensions.",
+    "applicability": {
+      "commodity_category": "Specified textile/sheet-like commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Special dimension-declaration rule."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Number of pieces + finished-size dimensions.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 14",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R14-02",
+    "domain": "legal_metrology",
+    "description": "Where a package contains more than one piece of different dimensions, it must declare the dimensions and retail sale price of each different piece.",
+    "applicability": {
+      "commodity_category": "Packages containing pieces of different dimensions",
+      "package_type": "retail",
+      "exemption_conditions": "Applies when multiple different dimensions are present."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Dimensions + MRP for each different piece.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 14, first proviso",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R14-03",
+    "domain": "legal_metrology",
+    "description": "The dimensions and sale price must also be marked on each individual piece.",
+    "applicability": {
+      "commodity_category": "Individual pieces within packages covered by Rule 14",
+      "package_type": "retail",
+      "exemption_conditions": "Applies to the individual pieces."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Each piece carries dimensions + sale price.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 14, second proviso",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R15-01",
+    "domain": "legal_metrology",
+    "description": "Where dimensions and weight, or their combination, have a relationship to the price of a commodity, the quantity declaration must also include those dimensions, weight or combination.",
+    "applicability": {
+      "commodity_category": "Commodities where dimensions/weight affect price",
+      "package_type": "retail",
+      "exemption_conditions": "Applies where the specified relationship to price exists."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Quantity declaration includes relevant dimensions, weight or combination thereof.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 15",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R16-01",
+    "domain": "legal_metrology",
+    "description": "Packages containing sheets such as aluminium foil, facial tissues, waxed paper, toilet paper or other types of sheets must state the number of usable sheets and the dimensions of each sheet.",
+    "applicability": {
+      "commodity_category": "Sheet commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Applies to the listed and similar sheet products."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Number of usable sheets + dimensions of each sheet.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 16",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R17-01",
+    "domain": "legal_metrology",
+    "description": "Bag-type container commodities must declare the number of bags followed by the linear dimensions of the bags, whether packaged in perforated roll or otherwise.",
+    "applicability": {
+      "commodity_category": "Bag-type container commodities sold for use as containers",
+      "package_type": "retail",
+      "exemption_conditions": "Applies to bag-type commodities."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Number of bags + linear dimensions.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 17(i)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R17-02",
+    "domain": "legal_metrology",
+    "description": "Square, oblong, rectangular or similarly shaped container commodities must declare the number of containers followed by length, width and, if required, depth.",
+    "applicability": {
+      "commodity_category": "Square/oblong/rectangular/similarly shaped container commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Applies to the specified shapes."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Number + length + width + depth where required.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 17(ii)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R17-03",
+    "domain": "legal_metrology",
+    "description": "Circular or generally round-shaped container commodities, other than cups or the like, must declare the number of commodities followed by diameter and, if necessary, depth.",
+    "applicability": {
+      "commodity_category": "Circular/round-shaped container commodities other than cups or the like",
+      "package_type": "retail",
+      "exemption_conditions": "Cups and the like are excluded from this particular clause."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Number + diameter + depth where necessary.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 17(iii)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R17-04",
+    "domain": "legal_metrology",
+    "description": "Where use of a container is related by label references to its capability to hold a specified quantity or class of commodities, the standard weight or measure references must be included in the quantity declaration.",
+    "applicability": {
+      "commodity_category": "Container commodities whose use is related by label references to holding capacity",
+      "package_type": "retail",
+      "exemption_conditions": "Applies where such label references exist."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Relevant standard weight or measure/capacity reference included.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 17(iv)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R18-01",
+    "domain": "legal_metrology",
+    "description": "Wholesale dealers, retail dealers and importers must not sell, distribute, deliver, display or store for sale any packaged commodity unless the package complies in all respects with the Act and Rules.",
+    "applicability": {
+      "commodity_category": "Packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Applies to wholesale dealers, retail dealers and importers."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Package fully compliant with the Act and Rules before specified commercial handling.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 18(1)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R18-02",
+    "domain": "legal_metrology",
+    "description": "No retail dealer or other person, including manufacturer, packer, importer or wholesale dealer, may sell a packaged commodity at a price exceeding its retail sale price.",
+    "applicability": {
+      "commodity_category": "Packaged commodities with retail sale price",
+      "package_type": "retail",
+      "exemption_conditions": "No specific exemption stated in Rule 18(2)."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Sale price <= declared retail sale price.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 18(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R18-03",
+    "domain": "legal_metrology",
+    "description": "Where tax payable on a pre-packed commodity is revised, retail sale must not exceed the revised retail sale price communicated by the manufacturer or packer; the difference between marked and revised price cannot exceed the tax increase/fresh tax imposed.",
+    "applicability": {
+      "commodity_category": "Pre-packed commodities affected by tax revision",
+      "package_type": "retail",
+      "exemption_conditions": "Specific tax-revision circumstances and provisos apply."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Retail price <= revised retail sale price; permitted difference limited to tax increase/fresh tax.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 18(3)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R18-04",
+    "domain": "legal_metrology",
+    "description": "Newspaper publication of a revised price is not necessary where the revision results from an increase in or imposition of tax under State legislation.",
+    "applicability": {
+      "commodity_category": "Packages affected by State-legislation tax revision",
+      "package_type": "retail",
+      "exemption_conditions": "Only newspaper publication requirement is exempted."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "No newspaper publication required in the specified State-tax circumstance.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 18(3), first proviso",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R18-05",
+    "domain": "legal_metrology",
+    "description": "Revised prices may not be charged for packages unless the packages are marked as pre-packed in the month of tax revision/fresh tax imposition or the immediately following month.",
+    "applicability": {
+      "commodity_category": "Tax-revised packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Applies to charging revised prices under Rule 18(3)."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Package pre-packing month = tax-revision month or immediately succeeding month.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 18(3), second proviso",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R18-06",
+    "domain": "legal_metrology",
+    "description": "Where the revised price is lower than the price marked on the package, the retailer or other person must not charge more than the revised price regardless of the month in which the commodity was pre-packed.",
+    "applicability": {
+      "commodity_category": "Packages with revised lower prices",
+      "package_type": "retail",
+      "exemption_conditions": "Applies whenever revised price is lower."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Sale price <= revised lower price irrespective of packing month.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 18(3), third proviso",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R18-07",
+    "domain": "legal_metrology",
+    "description": "The tax-revision provisions of Rule 18(3) do not apply to packages that are not required under the Rules to indicate the month and year in which they were pre-packed.",
+    "applicability": {
+      "commodity_category": "Packages exempt from month/year pre-packing declaration",
+      "package_type": "retail",
+      "exemption_conditions": "Package is not required under the Rules to indicate month/year of pre-packing."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Rule 18(3) applicability = exempt.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 18(4)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R18-08",
+    "domain": "legal_metrology",
+    "description": "No wholesale dealer, retail dealer or other person may obliterate, smudge or alter the retail sale price indicated by the manufacturer, packer or importer.",
+    "applicability": {
+      "commodity_category": "Packaged commodities bearing MRP",
+      "package_type": "retail",
+      "exemption_conditions": "No specific exemption stated."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Original MRP must not be obliterated, smudged or altered.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 18(5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R18-09",
+    "domain": "legal_metrology",
+    "description": "The manufacturer, packer or importer must not alter the price on a wrapper once the wrapper has been printed and used for packing.",
+    "applicability": {
+      "commodity_category": "Packaged commodities using printed wrappers",
+      "package_type": "retail",
+      "exemption_conditions": "No specific exemption stated."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Printed wrapper price remains unaltered after use for packing.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 18(6)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R18-10",
+    "domain": "legal_metrology",
+    "description": "Retailers covered under VAT or Turn Over Tax and dealing in packaged commodities whose net-content declaration is by weight, volume or a combination must maintain an electronic weighing machine of at least accuracy Class III, with smallest division at least 1 g, with a facility to issue a printed receipt showing gross quantity, price and similar information, at a prominent place free of cost for consumers to check purchased package weight.",
+    "applicability": {
+      "commodity_category": "Packaged commodities with net content declared by weight/volume/combination",
+      "package_type": "retail",
+      "exemption_conditions": "Applies to retailers covered under VAT or Turn Over Tax."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Electronic weighing machine: accuracy Class III or better as stated; smallest division >=1 g; printed receipt facility; prominent/free consumer access.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 18(7)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01.04.2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "HUMAN_REVIEW_REQUIRED"
+  },
+  {
+    "rule_id": "LM-R19",
+    "domain": "legal_metrology",
+    "description": "An authorized Director, Controller or Legal Metrology Officer may inspect packages or lots at the manufacturer/packer premises, draw samples according to the Fifth Schedule, conduct tests according to the Sixth Schedule, record results in the Seventh Schedule, issue the report, conduct fresh tests where permitted, require 100% checking where non-conformity is found, and approve a lot only when the statistical average, maximum permissible error and mandatory declarations satisfy the Rule.",
+    "applicability": {
+      "commodity_category": "packaged commodities subject to inspection",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "Sample selection: Fifth Schedule; testing method: Sixth Schedule; test report: Seventh Schedule. Lot approval requires: statistical average >= declared quantity; no sampled package exceeds maximum permissible error; required declarations present.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 19(1)-(8)",
+      "schedule_reference": "Fifth Schedule, Sixth Schedule, Seventh Schedule"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "HUMAN_REVIEW_REQUIRED"
+  },
+  {
+    "rule_id": "LM-R20",
+    "domain": "legal_metrology",
+    "description": "Where inspection shows that the statistical average is below the declared quantity, a sampled package exceeds the maximum permissible error, or required declarations are absent, the Director, Controller or Legal Metrology Officer shall seize the sampled packages and initiate action for violations. If fresh tests under Rule 19(4) are conducted, action follows if the defect remains. Seized packages are disposed of according to the Code of Criminal Procedure, 1973.",
+    "applicability": {
+      "commodity_category": "packages inspected under Rule 19",
+      "package_type": "all",
+      "exemption_conditions": "No action under sub-rule (1) before fresh testing where fresh tests are carried out under Rule 19(4); action follows if the defect is detected after fresh testing."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Non-compliant inspection result -> seizure + appropriate action; seized packages disposed according to CrPC 1973.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 20(1)-(2)",
+      "schedule_reference": "Rule 19 / Fifth, Sixth and Seventh Schedules where applicable"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "HUMAN_REVIEW_REQUIRED"
+  },
+  {
+    "rule_id": "LM-R21",
+    "domain": "legal_metrology",
+    "description": "Testing of net quantity at wholesale or retail dealer premises is ordinarily not carried out unless a complaint is received, tampering/pilferage/leakage is suspected, or required declarations are missing. If tested, quantity and maximum permissible error are verified. Packages exceeding MPE may be seized and action taken. Where 'when packed' is marked and deficiency is due to environmental conditions, punitive action against the dealer is not taken. If quantity conforms or deficiency is within MPE, the retail dealer may sell/deliver/distribute at a price determined on the basis of quantity found.",
+    "applicability": {
+      "commodity_category": "packaged commodities held by wholesale or retail dealers",
+      "package_type": "retail",
+      "exemption_conditions": "Ordinary testing does not occur unless one of the Rule 21(1) conditions exists."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "Test triggers: complaint; suspected tampering/pilferage/leakage; missing declarations. Deficiency > MPE -> seizure/action. Deficiency <= MPE -> retail dealer may sell based on quantity found.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 21(1)-(5)",
+      "schedule_reference": "First Schedule for maximum permissible error"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "HUMAN_REVIEW_REQUIRED"
+  },
+  {
+    "rule_id": "LM-R22",
+    "domain": "legal_metrology",
+    "description": "The maximum permissible error for commodities is the value indicated in the First Schedule. In determining MPE, unavoidable weighing/measuring/counting variation, normal environmental exposure during distribution, and variation due to packaging material or container must be considered. For commodities permitted to use 'when packed', reasonable environmental variation is to be determined.",
+    "applicability": {
+      "commodity_category": "commodities for which net quantity is declared",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "Maximum permissible error = corresponding First Schedule value.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 22(1)-(3)",
+      "schedule_reference": "First Schedule"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "HUMAN_REVIEW_REQUIRED"
+  },
+  {
+    "rule_id": "LM-R23",
+    "domain": "legal_metrology",
+    "description": "Where the actual quantity agrees with the declared quantity but the package is deceptive, the manufacturer/packer must repack and relabel it according to the standards. Failure to do so permits seizure and punitive action. A deceptive package is one designed to deliberately give an exaggerated or misleading impression of quantity, except where larger dimensions are justified for protection of the commodity or machine-filling requirements. Perishable commodities in seized packages are disposed of according to the rules made under the Act.",
+    "applicability": {
+      "commodity_category": "packaged commodities",
+      "package_type": "all",
+      "exemption_conditions": "Larger package dimensions are not treated as deceptive where justified for protection of the commodity or requirements of the filling machine."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Package design must not deliberately create an exaggerated/misleading impression of quantity.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 23(1)-(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-R24",
+    "domain": "legal_metrology",
+    "description": "Every wholesale package must bear a legible, definite, plain and conspicuous declaration of the manufacturer's/importer's name and address or, where applicable, the packer's name and address; the identity of the commodity; and either the total number of retail packages contained in it or the net quantity in standard units of weight, measure or number.",
+    "applicability": {
+      "commodity_category": "wholesale packages",
+      "package_type": "wholesale",
+      "exemption_conditions": "Rule 24 does not apply where a similar declaration is required on the wholesale package by or under another law in force."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Required wholesale-package declarations: manufacturer/importer/packer name & address + commodity identity + total retail-package count OR net quantity in standard units.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 24(a)-(c) and proviso",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "HUMAN_REVIEW_REQUIRED"
+  },
+  {
+    "rule_id": "LM-CH4-R25-01",
+    "domain": "legal_metrology",
+    "description": "An export package shall not be sold in India unless the manufacturer or packer has re-packed or re-labelled the commodity in accordance with Chapter II; an export package sold in India without such re-packing/re-labelling is liable to seizure under the Act.",
+    "applicability": {
+      "commodity_category": "export package",
+      "package_type": "export",
+      "exemption_conditions": "Only applies when an export package is sold in India."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "If sold in India: package must comply with Chapter II after re-packing/re-labelling.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 25",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH5-R26-01",
+    "domain": "legal_metrology",
+    "description": "The Rules do not apply to packages containing a commodity with net weight or measure of 10 g or 10 ml or less when sold by weight or measure, subject to the current Rule 26(a) proviso for pan masala.",
+    "applicability": {
+      "commodity_category": "packages sold by weight/measure",
+      "package_type": "retail",
+      "exemption_conditions": "Rule 26(a) exemption; source also contains a proviso for 10g–20g/10ml–20ml MRP and net-quantity declarations, marked as withdrawn from 01.07.2012 in the source."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "Exempt at <=10 g or <=10 ml when sold by weight/measure, except pan masala under the 2026-applicable proviso.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 26(a)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH5-R26-02",
+    "domain": "legal_metrology",
+    "description": "Packages containing fast food items packed by a restaurant or hotel and the like are exempt from these rules.",
+    "applicability": {
+      "commodity_category": "fast food packed by restaurant/hotel",
+      "package_type": "retail",
+      "exemption_conditions": "Rule 26(b)."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Exempt package category: fast food items packed by restaurant/hotel and the like.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 26(b)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH5-R26-03",
+    "domain": "legal_metrology",
+    "description": "Packages containing scheduled formulations and non-scheduled formulations covered under the Drugs (Price Control) Order, 1995 are exempt.",
+    "applicability": {
+      "commodity_category": "drug formulations",
+      "package_type": "retail",
+      "exemption_conditions": "As stated in Rule 26(c)."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Exempt if covered by the cited Drugs (Price Control) Order, 1995.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 26(c)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH5-R26-04",
+    "domain": "legal_metrology",
+    "description": "Agricultural farm produces in packages above 50 kg are exempt.",
+    "applicability": {
+      "commodity_category": "agricultural farm produce",
+      "package_type": "retail",
+      "exemption_conditions": "Rule 26(d); source footnote states the associated proviso is withdrawn w.e.f. 01.07.2012."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": ">50 kg",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 26(d)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH6-R27-01",
+    "domain": "legal_metrology",
+    "description": "Every individual, firm, Hindu undivided family, society, company or corporation that pre-packs or imports a commodity for sale, distribution or delivery shall apply to the Director or Controller for registration of name and complete address, accompanied by a fee of Rs 500.",
+    "applicability": {
+      "commodity_category": "pre-packers and importers",
+      "package_type": "all",
+      "exemption_conditions": "Application timing is within 90 days of commencement for existing applicants, or within 90 days from commencing pre-packing/importing for later applicants."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Registration application + complete address + Rs 500 fee.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 27(1)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH6-R27-02",
+    "domain": "legal_metrology",
+    "description": "A registration application shall contain the applicant name, complete address of the premises where pre-packing/import is made, and the commodity or commodities pre-packed/imported.",
+    "applicability": {
+      "commodity_category": "pre-packers and importers",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Applicant name; complete premises address; commodity/commodities.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 27(2)(a)-(c)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH6-R27-03",
+    "domain": "legal_metrology",
+    "description": "Historical Rule 27(3) alteration-certificate provision requiring the specified fee; superseded by the 2026 amendment.",
+    "applicability": {
+      "commodity_category": "registered manufacturer/packer/importer",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Alteration fee: Rs 100.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 27(3)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "28-05-2026",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-CH6-R27-04",
+    "domain": "legal_metrology",
+    "description": "The Director or Controller, as Registering Authority, shall return an incomplete application within seven working days; if complete, shall register the applicant and grant a registration certificate.",
+    "applicability": {
+      "commodity_category": "registration applicants",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Incomplete application: returned within 7 working days; complete application: registration certificate granted.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 27(4)(a)-(b)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH6-R28-01",
+    "domain": "legal_metrology",
+    "description": "A manufacturer or packer may apply to the Director or Controller for registration of a shorter address in addition to the complete address.",
+    "applicability": {
+      "commodity_category": "manufacturer or packer",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Application for shorter address registration.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 28(1)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH6-R28-02",
+    "domain": "legal_metrology",
+    "description": "The Director or Controller may register a shorter address after inquiry if satisfied that it is sufficient to enable consumers or others to identify the manufacturer or packer.",
+    "applicability": {
+      "commodity_category": "manufacturer or packer",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Shorter address must be sufficient for identification after inquiry.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 28(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH6-R28-03",
+    "domain": "legal_metrology",
+    "description": "Where a shorter address is registered, the manufacturer or packer may state that shorter address on the label of each commodity pre-packed by him or it.",
+    "applicability": {
+      "commodity_category": "manufacturer or packer with registered shorter address",
+      "package_type": "retail",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Registered shorter address may be used on labels.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 28(3)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH6-R29-01",
+    "domain": "legal_metrology",
+    "description": "The Director or Controller shall enter in a register the name and complete address of each manufacturer or packer who applied for registration under Rule 27.",
+    "applicability": {
+      "commodity_category": "registered manufacturers/packers",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Register entry: name and complete address.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 29(1)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH6-R29-02",
+    "domain": "legal_metrology",
+    "description": "The registration register shall be open to public inspection without payment of any fee.",
+    "applicability": {
+      "commodity_category": "registration register",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Public inspection: permitted; fee: none.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 29(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "OUT_OF_SCOPE"
+  },
+  {
+    "rule_id": "LM-CH6-R30-01",
+    "domain": "legal_metrology",
+    "description": "The Director or Controller shall compile a State-wise list of manufacturers and packers registered under Rule 29 and circulate it to the Controller of the concerned State so that samples can be taken at manufacturer/packer premises.",
+    "applicability": {
+      "commodity_category": "registered manufacturers/packers",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "State-wise list + circulation to concerned State Controller.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 30",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "OUT_OF_SCOPE"
+  },
+  {
+    "rule_id": "LM-CH7-R31-01",
+    "domain": "legal_metrology",
+    "description": "An advertisement mentioning the retail sale price of a pre-packaged commodity shall also declare the net quantity or number of the commodity contained in the package.",
+    "applicability": {
+      "commodity_category": "advertisements mentioning retail sale price",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Advertisement must state net quantity or number.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 31(1)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH7-R31-02",
+    "domain": "legal_metrology",
+    "description": "The font size of the net quantity in an advertisement shall be the same as that of the retail sale price.",
+    "applicability": {
+      "commodity_category": "advertisements mentioning retail sale price",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Net-quantity font size = retail-sale-price font size.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 31(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH7-R32-01",
+    "domain": "legal_metrology",
+    "description": "Contravention of Rules 27 to 31 is punishable with a fine of four thousand rupees.",
+    "applicability": {
+      "commodity_category": "Rules 27-31 contraventions",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Fine: Rs 4,000.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 32(1)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH7-R32-02",
+    "domain": "legal_metrology",
+    "description": "Contravention of another provision of these rules for which no punishment is provided by the Act or rules is punishable with a fine of two thousand rupees.",
+    "applicability": {
+      "commodity_category": "other punishable contraventions without specified punishment",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Fine: Rs 2,000.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 32(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH7-R33-01",
+    "domain": "legal_metrology",
+    "description": "The Central Government may, after ascertaining the genuineness of the application, permit a manufacturer or packer to pack for sale for a reasonable period by relaxing one or more provisions of the Rules with specified corrective measures; the relaxation does not apply where the Medical Devices Rules, 2017 apply.",
+    "applicability": {
+      "commodity_category": "manufacturer or packer seeking relaxation",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Relaxation may be granted for a reasonable period with corrective measures specified by Central Government.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 33(1)-(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH7-R34-01",
+    "domain": "legal_metrology",
+    "description": "The Standards of Weights and Measures (Packaged Commodities) Rules, 1977 are repealed.",
+    "applicability": {
+      "commodity_category": "historical 1977 rules",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "1977 Rules repealed.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 34(1)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "OUT_OF_SCOPE"
+  },
+  {
+    "rule_id": "LM-CH7-R34-02",
+    "domain": "legal_metrology",
+    "description": "Repeal does not affect previous operation, acts/omissions, acquired rights/privileges, obligations/liabilities, penalties/forfeitures/punishments, or investigations/legal proceedings/remedies relating to the repealed rules; proceedings may continue as if the rules had not been rescinded.",
+    "applicability": {
+      "commodity_category": "transitional matters under 1977 rules",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Savings apply to prior operations, rights/liabilities, penalties and proceedings.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 34(1)(a)-(d)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH7-R34-03",
+    "domain": "legal_metrology",
+    "description": "Anything done or action taken under the repealed rules, including approvals, exemptions, fees, adjudications, enquiries, investigations, licences, registrations, show-cause notices, decisions, determinations, approvals or authorizations, continues in force at commencement as if issued/done under corresponding provisions of the 2011 rules.",
+    "applicability": {
+      "commodity_category": "transitional acts under 1977 rules",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Existing actions/approvals/etc. continue under corresponding 2011 provisions.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 34(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH7-R34-04",
+    "domain": "legal_metrology",
+    "description": "The 2011 rules apply to applications pending at commencement under the repealed rules and to consequent proceedings and registrations granted pursuant to them.",
+    "applicability": {
+      "commodity_category": "pending applications at commencement",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Pending applications/proceedings/registrations transition to 2011 rules.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 34(3)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH7-R34-05",
+    "domain": "legal_metrology",
+    "description": "Legal proceedings pending in court under the repealed rules at commencement may continue as if the 2011 rules had not been framed.",
+    "applicability": {
+      "commodity_category": "pending court proceedings",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Pending court proceedings continue.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 34(4)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH7-R34-06",
+    "domain": "legal_metrology",
+    "description": "Appeals pending before the Central or State Government under the repealed rules are deemed to have been made under the corresponding provisions of the 2011 rules.",
+    "applicability": {
+      "commodity_category": "pending appeals",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Pending appeals deemed under corresponding 2011 provisions.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 34(5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S1-01",
+    "domain": "legal_metrology",
+    "description": "Maximum permissible error in net quantity by weight or volume is specified by declared quantity bands.",
+    "applicability": {
+      "commodity_category": "schedule",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "Up to 50 g/ml: 9%; 50–100: 4.5 g/ml; 100–200: 4.5 g/ml; 200–300: 9 g/ml; 300–500: 3%; 500–1000: 15 g/ml; 1000–10000: 1.5%; 10000–15000: 150 g/ml; >15000: 1%.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "First Schedule, paragraph 1(1), Table I",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "HUMAN_REVIEW_REQUIRED"
+  },
+  {
+    "rule_id": "LM-S1-02",
+    "domain": "legal_metrology",
+    "description": "For percentage-based maximum permissible error, rounding is to nearest 0.1 g/ml for declared quantities <=1000 g/ml and to next whole g/ml above 1000 g/ml.",
+    "applicability": {
+      "commodity_category": "schedule",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "<=1000 g/ml: nearest 0.1 g/ml; >1000 g/ml: next whole g/ml.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "First Schedule, paragraph 1(2)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "HUMAN_REVIEW_REQUIRED"
+  },
+  {
+    "rule_id": "LM-S1-03",
+    "domain": "legal_metrology",
+    "description": "Maximum permissible error for quantity declared by length, area or number.",
+    "applicability": {
+      "commodity_category": "schedule",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "Length: 2% up to 10 m, thereafter 1%; area: 4% up to 10 sq m, thereafter 1%; number: 2%.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "First Schedule, paragraph 2(1), Table II",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT",
+    "capability": "HUMAN_REVIEW_REQUIRED"
+  },
+  {
+    "rule_id": "LM-S2-01",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Baby food.",
+    "applicability": {
+      "commodity_category": "Baby food",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "100g, 200g, 300g, 400g, 500g, 600g, 700g, 800g, 900g, 1kg, 2kg, 5kg, 10kg. Weaning food: same quantities.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-02",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Biscuits.",
+    "applicability": {
+      "commodity_category": "Biscuits",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "25g, 50g, 75g, 100g, 150g, 200g, 250g, 300g and thereafter multiples of 100g up to 1kg.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-03",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Bread including brown bread but excluding bun.",
+    "applicability": {
+      "commodity_category": "Bread including brown bread but excluding bun",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "100g and thereafter multiples of 100g.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-04",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Un-canned packages of butter and margarine.",
+    "applicability": {
+      "commodity_category": "Un-canned packages of butter and margarine",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "25g, 50g, 100g, 200g, 500g, 1kg, 2kg, 5kg and thereafter multiples of 5kg.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-05",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Cereals and Pulses.",
+    "applicability": {
+      "commodity_category": "Cereals and Pulses",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "100g, 200g, 500g, 1kg, 2kg, 5kg and thereafter multiples of 5kg.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-06",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Coffee.",
+    "applicability": {
+      "commodity_category": "Coffee",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "25g, 50g, 100g, 200g, 250g, 500g, 1kg and thereafter multiples of 1kg.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-07",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Tea.",
+    "applicability": {
+      "commodity_category": "Tea",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "25g, 50g, 100g, 125g, 250g, 500g, 1kg and thereafter multiples of 1kg.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-08",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Materials which may be constituted or reconstituted as beverages.",
+    "applicability": {
+      "commodity_category": "Materials which may be constituted or reconstituted as beverages",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "25g, 50g, 100g, 200g, 500g, 1kg and thereafter multiples of 1kg.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-09",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Edible oils, Vanaspati, ghee, butter oil.",
+    "applicability": {
+      "commodity_category": "Edible oils, Vanaspati, ghee, butter oil",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "50g, 100g, 200g, 500g, 1kg, 2kg, 3kg, 5kg and thereafter multiples of 5kg. If declared by volume, same number in ml/litre as applicable and equivalent mass in brackets in same size.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-10",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Milk Powder.",
+    "applicability": {
+      "commodity_category": "Milk Powder",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "Below 50g no restriction; 50g, 100g, 200g, 500g, 1kg and thereafter multiples of 500g.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-11",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Non-soapy detergents (powder).",
+    "applicability": {
+      "commodity_category": "Non-soapy detergents (powder)",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "Below 50g no restriction; 50g, 100g, 200g, 500g, 700g, 1kg, 1.5kg, 2kg and thereafter multiples of 1kg.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-12",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Rice (powdered), flour, atta, rawa and suji.",
+    "applicability": {
+      "commodity_category": "Rice (powdered), flour, atta, rawa and suji",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "100g, 200g, 500g, 1kg, 2kg, 5kg and thereafter multiples of 5kg.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-13",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Salt.",
+    "applicability": {
+      "commodity_category": "Salt",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "Below 50g in multiples of 10g; 50g, 100g, 200g, 500g, 750g, 1kg, 2kg, 5kg and thereafter multiples of 5kg.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-14",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Laundry Soap.",
+    "applicability": {
+      "commodity_category": "Laundry Soap",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "50g, 75g, 100g and thereafter multiples of 50g.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-15",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Non-soapy detergent cakes/bars.",
+    "applicability": {
+      "commodity_category": "Non-soapy detergent cakes/bars",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "50g, 75g, 100g, 125g, 150g, 200g, 250g, 300g and thereafter multiples of 100g.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-16",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Toilet Soap including all kinds of bath soap (cakes).",
+    "applicability": {
+      "commodity_category": "Toilet Soap including all kinds of bath soap (cakes)",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "25g, 50g, 75g, 100g, 125g, 150g and thereafter multiples of 50g.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-17",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Aerated soft drinks, non-alcoholic beverages.",
+    "applicability": {
+      "commodity_category": "Aerated soft drinks, non-alcoholic beverages",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "65ml (fruit based drinks only), 100ml, 125ml (fruit based drinks only), 150ml, 200ml, 250ml, 300ml, 330ml (cans only), 500ml, 750ml, 1L, 1.5L, 2L, 3L, 4L, 5L.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-18",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Mineral water and drinking water.",
+    "applicability": {
+      "commodity_category": "Mineral water and drinking water",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "100ml, 150ml, 200ml, 250ml, 300ml, 500ml, 750ml, 1L, 1.5L, 2L, 3L, 4L, 5L.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-19",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Cement in bags.",
+    "applicability": {
+      "commodity_category": "Cement in bags",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "1kg, 2kg, 5kg, 10kg, 20kg, 25kg, 40kg (White cement only) and 50kg.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-20",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Paint/varnish etc. — paint, varnish, varnish stains, enamels.",
+    "applicability": {
+      "commodity_category": "Paint/varnish etc. — paint, varnish, varnish stains, enamels",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "50ml, 100ml, 200ml, 500ml, 1L, 2L, 3L, 4L, 5L and thereafter multiples of 5L.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-21",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Paste paint and solid paint.",
+    "applicability": {
+      "commodity_category": "Paste paint and solid paint",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "500g, 1kg, 1.5kg, 2kg, 3kg, 5kg, 7kg and thereafter multiples of 5kg.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S2-22",
+    "domain": "legal_metrology",
+    "description": "The Second Schedule specifies standard package quantities for Base paint.",
+    "applicability": {
+      "commodity_category": "Base paint",
+      "package_type": "all",
+      "exemption_conditions": "Historical only; Rule 5 and the Second Schedule were omitted with effect from 01-01-2024."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "450ml, 500ml, 900ml, 925ml, 950ml, 975ml, 1L, 3.6L, 3.7L, 3.8L, 3.9L, 4L and no restriction above 4L.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Second Schedule (See Rule 5)",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "31-12-2023",
+    "verification_status": "VERIFIED_HISTORICAL"
+  },
+  {
+    "rule_id": "LM-S3-01",
+    "domain": "legal_metrology",
+    "description": "The quantity declaration for All kinds of soaps may be qualified by the words “When packed”.",
+    "applicability": {
+      "commodity_category": "All kinds of soaps",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "“When packed” may qualify quantity declaration.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Third Schedule, item 1",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S3-02",
+    "domain": "legal_metrology",
+    "description": "The quantity declaration for Lotions may be qualified by the words “When packed”.",
+    "applicability": {
+      "commodity_category": "Lotions",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "“When packed” may qualify quantity declaration.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Third Schedule, item 2",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S3-03",
+    "domain": "legal_metrology",
+    "description": "The quantity declaration for Cream (other than cream of milk) may be qualified by the words “When packed”.",
+    "applicability": {
+      "commodity_category": "Cream (other than cream of milk)",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "“When packed” may qualify quantity declaration.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Third Schedule, item 3",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-01",
+    "domain": "legal_metrology",
+    "description": "For Aerosol Products, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Aerosol Products",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 1",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-02",
+    "domain": "legal_metrology",
+    "description": "For Acids in liquid form, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Acids in liquid form",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight or volume",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 2",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-03",
+    "domain": "legal_metrology",
+    "description": "For Compressed or liquefied gas (not LPG), Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Compressed or liquefied gas (not LPG)",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight and equivalent volume at stated temperature and pressure",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 3",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-04",
+    "domain": "legal_metrology",
+    "description": "For Curd, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Curd",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 4",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-05",
+    "domain": "legal_metrology",
+    "description": "For Electric Cables, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Electric Cables",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Length or weight",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 5",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-06",
+    "domain": "legal_metrology",
+    "description": "For Electric wire, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Electric wire",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Length or weight",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 6",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-07",
+    "domain": "legal_metrology",
+    "description": "For Fencing wire, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Fencing wire",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Number or weight",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 7",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-08",
+    "domain": "legal_metrology",
+    "description": "For Fruits, all kinds, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Fruits, all kinds",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Number or weight",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 8",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-09",
+    "domain": "legal_metrology",
+    "description": "For Furnace oil, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Furnace oil",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight or volume",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 9",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-10",
+    "domain": "legal_metrology",
+    "description": "For Non edible vegetable oil, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Non edible vegetable oil",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight or volume",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 10",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-11",
+    "domain": "legal_metrology",
+    "description": "For Edible oil, Vanaspati, ghee and butter oil, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Edible oil, Vanaspati, ghee and butter oil",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight or volume; if net quantity is declared by volume, the net quantity shall also be declared by weight.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 11",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-01-2024",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-12",
+    "domain": "legal_metrology",
+    "description": "For Heavy residual fuel oil, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Heavy residual fuel oil",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 12",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-13",
+    "domain": "legal_metrology",
+    "description": "For Industrial diesel fuel, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Industrial diesel fuel",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Volume",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 13",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-14",
+    "domain": "legal_metrology",
+    "description": "For Honey, malt-extract, golden syrup treacle, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Honey, malt-extract, golden syrup treacle",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 14",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-15",
+    "domain": "legal_metrology",
+    "description": "For Ice cream and other similar frozen products, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Ice cream and other similar frozen products",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "Weight (the source records the 2012 amendment replacing volume with weight).",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 15",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-16",
+    "domain": "legal_metrology",
+    "description": "For Liquid chemicals, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Liquid chemicals",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight or volume",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 16",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-17",
+    "domain": "legal_metrology",
+    "description": "For Liquefied petroleum gas, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Liquefied petroleum gas",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 17",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-18",
+    "domain": "legal_metrology",
+    "description": "For Nails, wood screws, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Nails, wood screws",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Number or weight",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 18",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-19",
+    "domain": "legal_metrology",
+    "description": "For Paints other than paste/solid paint; varnish, varnish stains, enamels, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Paints other than paste/solid paint; varnish, varnish stains, enamels",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Volume",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 19",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-20",
+    "domain": "legal_metrology",
+    "description": "For Paste paint, solid paint, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Paste paint, solid paint",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 20",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-21",
+    "domain": "legal_metrology",
+    "description": "For Rasgulla, Gulabjamun and other sweet preparations, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Rasgulla, Gulabjamun and other sweet preparations",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 21",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-22",
+    "domain": "legal_metrology",
+    "description": "For Ready-made garments, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Ready-made garments",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Number",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 22",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-23",
+    "domain": "legal_metrology",
+    "description": "For Sauces, all kinds, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Sauces, all kinds",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 23",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-24",
+    "domain": "legal_metrology",
+    "description": "For Tyres and tubes, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Tyres and tubes",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Number",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 24",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-25",
+    "domain": "legal_metrology",
+    "description": "For Yarn, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Yarn",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight or length of yarn",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 25",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-S4-26",
+    "domain": "legal_metrology",
+    "description": "For Cosmetics including creams, shampoo, lotions and perfumes, Rule 12(2)'s default unit is replaced by the Fourth Schedule option.",
+    "applicability": {
+      "commodity_category": "Cosmetics including creams, shampoo, lotions and perfumes",
+      "package_type": "all",
+      "exemption_conditions": "NOT_FOUND_IN_SOURCE"
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Weight or measure",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Fourth Schedule, item 26",
+      "schedule_reference": "NOT_FOUND_IN_SOURCE"
+    },
+    "effective_from": "01-04-2011",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R3-03",
+    "domain": "legal_metrology",
+    "description": "Chapter II does not apply to cement, fertilizer and agricultural farm produce sold in bags above 50 kg.",
+    "applicability": {
+      "commodity_category": "cement, fertilizer, agricultural farm produce",
+      "package_type": "retail",
+      "exemption_conditions": "Excluded when sold in bags above 50 kg."
+    },
+    "evaluator_type": "format_check",
+    "expected_value_or_format": "Chapter II excluded for cement, fertilizer and agricultural farm produce in bags >50 kg.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 3(b)",
+      "schedule_reference": "GSR 629(E), effective 01-01-2018"
+    },
+    "effective_from": "01-01-2018",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R4-03",
+    "domain": "legal_metrology",
+    "description": "Importers may make mandatory declarations at bonded warehouses of Authorised Economic Operators (AEO) Tier-2 and Tier-3 certified operators, provided retail packages have all mandatory declarations before leaving the bonded warehouse.",
+    "applicability": {
+      "commodity_category": "imported packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "AEO Tier-2/Tier-3 bonded warehouse provision."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Mandatory declarations completed before retail package leaves the bonded warehouse.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 4, Explanation 2",
+      "schedule_reference": "GSR 418(E), effective 29-05-2026"
+    },
+    "effective_from": "29-05-2026",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-22",
+    "domain": "legal_metrology",
+    "description": "The name of the country of origin, country of manufacture, or country of assembly in the case of imported products shall be mentioned on the package.",
+    "applicability": {
+      "commodity_category": "imported products",
+      "package_type": "retail",
+      "exemption_conditions": "Applies to imported products."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Country of origin/manufacture/assembly declaration for imported products.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(aa)",
+      "schedule_reference": "Amendment cross-reference verified"
+    },
+    "effective_from": "01-01-2018",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-23",
+    "domain": "legal_metrology",
+    "description": "The retail sale price shall clearly indicate the maximum retail price inclusive of all taxes, in Indian currency.",
+    "applicability": {
+      "commodity_category": "pre-packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Subject to specific exemptions/provisos in the Rules."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "MRP inclusive of all taxes in Indian currency.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(e)",
+      "schedule_reference": "Amendment cross-reference verified"
+    },
+    "effective_from": "01-01-2024",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-24",
+    "domain": "legal_metrology",
+    "description": "Where the size of the commodity contained in the package is relevant, the dimensions of the commodity, and where pieces have different dimensions, the dimensions of each different piece, shall be mentioned.",
+    "applicability": {
+      "commodity_category": "commodities where size/dimensions are relevant",
+      "package_type": "retail",
+      "exemption_conditions": "Dimension declaration is conditional on relevance."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Applicable dimensions in metric units/recognized size indicators as permitted.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(f)",
+      "schedule_reference": "Amendment cross-reference verified"
+    },
+    "effective_from": "01-01-2018",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-25",
+    "domain": "legal_metrology",
+    "description": "Spare parts and accessories used for servicing with a warranty and not sold to end customers are exempt from the month/year-of-manufacture declaration; electronic-product spare parts/accessories must show the month and year of manufacture visibly and legibly on the retail package.",
+    "applicability": {
+      "commodity_category": "spare parts/accessories",
+      "package_type": "retail",
+      "exemption_conditions": "Warranty servicing and not sold to end customers; electronic-product exception applies."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Apply the spare-parts provisos effective 01-04-2024.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(1)(d), provisos",
+      "schedule_reference": "Amendment cross-reference verified"
+    },
+    "effective_from": "01-04-2024",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-26",
+    "domain": "legal_metrology",
+    "description": "Unit sale price in rupees, rounded to two decimal places, must be declared according to the net quantity/length/volume or number; it is not required where retail sale price equals unit sale price, and from 01-01-2024 is also not required for combination, group or multi-piece packages.",
+    "applicability": {
+      "commodity_category": "pre-packaged commodities",
+      "package_type": "retail",
+      "exemption_conditions": "Alcoholic beverages follow applicable State Excise law; USP exemption for equal MRP/USP and combination/group/multi-piece packages."
+    },
+    "evaluator_type": "band_lookup",
+    "expected_value_or_format": "₹/g or ₹/kg; ₹/cm or ₹/m; ₹/ml or ₹/L; or ₹/number/unit, as applicable.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(11)",
+      "schedule_reference": "Amendment cross-reference verified"
+    },
+    "effective_from": "01-01-2024",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-27",
+    "domain": "legal_metrology",
+    "description": "Every e-commerce entity selling imported products must provide a searchable and sortable country-of-origin filter with the product listings of those imported products.",
+    "applicability": {
+      "commodity_category": "imported products sold through e-commerce",
+      "package_type": "e-commerce listing",
+      "exemption_conditions": "Applies to e-commerce entities selling imported products."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Searchable and sortable country-of-origin filter.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(10A)",
+      "schedule_reference": "Amendment cross-reference verified"
+    },
+    "effective_from": "01-07-2026",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R6-28-FUTURE",
+    "domain": "legal_metrology",
+    "description": "From 01-07-2027, every e-commerce entity offering an imported product for sale must ensure the product listing contains a searchable and sortable filter specifying the country of origin.",
+    "applicability": {
+      "commodity_category": "imported products sold through e-commerce",
+      "package_type": "e-commerce listing",
+      "exemption_conditions": "Future replacement of Rule 6(10A)."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Searchable and sortable country-of-origin filter.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 6(10A)",
+      "schedule_reference": "Amendment cross-reference verified"
+    },
+    "effective_from": "01-07-2027",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_FUTURE"
+  },
+  {
+    "rule_id": "LM-CH2-R2-MD",
+    "domain": "legal_metrology",
+    "description": "For packages containing medical devices, the Medical Devices Rules, 2017 apply to make declarations.",
+    "applicability": {
+      "commodity_category": "medical devices",
+      "package_type": "retail",
+      "exemption_conditions": "Medical Devices Rules, 2017 control the specified declaration requirement."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Apply MDR 2017 declarations for medical-device packages.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 2(h), proviso",
+      "schedule_reference": "GSR 778(E)"
+    },
+    "effective_from": "24-10-2025",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R7-MD-H",
+    "domain": "legal_metrology",
+    "description": "For packages containing medical devices, Medical Devices Rules, 2017 apply for the height of numerals and letters used to make declarations.",
+    "applicability": {
+      "commodity_category": "medical devices",
+      "package_type": "retail",
+      "exemption_conditions": "Medical Devices Rules, 2017 control the specified declaration requirement."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Apply MDR 2017 for declaration character height.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 7(2), proviso",
+      "schedule_reference": "GSR 778(E)"
+    },
+    "effective_from": "24-10-2025",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH2-R7-MD-W",
+    "domain": "legal_metrology",
+    "description": "For packages containing medical devices, Medical Devices Rules, 2017 apply for the width of numerals and letters used to make declarations.",
+    "applicability": {
+      "commodity_category": "medical devices",
+      "package_type": "retail",
+      "exemption_conditions": "Medical Devices Rules, 2017 control the specified declaration requirement."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Apply MDR 2017 for declaration character width.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 7(3), proviso",
+      "schedule_reference": "GSR 778(E)"
+    },
+    "effective_from": "24-10-2025",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH7-R33-02",
+    "domain": "legal_metrology",
+    "description": "Where the Medical Devices Rules, 2017 apply, the relaxation under Rule 33 does not apply.",
+    "applicability": {
+      "commodity_category": "medical devices",
+      "package_type": "retail",
+      "exemption_conditions": "Medical Devices Rules, 2017 apply."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "No LMPC Rule 33 relaxation where MDR 2017 applies.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 33(2)",
+      "schedule_reference": "GSR 778(E)"
+    },
+    "effective_from": "24-10-2025",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH6-R27-05",
+    "domain": "legal_metrology",
+    "description": "Registration application includes the name of the company director responsible for violations under the Act and Rules.",
+    "applicability": {
+      "commodity_category": "registered manufacturer/packer/importer",
+      "package_type": "all",
+      "exemption_conditions": "Registration requirements under Rule 27."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Responsible director name.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 27(2)(d)",
+      "schedule_reference": "GSR 418(E)"
+    },
+    "effective_from": "29-05-2026",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH6-R27-06",
+    "domain": "legal_metrology",
+    "description": "A company or firm shall update annually its registration details where particulars change, using the online portal, including address, products and country of origin.",
+    "applicability": {
+      "commodity_category": "registered manufacturer/packer/importer",
+      "package_type": "all",
+      "exemption_conditions": "Registration requirements under Rule 27."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Annual online update of changed registration particulars.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 27(3), proviso",
+      "schedule_reference": "GSR 418(E)"
+    },
+    "effective_from": "29-05-2026",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH6-R27-07",
+    "domain": "legal_metrology",
+    "description": "Registration certificates remain valid until cancelled.",
+    "applicability": {
+      "commodity_category": "registered manufacturer/packer/importer",
+      "package_type": "all",
+      "exemption_conditions": "Registration requirements under Rule 27."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Registration validity = until cancelled.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 27(5)",
+      "schedule_reference": "GSR 418(E)"
+    },
+    "effective_from": "29-05-2026",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH5-R26-05",
+    "domain": "legal_metrology",
+    "description": "Packages containing loose commodities ordered through e-commerce channels, where the consumer is aware of the commodity, type and quantity, are exempt subject to specified declarations.",
+    "applicability": {
+      "commodity_category": "loose commodities ordered through e-commerce",
+      "package_type": "e-commerce",
+      "exemption_conditions": "Must carry manufacturer/marketer/brand-owner/importer/seller + country of origin/manufacture for imported products, consumer-care email/phone, MRP inclusive of taxes, and net quantity/number."
+    },
+    "evaluator_type": "field_presence",
+    "expected_value_or_format": "Specified Rule 26(g) declarations must be present.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 26(g)",
+      "schedule_reference": "GSR 722(E), effective 01-01-2024"
+    },
+    "effective_from": "01-01-2024",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  },
+  {
+    "rule_id": "LM-CH5-R26-06",
+    "domain": "legal_metrology",
+    "description": "From 01-02-2026, the Rule 26(a) small-pack exemption does not apply to pan masala; pan masala packages must display the required retail sale price and mandatory declarations regardless of size/weight.",
+    "applicability": {
+      "commodity_category": "pan masala",
+      "package_type": "retail",
+      "exemption_conditions": "Pan masala is excluded from the small-pack exemption."
+    },
+    "evaluator_type": "allowed_values",
+    "expected_value_or_format": "Full mandatory declarations including RSP for pan masala packs of all sizes.",
+    "legal_reference": {
+      "source_document": "Legal Metrology (Packaged Commodities) Rules 2011",
+      "section_or_rule_number": "Rule 26(a), proviso",
+      "schedule_reference": "GSR 881(E), effective 01-02-2026"
+    },
+    "effective_from": "01-02-2026",
+    "effective_to": "NOT_FOUND_IN_SOURCE",
+    "verification_status": "VERIFIED_CURRENT"
+  }
+]

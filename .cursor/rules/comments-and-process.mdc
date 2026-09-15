@@ -1,0 +1,11 @@
+---
+description: Naming, comments, and conflict resolution with project docs
+alwaysApply: true
+---
+
+# Comments, naming, and process
+
+- Comment why, not what — do not narrate obvious code.
+- Name things after the domain concept (shared schema vocabulary), not implementation details.
+
+Before writing code: skim the relevant master prompt section and these rules. If a request conflicts, follow these documents and flag the conflict in the response rather than silently violating them.

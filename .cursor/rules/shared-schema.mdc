@@ -1,0 +1,10 @@
+---
+description: Single source of truth for domain types and consistency checks
+alwaysApply: true
+---
+
+# Shared schema & consistency
+
+All domain types (ScanRecord, Declaration, Role, verdict enums, etc.) live in exactly one shared schema module. No module may redeclare, duplicate, or locally adjust them. Need a new field? Extend the shared schema — never add a parallel local field.
+
+Before finishing any task: grep for other places that represent the same concept (status enum, role name, field name) and confirm they match exactly. Do not introduce a second spelling/casing (e.g. needs_review vs needsReview vs NEEDS_REVIEW). Use the shared schema's casing everywhere: DB, API, frontend.

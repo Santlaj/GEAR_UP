@@ -1,0 +1,445 @@
+@charset "UTF-8";
+@import "tailwindcss";
+
+/* =========================================================================
+   PRAMAAN — STATUTORY ENFORCEMENT PORTAL
+   Legal Metrology (Packaged Commodities) Rules, 2011
+   Official Indian Government Design System Stylesheet
+   ========================================================================= */
+
+:root {
+  /* Government Primary Brand Palette */
+  --gov-navy-dark: #0a2540;
+  --gov-navy: #0f2744;
+  --gov-blue-primary: #103b6d;
+  --gov-blue-accent: #0b4d8c;
+  --gov-ice-blue: #ebf3fb;
+  --gov-ice-light: #f0f6fc;
+  --gov-ribbon-bg: #eef5fb;
+  --gov-border: #cbd5e1;
+  --gov-border-dark: #94a3b8;
+
+  /* Statutory Verdict Colors */
+  --statutory-pass: #16a34a;
+  --statutory-pass-dark: #15803d;
+  --statutory-pass-bg: #dcfce7;
+  --statutory-fail: #dc2626;
+  --statutory-fail-dark: #991b1b;
+  --statutory-fail-bg: #fef2f2;
+  --statutory-review: #d97706;
+  --statutory-review-dark: #b45309;
+  --statutory-review-bg: #fef3c7;
+
+  /* Typography */
+  --font-gov-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-gov-serif: 'Merriweather', 'Georgia', serif;
+  --font-gazette-title: 'Cinzel', 'Times New Roman', serif;
+  --font-devanagari: 'Noto Sans Devanagari', 'Mangal', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-gov-sans);
+  background-color: #f1f5f9;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Typography Utility Classes */
+.font-devanagari {
+  font-family: var(--font-devanagari);
+}
+
+.font-gazette {
+  font-family: var(--font-gazette-title);
+  letter-spacing: 0.04em;
+}
+
+.font-serif {
+  font-family: var(--font-gov-serif);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* -------------------------------------------------------------------------
+   OFFICIAL GAZETTE CERTIFICATE ORNAMENTAL BORDER
+   ------------------------------------------------------------------------- */
+.gazette-outer-border {
+  position: relative;
+  background-color: #ffffff;
+  border: 2px solid #0f2744;
+  padding: 6px;
+  box-shadow: 0 4px 20px rgba(15, 39, 68, 0.08);
+}
+
+@media (min-width: 640px) {
+  .gazette-outer-border {
+    padding: 12px;
+  }
+}
+
+.gazette-inner-border {
+  position: relative;
+  border: 1px solid #1e3a8a;
+  padding: 12px 10px;
+  background: radial-gradient(circle at center, #ffffff 60%, #fafbfc 100%);
+}
+
+@media (min-width: 640px) {
+  .gazette-inner-border {
+    padding: 24px 28px;
+  }
+}
+
+/* Traditional Corner Accents */
+.gazette-corner {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-color: #0f2744;
+  pointer-events: none;
+}
+.gazette-corner-tl {
+  top: 5px;
+  left: 5px;
+  border-top: 3px solid #0f2744;
+  border-left: 3px solid #0f2744;
+}
+.gazette-corner-tr {
+  top: 5px;
+  right: 5px;
+  border-top: 3px solid #0f2744;
+  border-right: 3px solid #0f2744;
+}
+.gazette-corner-bl {
+  bottom: 5px;
+  left: 5px;
+  border-bottom: 3px solid #0f2744;
+  border-left: 3px solid #0f2744;
+}
+.gazette-corner-br {
+  bottom: 5px;
+  right: 5px;
+  border-bottom: 3px solid #0f2744;
+  border-right: 3px solid #0f2744;
+}
+
+/* Subtle Ashoka Chakra Watermark */
+.ashoka-watermark {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' opacity='0.035'%3E%3Ccircle cx='50' cy='50' r='46' fill='none' stroke='%230f2744' stroke-width='2'/%3E%3Ccircle cx='50' cy='50' r='10' fill='%230f2744'/%3E%3Cpath d='M50 4 L50 96 M4 50 L96 50 M17 17 L83 83 M17 83 L83 17' stroke='%230f2744' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center 35%;
+  background-size: 380px;
+}
+
+/* -------------------------------------------------------------------------
+   CIRCULAR OFFICIAL VIOLATION RUBBER STAMP
+   ------------------------------------------------------------------------- */
+.violation-rubber-stamp {
+  width: 155px;
+  height: 155px;
+  border: 3px solid #dc2626;
+  border-radius: 50%;
+  color: #b91c1c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10px;
+  text-transform: uppercase;
+  font-weight: 800;
+  transform: rotate(-10deg);
+  background-color: rgba(254, 242, 242, 0.45);
+  box-shadow: inset 0 0 0 2px rgba(220, 38, 38, 0.25);
+  user-select: none;
+}
+
+.violation-rubber-stamp .stamp-sub {
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: #991b1b;
+}
+
+.violation-rubber-stamp .stamp-main {
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: #dc2626;
+  font-family: var(--font-gazette-title);
+  margin: 3px 0;
+  line-height: 1.15;
+  border-top: 1px dashed #ef4444;
+  border-bottom: 1px dashed #ef4444;
+  padding: 4px 0;
+  width: 100%;
+}
+
+.violation-rubber-stamp .stamp-ref {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: #b91c1c;
+  margin-top: 3px;
+}
+
+/* -------------------------------------------------------------------------
+   STATUS PILLS & BADGES (ENLARGED & LEGIBLE)
+   ------------------------------------------------------------------------- */
+.badge-compliant {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-non-compliant {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-review {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-docket-active {
+  background-color: #cfe4fa;
+  color: #0b4d8c;
+  border: 1px solid #93c5fd;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+
+/* -------------------------------------------------------------------------
+   STATUTORY METROLOGY TABLES
+   ------------------------------------------------------------------------- */
+.gov-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.gov-table th {
+  background-color: #0f2744;
+  color: #ffffff;
+  text-align: left;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid #0f2744;
+}
+
+.gov-table td {
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+
+.gov-table tr:nth-child(even) td {
+  background-color: #f8fafc;
+}
+
+.gov-table tr.row-breach td {
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3;
+}
+
+.gov-table tr:hover td {
+  background-color: #f1f5f9;
+}
+
+/* -------------------------------------------------------------------------
+   OPTICAL BOUNDING BOX OVERLAYS
+   ------------------------------------------------------------------------- */
+.bbox-overlay {
+  position: absolute;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  border-width: 2.5px;
+  border-style: solid;
+}
+
+.bbox-overlay.bbox-pass {
+  border-color: #16a34a;
+  background-color: rgba(22, 163, 74, 0.15);
+}
+
+.bbox-overlay.bbox-review {
+  border-color: #d97706;
+  background-color: rgba(217, 119, 6, 0.18);
+}
+
+.bbox-overlay.bbox-fail {
+  border-color: #dc2626;
+  background-color: rgba(220, 38, 38, 0.22);
+}
+
+.bbox-overlay:hover,
+.bbox-overlay.bbox-active {
+  box-shadow: 0 0 0 3px rgba(15, 39, 68, 0.4);
+  z-index: 10;
+}
+
+.bbox-tag {
+  position: absolute;
+  top: -22px;
+  left: -2px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  color: #ffffff;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+  pointer-events: none;
+  border-radius: 2px;
+}
+
+.bbox-tag-pass { background-color: #15803d; }
+.bbox-tag-review { background-color: #b45309; }
+.bbox-tag-fail { background-color: #b91c1c; }
+
+/* -------------------------------------------------------------------------
+   TRIPLICATE MEMO PRINT STYLES
+   ------------------------------------------------------------------------- */
+@media print {
+  body {
+    background: #ffffff;
+    color: #000000;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .gazette-outer-border {
+    box-shadow: none;
+    border: 2px solid #000000;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   ASHOKA CHAKRA ROTATION & GOVERNMENT AMBIENT ANIMATIONS
+   ------------------------------------------------------------------------- */
+@keyframes ashoka-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-ashoka-spin {
+  animation: ashoka-spin 90s linear infinite;
+  will-change: transform;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 45s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Accessibility Font Scalers */
+html.font-scale-small {
+  font-size: 13px;
+}
+
+html.font-scale-normal {
+  font-size: 14px;
+}
+
+html.font-scale-large {
+  font-size: 15.5px;
+}
+
+/* -------------------------------------------------------------------------
+   OPTICAL METROLOGY LASER SCAN SWEEP ANIMATION
+   ------------------------------------------------------------------------- */
+@keyframes scan-sweep {
+  0% {
+    top: 2%;
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 96%;
+    opacity: 0.85;
+  }
+}
+
+.animate-scan-sweep {
+  animation: scan-sweep 2s ease-in-out infinite alternate;
+  will-change: top, opacity;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.6), inset 0 0 15px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.9), inset 0 0 25px rgba(16, 185, 129, 0.5);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+

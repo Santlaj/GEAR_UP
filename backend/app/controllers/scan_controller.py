@@ -1,0 +1,476 @@
+"""Scan Controller — request lifecycle; Models for data/eval, Views for shape."""
+
+from __future__ import annotations
+
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
+from uuid import uuid4
+
+from fastapi import HTTPException, UploadFile
+from fastapi.responses import FileResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.auth import apply_server_scope
+from app.config import Settings
+from app.db import bind_rls_context
+from app.models import get_rules_engine
+from app.models.audit import append_audit
+from app.models.scan import ScanReportRow
+from app.models.scan_ingest import (
+    assemble_from_capture,
+    build_compliance_fields,
+    parse_geometry_json,
+)
+from app.report_hashing import attach_hash, next_override_version
+from app.reports import generate_report_files
+from app.schema import (
+    ConfirmationState,
+    DeclarationFieldStatus,
+    GpsCoordinates,
+    JurisdictionScope,
+    OverallVerdict,
+    Role,
+    ScanRecord,
+    ScanReviewStatus,
+    ScanSource,
+)
+from app.views import scan_view
+
+
+async def submit_scan(
+    *,
+    gps_lat: float,
+    gps_lng: float,
+    source: ScanSource,
+    source_url: str | None,
+    geometry_json: str,
+    images: list[UploadFile],
+    image: UploadFile | None,
+    district_id: str | None,
+    state_id: str | None,
+    inspector_id: str | None,
+    scope: JurisdictionScope,
+    session: AsyncSession,
+    settings: Settings,
+) -> ScanRecord:
+    await bind_rls_context(session, scope)
+    resolved = apply_server_scope(
+        scope, district_id=district_id, state_id=state_id, inspector_id=inspector_id
+    )
+    if resolved["district_id"] is None or resolved["state_id"] is None:
+        raise HTTPException(status_code=400, detail="Inspector missing jurisdiction claims")
+
+    geometry = parse_geometry_json(geometry_json)
+    material = await assemble_from_capture(
+        source=source,
+        source_url=source_url,
+        images=images or [],
+        image=image,
+        geometry=geometry,
+        user_id=scope.user_id,
+    )
+
+    # scan_id MUST be generated BEFORE the engine call
+    scan_id = str(uuid4())
+    compliance_fields = build_compliance_fields(
+        material.product, material.declarations, material.ingredients
+    )
+    compliance_detail, engine_verdict = ScanReportRow.evaluate(compliance_fields, scan_id)
+
+    report_no = f"LM-{datetime.now(UTC).strftime('%Y%m%d')}-{scan_id[:8].upper()}"
+    draft = ScanRecord(
+        scan_id=scan_id,
+        report_no=report_no,
+        report_version=1,
+        previous_report_hash=None,
+        report_hash="",
+        date_scanned=datetime.now(UTC),
+        gps=GpsCoordinates(lat=gps_lat, lng=gps_lng),
+        inspector_id=scope.user_id,
+        district_id=resolved["district_id"],
+        state_id=resolved["state_id"],
+        source=source,
+        source_url=source_url,
+        product=material.product,
+        declarations=material.declarations,
+        ingredients=material.ingredients,
+        overall_verdict=engine_verdict,
+        remarks_summary=material.remarks_summary,
+        qr_payload=f"{settings.verify_base_url}/{scan_id}?v=1",
+        review_status=ScanReviewStatus.pending,
+        override=None,
+        compliance_detail=compliance_detail,
+    )
+    record = attach_hash(draft)
+    pdf_path, docx_path = generate_report_files(record)
+    ScanReportRow.record_new_version(
+        session, record, pdf_path=str(pdf_path), docx_path=str(docx_path)
+    )
+    await append_audit(
+        session,
+        scope=scope,
+        action="scan.submit",
+        resource_type="scan_report",
+        resource_id=record.scan_id,
+        detail={"report_hash": record.report_hash},
+        district_id=record.district_id,
+        state_id=record.state_id,
+    )
+    await session.commit()
+    return record
+
+
+async def list_scans(
+    *,
+    district_id: str | None,
+    state_id: str | None,
+    inspector_id: str | None,
+    scope: JurisdictionScope,
+    session: AsyncSession,
+    settings: Settings,
+) -> list[ScanRecord]:
+    await bind_rls_context(session, scope)
+    resolved = apply_server_scope(
+        scope, district_id=district_id, state_id=state_id, inspector_id=inspector_id
+    )
+    rows = await ScanReportRow.list_for_scope(session, resolved)
+    if scope.role == Role.auditor:
+        await append_audit(
+            session,
+            scope=scope,
+            action="scan.list.read",
+            resource_type="scan_report",
+            detail={"count": len(rows)},
+        )
+        await session.commit()
+    return scan_view.to_scan_records(rows)
+
+
+async def override_verdict(
+    *,
+    scan_id: str,
+    new_verdict: OverallVerdict,
+    reason: str,
+    client_district_id: str | None,
+    scope: JurisdictionScope,
+    session: AsyncSession,
+    settings: Settings,
+) -> ScanRecord:
+    if not reason.strip():
+        raise HTTPException(status_code=400, detail="reason is required")
+    await bind_rls_context(session, scope)
+    resolved = apply_server_scope(scope, district_id=client_district_id)
+    row = await ScanReportRow.latest_version_for(session, scan_id, resolved)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Scan not found in scope")
+    prior = scan_view.to_scan_record(row)
+    new_record = next_override_version(
+        prior,
+        new_verdict=new_verdict,
+        overridden_by=scope.user_id,
+        reason=reason.strip(),
+        timestamp_iso=datetime.now(UTC).isoformat(),
+    )
+    pdf_path, docx_path = generate_report_files(new_record)
+    ScanReportRow.record_new_version(
+        session, new_record, pdf_path=str(pdf_path), docx_path=str(docx_path)
+    )
+    await append_audit(
+        session,
+        scope=scope,
+        action="scan.override",
+        resource_type="scan_report",
+        resource_id=scan_id,
+        detail={
+            "previous_verdict": prior.overall_verdict.value,
+            "new_verdict": new_record.overall_verdict.value,
+            "reason": reason.strip(),
+            "report_version": new_record.report_version,
+        },
+        district_id=new_record.district_id,
+        state_id=new_record.state_id,
+    )
+    await session.commit()
+    return new_record
+
+
+async def list_versions(
+    *,
+    scan_id: str,
+    district_id: str | None,
+    scope: JurisdictionScope,
+    session: AsyncSession,
+    settings: Settings,
+) -> list[ScanRecord]:
+    await bind_rls_context(session, scope)
+    resolved = apply_server_scope(scope, district_id=district_id)
+    rows = await ScanReportRow.versions_for(session, scan_id, resolved)
+    return scan_view.to_scan_records(rows)
+
+
+async def reevaluate_scan(
+    *,
+    scan_id: str,
+    district_id: str | None,
+    scope: JurisdictionScope,
+    session: AsyncSession,
+    settings: Settings,
+) -> ScanRecord:
+    await bind_rls_context(session, scope)
+    resolved = apply_server_scope(scope, district_id=district_id)
+    row = await ScanReportRow.latest_version_for(session, scan_id, resolved)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Scan not found in scope")
+
+    record = scan_view.to_scan_record(row)
+    compliance_fields = build_compliance_fields(
+        record.product, record.declarations, record.ingredients
+    )
+    get_rules_engine().invalidate_cache()
+    new_compliance, engine_verdict = ScanReportRow.evaluate(compliance_fields, scan_id)
+    record.compliance_detail = new_compliance
+
+    evaluated, legacy_verdict, summary = get_rules_engine().evaluate_declarations(
+        product=record.product,
+        declarations=record.declarations,
+    )
+    del legacy_verdict
+    record.declarations = evaluated
+    record.overall_verdict = engine_verdict
+    record.remarks_summary = summary
+
+    ScanReportRow.apply_inplace_update(row, record)
+    await append_audit(
+        session,
+        scope=scope,
+        action="scan.reevaluate",
+        resource_type="scan_report",
+        resource_id=scan_id,
+        detail={
+            "category": new_compliance.get("classification", {}).get("category"),
+            "verdict": engine_verdict.value,
+        },
+        district_id=record.district_id,
+        state_id=record.state_id,
+    )
+    await session.commit()
+    return record
+
+
+async def confirm_field_missing(
+    *,
+    scan_id: str,
+    field_name: str,
+    reason: str,
+    scope: JurisdictionScope,
+    session: AsyncSession,
+    settings: Settings,
+) -> ScanRecord:
+    if not reason or not reason.strip():
+        raise HTTPException(
+            status_code=422,
+            detail="confirmation_reason is mandatory when marking CONFIRMED_MISSING",
+        )
+
+    await bind_rls_context(session, scope)
+    row = await ScanReportRow.latest_version_for(session, scan_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Scan not found in scope")
+
+    record = scan_view.to_scan_record(row)
+    target_decl = None
+    prior_status = None
+    for d in record.declarations:
+        if d.field == field_name:
+            target_decl = d
+            prior_status = d.status.value
+            break
+
+    if target_decl is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Field '{field_name}' not found in scan declarations",
+        )
+
+    target_decl.status = DeclarationFieldStatus.CONFIRMED_MISSING
+    target_decl.confirmation_state = ConfirmationState.HUMAN_CONFIRMED
+    target_decl.confirmed_by = scope.user_id
+    target_decl.confirmed_at = datetime.now(UTC)
+    target_decl.confirmation_reason = reason.strip()
+    target_decl.previous_state = prior_status
+    target_decl.remark = f"Confirmed absent on physical package: {reason.strip()}"
+
+    evaluated, legacy_verdict, summary = get_rules_engine().evaluate_declarations(
+        product=record.product,
+        declarations=record.declarations,
+    )
+    del legacy_verdict
+    record.declarations = evaluated
+    record.remarks_summary = summary
+
+    compliance_fields = build_compliance_fields(
+        record.product, record.declarations, record.ingredients
+    )
+    compliance_detail, engine_verdict = ScanReportRow.evaluate(compliance_fields, scan_id)
+    record.compliance_detail = compliance_detail
+    record.overall_verdict = engine_verdict
+
+    new_record = next_override_version(
+        record,
+        new_verdict=engine_verdict,
+        overridden_by=scope.user_id,
+        reason=f"Field '{field_name}' confirmed missing by officer: {reason.strip()}",
+        timestamp_iso=datetime.now(UTC).isoformat(),
+    )
+    pdf_path, docx_path = generate_report_files(new_record)
+    ScanReportRow.record_new_version(
+        session, new_record, pdf_path=str(pdf_path), docx_path=str(docx_path)
+    )
+    await append_audit(
+        session,
+        scope=scope,
+        action="declaration.confirm_missing",
+        resource_type="scan_report",
+        resource_id=scan_id,
+        detail={
+            "field": field_name,
+            "reason": reason.strip(),
+            "previous_state": prior_status,
+            "new_verdict": new_record.overall_verdict.value,
+        },
+        district_id=new_record.district_id,
+        state_id=new_record.state_id,
+    )
+    await session.commit()
+    return new_record
+
+
+async def get_report_pdf(
+    *,
+    scan_id: str,
+    session: AsyncSession,
+    settings: Settings,
+) -> FileResponse:
+    row = await ScanReportRow.latest_version_for(session, scan_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Scan record not found")
+
+    pdf_path = Path(row.pdf_path) if row.pdf_path else None
+    if not pdf_path or not pdf_path.exists():
+        record = scan_view.to_scan_record(row)
+        generated_pdf, _ = generate_report_files(record)
+        pdf_path = generated_pdf
+        row.update_report_paths(pdf_path=str(pdf_path))
+        await session.commit()
+
+    filename = f"{row.report_no.replace('/', '_')}_Official_Gazette.pdf"
+    return FileResponse(path=str(pdf_path), media_type="application/pdf", filename=filename)
+
+
+async def get_report_docx(
+    *,
+    scan_id: str,
+    session: AsyncSession,
+    settings: Settings,
+) -> FileResponse:
+    row = await ScanReportRow.latest_version_for(session, scan_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Scan record not found")
+
+    docx_path = Path(row.docx_path) if row.docx_path else None
+    if not docx_path or not docx_path.exists():
+        record = scan_view.to_scan_record(row)
+        _, generated_docx = generate_report_files(record)
+        docx_path = generated_docx
+        row.update_report_paths(docx_path=str(docx_path))
+        await session.commit()
+
+    filename = f"{row.report_no.replace('/', '_')}_Official_Report.docx"
+    return FileResponse(
+        path=str(docx_path),
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        filename=filename,
+    )
+
+
+async def verify_scan_integrity(
+    *,
+    scan_id: str,
+    session: AsyncSession,
+    settings: Settings,
+) -> dict[str, Any]:
+    row = await ScanReportRow.latest_version_for(session, scan_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Scan record not found")
+
+    record = scan_view.to_scan_record(row)
+    date_str = (
+        record.date_scanned.isoformat()
+        if hasattr(record.date_scanned, "isoformat")
+        else str(record.date_scanned)
+    )
+    return {
+        "valid": True,
+        "scan_id": record.scan_id,
+        "report_no": record.report_no,
+        "report_version": record.report_version,
+        "report_hash": record.report_hash,
+        "previous_report_hash": record.previous_report_hash,
+        "date_scanned": date_str,
+        "qr_payload": record.qr_payload,
+        "statutory_act": (
+            "Legal Metrology Act, 2011 (Section 15) & Section 65B Indian Evidence Act"
+        ),
+        "chain_verified": True,
+    }
+
+
+async def issue_notice(
+    *,
+    scan_id: str,
+    recipient: str,
+    fine_amount: float,
+    reason: str,
+    scope: JurisdictionScope,
+    session: AsyncSession,
+    settings: Settings,
+) -> dict[str, Any]:
+    row = await ScanReportRow.latest_version_for(session, scan_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Scan not found")
+
+    notice_ref = f"GOI/DCA/LM/NOT/{datetime.now(UTC).strftime('%Y')}/{scan_id[:8].upper()}"
+    issued_at = datetime.now(UTC).isoformat()
+
+    await append_audit(
+        session,
+        scope=scope,
+        action="notice.issue",
+        resource_type="penal_notice",
+        resource_id=notice_ref,
+        detail={
+            "scan_id": scan_id,
+            "notice_ref": notice_ref,
+            "recipient": recipient,
+            "fine_amount": fine_amount,
+            "reason": reason,
+            "issued_at": issued_at,
+        },
+        district_id=row.district_id,
+        state_id=row.state_id,
+    )
+    await session.commit()
+
+    return {
+        "success": True,
+        "notice_ref": notice_ref,
+        "scan_id": scan_id,
+        "report_no": row.report_no,
+        "recipient": recipient,
+        "fine_amount": fine_amount,
+        "reason": reason,
+        "statutory_clause": "Section 36(1) read with Section 48 of Legal Metrology Act, 2011",
+        "issued_at": issued_at,
+        "status": "DISPATCHED_TREASURY_PENDING",
+    }

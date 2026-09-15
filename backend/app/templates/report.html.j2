@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Legal Metrology Compliance Report {{ record.report_no }}</title>
+  <style>
+    @page {
+      margin: 16mm 14mm 16mm 14mm;
+      @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-size: 8pt;
+        color: #666;
+      }
+    }
+    body {
+      font-family: DejaVu Sans, -apple-system, sans-serif;
+      font-size: 10pt;
+      line-height: 1.4;
+      color: #1a202c;
+      margin: 0;
+      padding: 0;
+    }
+    .header {
+      border-bottom: 2px solid #0b3d2e;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+    .eyebrow {
+      font-size: 8pt;
+      font-weight: 700;
+      color: #0b3d2e;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    h1 {
+      font-size: 16pt;
+      margin: 4px 0 6px 0;
+      color: #0b3d2e;
+    }
+    .meta-grid {
+      display: table;
+      width: 100%;
+      margin-top: 6px;
+      font-size: 8.5pt;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 6px 8px;
+    }
+    .meta-row {
+      display: table-row;
+    }
+    .meta-cell {
+      display: table-cell;
+      padding: 2px 8px;
+    }
+    h2 {
+      font-size: 11pt;
+      margin: 14px 0 6px 0;
+      padding-bottom: 3px;
+      border-bottom: 1px solid #cbd5e1;
+      color: #0b3d2e;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .product-summary {
+      background: #f1f5f9;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 9.5pt;
+    }
+    .evidence-container {
+      text-align: center;
+      margin: 10px 0;
+      padding: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+    }
+    .evidence-img {
+      max-width: 95%;
+      max-height: 320px;
+      object-fit: contain;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+    }
+    .evidence-caption {
+      font-size: 8pt;
+      color: #64748b;
+      margin-top: 4px;
+      font-style: italic;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+      font-size: 8.5pt;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 5px 7px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #0b3d2e;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 8pt;
+      text-transform: uppercase;
+    }
+    tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-pass { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .badge-needs_review { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    .badge-fail, .badge-missing { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .badge-below_min { background: #ffedd5; color: #9a3412; border: 1px solid #fdba74; }
+    .verdict-box {
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 9pt;
+    }
+    .verdict-compliant { background: #ecfdf5; border-left: 4px solid #10b981; }
+    .verdict-needs_review { background: #fffbeb; border-left: 4px solid #f59e0b; }
+    .verdict-non_compliance { background: #fef2f2; border-left: 4px solid #ef4444; }
+    .footer-seal {
+      margin-top: 16px;
+      padding-top: 8px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 7.5pt;
+      color: #64748b;
+      display: table;
+      width: 100%;
+    }
+    .seal-left { display: table-cell; text-align: left; }
+    .seal-right { display: table-cell; text-align: right; }
+    .disclaimer {
+      margin-top: 14px;
+      padding: 6px 10px;
+      border: 1px dashed #b91c1c;
+      background: #fff5f5;
+      color: #991b1b;
+      font-size: 8pt;
+      text-align: center;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="eyebrow">Government of India · Department of Consumer Affairs · Legal Metrology</div>
+    <h1>Compliance Inspection Report</h1>
+    <div class="meta-grid">
+      <div class="meta-row">
+        <div class="meta-cell"><strong>Report No:</strong> {{ record.report_no }}</div>
+        <div class="meta-cell"><strong>Version:</strong> {{ record.report_version }}</div>
+        <div class="meta-cell"><strong>Date:</strong> {{ record.date_scanned.strftime('%d-%b-%Y %H:%M UTC') }}</div>
+      </div>
+      <div class="meta-row">
+        <div class="meta-cell"><strong>Inspector:</strong> {{ record.inspector_id }}</div>
+        <div class="meta-cell"><strong>Jurisdiction:</strong> {{ record.district_id }}, {{ record.state_id }}</div>
+        <div class="meta-cell"><strong>GPS:</strong> {{ "%.4f"|format(record.gps.lat) }}, {{ "%.4f"|format(record.gps.lng) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Product Under Inspection</h2>
+  <div class="product-summary">
+    <strong>{{ record.product.name }}</strong> &nbsp;·&nbsp;
+    Manufacturer: <strong>{{ record.product.manufacturer }}</strong> &nbsp;·&nbsp;
+    Category: <em>{{ record.product.category }}</em>
+  </div>
+
+  {% if image_data_uri %}
+  <h2>Package Proof Evidence</h2>
+  <div class="evidence-container">
+    <img src="{{ image_data_uri }}" class="evidence-img" alt="Uploaded package proof evidence" />
+    <div class="evidence-caption">Figure 1: Full captured packaged-commodity label proof for audit verification.</div>
+  </div>
+  {% endif %}
+
+  <h2>Mandatory Declarations (PCR, 2011)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 22%;">Field</th>
+        <th style="width: 38%;">Detected Value</th>
+        <th style="width: 10%;">Font (mm)</th>
+        <th style="width: 14%;">Status</th>
+        <th style="width: 16%;">Remark</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in record.declarations %}
+      <tr>
+        <td><strong>{{ d.field | replace('_', ' ') | title }}</strong></td>
+        <td>{{ d.detected_value or "—" }}</td>
+        <td>{% if d.font_size_mm is not none %}{{ "%.2f"|format(d.font_size_mm) }}{% else %}—{% endif %}</td>
+        <td>
+          <span class="badge badge-{{ d.status.value }}">{{ d.status.value | replace('_', ' ') }}</span>
+        </td>
+        <td style="font-size: 7.5pt; color: #475569;">{{ d.remark or "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if record.ingredients and record.ingredients|length > 0 %}
+  <h2>Ingredients (FSSAI Disclosure)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 70%;">Ingredient Name</th>
+        <th style="width: 30%;">Quantity / %</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in record.ingredients %}
+      <tr>
+        <td>{{ i.name }}</td>
+        <td>{{ i.quantity or "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <h2>Inspection Verdict & Summary</h2>
+  <div class="verdict-box verdict-{{ 'compliant' if record.overall_verdict.value == 'compliant' else ('needs_review' if record.overall_verdict.value == 'needs_review' else 'non_compliance') }}">
+    <strong>Overall Verdict: {{ record.overall_verdict.value | replace('_', ' ') | upper }}</strong>
+    <p style="margin: 3px 0 0 0;">{{ record.remarks_summary }}</p>
+  </div>
+
+  {% if show_disclaimer %}
+  <div class="disclaimer">{{ disclaimer }}</div>
+  {% endif %}
+
+  <div class="footer-seal">
+    <div class="seal-left">
+      Official Verification URL: {{ record.qr_payload }}<br />
+      Audit Fingerprint: {{ record.report_hash[:20] }}...{{ record.report_hash[-8:] }}
+    </div>
+    <div class="seal-right">
+      Legal Metrology Compliance System (LMCS)<br />
+      Scan ID: {{ record.scan_id }}
+    </div>
+  </div>
+</body>
+</html>

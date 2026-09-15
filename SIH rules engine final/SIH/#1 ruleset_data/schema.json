@@ -1,0 +1,21 @@
+{
+  "$schema_description": "Structure that every rule object in legal_metrology_rules.json and fssai_rules.json must follow.",
+  "rule_id": "string — unique identifier, e.g. LM-CH2-R6-02",
+  "domain": "legal_metrology | fssai",
+  "description": "string — plain-language summary of what this rule requires",
+  "applicability": {
+    "commodity_category": "string or array — e.g. all, food_items, namkeen, cosmetics",
+    "package_type": "retail | wholesale | export | all",
+    "exemption_conditions": "string — conditions under which this rule does NOT apply, or NOT_FOUND_IN_SOURCE"
+  },
+  "evaluator_type": "field_presence | band_lookup | allowed_values | regex_pattern_match | format_check",
+  "expected_value_or_format": "string — exact requirement text used by the rule engine to check extracted data",
+  "legal_reference": {
+    "source_document": "string — name of the source regulation",
+    "section_or_rule_number": "string — exact rule/section number",
+    "schedule_reference": "string or NOT_FOUND_IN_SOURCE — Schedule number if applicable"
+  },
+  "effective_from": "date (DD.MM.YYYY or DD-MM-YYYY) or NOT_FOUND_IN_SOURCE",
+  "effective_to": "date, null (still in force), or NOT_FOUND_IN_SOURCE",
+  "verification_status": "EXTRACTED_UNVERIFIED | VERIFIED | NEEDS_LEGAL_REVIEW"
+}

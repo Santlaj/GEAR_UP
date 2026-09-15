@@ -1,0 +1,25 @@
+{
+  "_comment": "MANUALLY VERIFIED GROUND TRUTH — Verified by human inspection of physical packaging",
+  "product_name": "Yogabar High Protein Muesli",
+  "manufacturer": "Sproutlife Foods Private Ltd.",
+  "address_contains": [
+    "Tumkur",
+    "572138"
+  ],
+  "mrp": "350.00",
+  "net_quantity": "350 g",
+  "mfg_date": "27/03/2026",
+  "fssai_number": "1122999000656",
+  "consumer_care_helpline": "+91 96060 30616",
+  "consumer_care_email": "hello@yogabars.in",
+  "ingredients_contains": [
+    "Rolled Oats",
+    "Millets",
+    "Rice Flakes",
+    "Protein Blend",
+    "Dehydrated Fruits",
+    "Nuts and Seeds"
+  ],
+  "expected_food_classification": "FOOD",
+  "expected_category": "cereals_pulses"
+}
