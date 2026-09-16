@@ -2,11 +2,15 @@ import React from 'react';
 import { ScanRecord } from '../../shared/schema';
 import { useLanguage } from '../../lib/i18n';
 import { resolveAssetUrl } from '../../api/client';
+import { getScanDocxUrl } from '../../api/scans';
+import { exportScanToCsv } from '../../lib/exportUtils';
 
 interface CertificateViewProps {
   scanRecord: ScanRecord;
   onPrintTriplicate?: () => void;
   onDownloadPdf: () => void;
+  onDownloadDocx?: () => void;
+  onDownloadCsv?: () => void;
   onIssueNotice?: () => void;
   onVerifyQr?: () => void;
 }
@@ -14,11 +18,12 @@ interface CertificateViewProps {
 export const CertificateView: React.FC<CertificateViewProps> = ({
   scanRecord,
   onDownloadPdf,
+  onDownloadDocx,
+  onDownloadCsv,
 }) => {
   const { lang } = useLanguage();
 
   const isCompliant = scanRecord.overall_verdict === 'compliant';
-  const isDeficient = !isCompliant;
 
   const formattedDate = (() => {
     try {
@@ -50,10 +55,33 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
   const inspectorBadge = scanRecord.inspector_id ? scanRecord.inspector_id.toUpperCase() : 'LMI-CADRE';
   const districtName = scanRecord.district_id ? `${scanRecord.district_id} Enforcement Circle` : 'District Enforcement Circle';
 
+  const handleDownloadDocx = () => {
+    if (onDownloadDocx) {
+      onDownloadDocx();
+    } else {
+      const docxUrl = getScanDocxUrl(scanRecord.scan_id);
+      const link = document.createElement('a');
+      link.href = docxUrl;
+      link.download = `${scanRecord.report_no.replace(/[\/\\?%*:|"<>]/g, '_')}_Official_Report.docx`;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const handleDownloadCsv = () => {
+    if (onDownloadCsv) {
+      onDownloadCsv();
+    } else {
+      exportScanToCsv(scanRecord);
+    }
+  };
+
   return (
     <div className="w-full px-2 sm:px-6 py-3 sm:py-4 select-none text-black">
       
-      {/* Top Attestation Action Ribbon */}
+      {/* Top Attestation Action Ribbon with Export Controls */}
       <div className="bg-white border border-slate-300 p-3 sm:p-4 mb-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-sm rounded-sm text-black">
         <div>
           <div className="font-black text-xs sm:text-sm text-black flex flex-wrap items-center gap-1.5">
@@ -67,12 +95,27 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
           </div>
         </div>
 
+        {/* Export Action Buttons: PDF, DOCX, CSV */}
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           <button
             onClick={onDownloadPdf}
             className="flex-1 sm:flex-none bg-black hover:bg-neutral-800 text-white text-xs font-bold px-3.5 py-2 rounded transition-colors shadow-sm flex items-center justify-center cursor-pointer"
           >
-            <span>{lang === 'hi' ? 'पीडीएफ डाउनलोड करें' : 'Download Gazette PDF'}</span>
+            <span>{lang === 'hi' ? 'पीडीएफ डाउनलोड' : 'Download PDF'}</span>
+          </button>
+
+          <button
+            onClick={handleDownloadDocx}
+            className="flex-1 sm:flex-none bg-white border border-black hover:bg-neutral-100 text-black text-xs font-bold px-3.5 py-2 rounded transition-colors shadow-sm flex items-center justify-center cursor-pointer"
+          >
+            <span>{lang === 'hi' ? 'DOCX डाउनलोड' : 'Download DOCX'}</span>
+          </button>
+
+          <button
+            onClick={handleDownloadCsv}
+            className="flex-1 sm:flex-none bg-white border border-black hover:bg-neutral-100 text-black text-xs font-bold px-3.5 py-2 rounded transition-colors shadow-sm flex items-center justify-center cursor-pointer"
+          >
+            <span>{lang === 'hi' ? 'CSV डाउनलोड' : 'Download CSV'}</span>
           </button>
         </div>
       </div>
@@ -232,76 +275,78 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
             </div>
           </div>
 
-          {/* Section II: Statutory Declarations Audit Checklist (LM-PC Rules, 2011) */}
-          <div className="border border-slate-300 mb-5 bg-white overflow-x-auto shadow-2xs text-black">
-            <div className="border-b border-black bg-slate-100 text-black px-3 sm:px-4 py-2 flex items-center justify-between text-xs sm:text-sm font-bold min-w-[680px]">
-              <span>Section II: Statutory Declarations Audit Checklist (LM-PC Rules, 2011)</span>
-              <span className="text-xs font-bold tracking-wider text-black">
-                MANDATORY DECLARATIONS RULE 6 ({declarations.length} CLAUSES)
-              </span>
+          {/* Sections II & III Side-by-Side: Section II (Main Checklist) & Section III (Compact Evidence Photo) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-5 items-start text-black">
+            
+            {/* Section II: Main Audit Checklist (Wider: lg:col-span-8) */}
+            <div className="lg:col-span-8 border border-slate-300 bg-white overflow-x-auto shadow-2xs text-black">
+              <div className="border-b border-black bg-slate-100 text-black px-3 sm:px-4 py-2 flex items-center justify-between text-xs sm:text-sm font-bold min-w-[500px]">
+                <span>Section II: Statutory Declarations Audit Checklist (LM-PC Rules, 2011)</span>
+                <span className="text-xs font-bold tracking-wider text-black">
+                  RULE 6 ({declarations.length} CLAUSES)
+                </span>
+              </div>
+
+              <table className="gov-table min-w-[500px] text-black w-full text-xs">
+                <thead>
+                  <tr className="border-b border-black bg-slate-50 text-black text-left">
+                    <th style={{ width: '16%' }} className="p-2 text-black font-bold">RULE</th>
+                    <th style={{ width: '22%' }} className="p-2 text-black font-bold">PARAMETER</th>
+                    <th style={{ width: '22%' }} className="p-2 text-black font-bold">DECLARED EVIDENCE</th>
+                    <th style={{ width: '18%' }} className="p-2 text-black font-bold">STANDARD</th>
+                    <th style={{ width: '10%' }} className="p-2 text-black font-bold">STATUS</th>
+                    <th style={{ width: '12%' }} className="p-2 text-black font-bold">DEFECT / REMARK</th>
+                  </tr>
+                </thead>
+                <tbody className="text-black">
+                  {declarations.length > 0 ? (
+                    declarations.map((d, index) => {
+                      const pass = d.status === 'pass';
+                      return (
+                        <tr key={d.field || index} className="border-b border-slate-200 text-black">
+                          <td className="p-2 font-mono font-bold text-black">
+                            {d.rule_provision || `Rule 6(1)`}
+                          </td>
+                          <td className="p-2 font-semibold text-black">
+                            {d.statutory_parameter || d.field.replace(/_/g, ' ').toUpperCase()}
+                          </td>
+                          <td className="p-2 font-mono text-xs text-black">
+                            {d.detected_value || '[NOT LOCATED / OMITTED]'}
+                          </td>
+                          <td className="p-2 text-xs text-black">
+                            {d.legal_metrology_standard || d.mandated_value || 'Mandatory statutory declaration under Rule 6'}
+                          </td>
+                          <td className="p-2 text-black font-bold text-xs">
+                            {d.status.toUpperCase()}
+                          </td>
+                          <td className="p-2 text-xs text-black">
+                            {d.remark || (pass ? 'Verified compliant with Gazette mandate.' : 'Non-compliance logged. Sec 36 indicated.')}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="text-center py-6 text-black italic">
+                        No declaration clauses available on this record.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
 
-            <table className="gov-table min-w-[680px] text-black w-full">
-              <thead>
-                <tr className="border-b border-black bg-slate-50 text-black text-left">
-                  <th style={{ width: '14%' }} className="p-2 text-black font-bold">RULE PROVISION</th>
-                  <th style={{ width: '22%' }} className="p-2 text-black font-bold">STATUTORY PARAMETER</th>
-                  <th style={{ width: '20%' }} className="p-2 text-black font-bold">DECLARED ON LABEL EVIDENCE</th>
-                  <th style={{ width: '20%' }} className="p-2 text-black font-bold">LEGAL METROLOGY STANDARD</th>
-                  <th style={{ width: '12%' }} className="p-2 text-black font-bold">STATUS</th>
-                  <th style={{ width: '12%' }} className="p-2 text-black font-bold">DEFECT / REMARK</th>
-                </tr>
-              </thead>
-              <tbody className="text-black">
-                {declarations.length > 0 ? (
-                  declarations.map((d, index) => {
-                    const pass = d.status === 'pass';
-                    return (
-                      <tr key={d.field || index} className="border-b border-slate-200 text-black">
-                        <td className="p-2 font-mono font-bold text-black">
-                          {d.rule_provision || `Rule 6(1)`}
-                        </td>
-                        <td className="p-2 font-semibold text-black">
-                          {d.statutory_parameter || d.field.replace(/_/g, ' ').toUpperCase()}
-                        </td>
-                        <td className="p-2 font-mono text-xs text-black">
-                          {d.detected_value || '[NOT LOCATED / OMITTED]'}
-                        </td>
-                        <td className="p-2 text-xs text-black">
-                          {d.legal_metrology_standard || d.mandated_value || 'Mandatory statutory declaration under Rule 6'}
-                        </td>
-                        <td className="p-2 text-black font-bold text-xs">
-                          {d.status.toUpperCase()}
-                        </td>
-                        <td className="p-2 text-xs text-black">
-                          {d.remark || (pass ? 'Verified compliant with Gazette mandate.' : 'Non-compliance logged. Sec 36 indicated.')}
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="text-center py-6 text-black italic">
-                      No declaration clauses available on this record.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Section III: Seized Packaged Commodity Evidence */}
-          <div className="mb-5 text-black">
-            <div className="border border-slate-300 bg-white flex flex-col shadow-2xs overflow-hidden text-black">
-              <div className="border-b border-black bg-slate-100 text-black px-3 sm:px-4 py-2 flex items-center justify-between text-xs sm:text-sm font-bold">
-                <span>Section III: Packaged Commodity Evidence (Photo Annexure A-1)</span>
-                <span className="border border-black text-black text-[10px] px-2 py-0.5 rounded uppercase font-bold">
+            {/* Section III: Seized Packaged Commodity Evidence (Compact: lg:col-span-4) */}
+            <div className="lg:col-span-4 border border-slate-300 bg-white flex flex-col shadow-2xs overflow-hidden text-black">
+              <div className="border-b border-black bg-slate-100 text-black px-3 py-2 flex items-center justify-between text-xs font-bold">
+                <span>Section III: Evidence Photo (A-1)</span>
+                <span className="border border-black text-black text-[9px] px-1.5 py-0.5 rounded uppercase font-bold">
                   FIELD CAPTURE
                 </span>
               </div>
 
-              <div className="p-3 bg-neutral-900 flex-1 flex flex-col justify-between">
-                <div className="relative overflow-hidden border border-neutral-700 bg-black flex items-center justify-center min-h-[180px]">
+              <div className="p-2 bg-neutral-900 flex-1 flex flex-col justify-between">
+                <div className="relative overflow-hidden border border-neutral-700 bg-black flex items-center justify-center min-h-[160px]">
                   {scanRecord.product?.image_path ? (
                     <img
                       src={
@@ -312,15 +357,15 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
                             : resolveAssetUrl(`captures/${scanRecord.product.image_path}`) || scanRecord.product.image_path
                       }
                       alt="Seized Evidence Annexure"
-                      className="max-h-[220px] w-auto object-contain block"
+                      className="max-h-[170px] w-auto object-contain block"
                     />
                   ) : (
-                    <div className="text-white text-xs italic p-8 text-center">
+                    <div className="text-white text-xs italic p-6 text-center">
                       Packaging photo sealed in central evidence vault.
                     </div>
                   )}
                   {/* GPS & Timestamp Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/85 text-[11px] text-white font-mono px-3 py-1.5 leading-tight border-t border-neutral-700">
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/85 text-[10px] text-white font-mono px-2 py-1 leading-tight border-t border-neutral-700">
                     <div>
                       GPS:{' '}
                       {scanRecord.gps?.lat != null
@@ -331,12 +376,13 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
                   </div>
                 </div>
 
-                <div className="mt-2 flex flex-wrap items-center justify-between text-[11px] font-mono text-white px-1 gap-1">
-                  <span>Evidentiary Engine: Central Compliance Core</span>
+                <div className="mt-1.5 flex flex-wrap items-center justify-between text-[10px] font-mono text-white px-0.5 gap-1">
+                  <span>Central Core Vault</span>
                   <span>VERSION: {scanRecord.report_version || 1}</span>
                 </div>
               </div>
             </div>
+
           </div>
 
           {/* Bottom Attestation & Signature Box */}
