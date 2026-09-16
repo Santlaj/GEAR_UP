@@ -8,8 +8,8 @@ interface LoginViewProps {
 
 export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   const [portal, setPortal] = useState<'inspector' | 'admin'>('inspector');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('vaishnavi@lmcs.gov.in');
+  const [password, setPassword] = useState('DevPassword@123');
   const [showPassword, setShowPassword] = useState(false);
   const [isHumanVerified, setIsHumanVerified] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -17,8 +17,13 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
   const handlePortalSwitch = (newPortal: 'inspector' | 'admin') => {
     setPortal(newPortal);
-    setEmail('');
-    setPassword('');
+    if (newPortal === 'inspector') {
+      setEmail('vaishnavi@lmcs.gov.in');
+      setPassword('DevPassword@123');
+    } else {
+      setEmail('santlaj@lmcs.gov.in');
+      setPassword('DevPassword@123');
+    }
     setErrorMsg(null);
   };
 

@@ -282,10 +282,11 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({
 
           {onLogout && (
             <button
+              id="profile-card-signout-btn"
               onClick={onLogout}
-              className="mt-4 w-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-300 py-2 px-3 rounded text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+              className="mt-4 w-full bg-red-50 hover:bg-red-100 active:bg-red-200 text-red-700 hover:text-red-800 border border-red-300 py-2.5 px-3 rounded text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs group"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4 text-red-600 group-hover:scale-110 transition-transform" />
               <span>Sign Out of Terminal (लॉग आउट)</span>
             </button>
           )}

@@ -21,6 +21,8 @@ export const translations = {
     active_on_duty: 'ACTIVE ON-DUTY',
     profile_badge: 'PROFILE',
     view_profile: 'Inspector Dossier',
+    sign_out: 'Sign Out',
+    sign_out_desc: 'Exit Terminal',
 
     // Navigation Tabs
     tab_scan: 'Live Inspection & Scan',
@@ -133,6 +135,8 @@ export const translations = {
     active_on_duty: 'सक्रिय ड्यूटी पर',
     profile_badge: 'प्रोफ़ाइल',
     view_profile: 'अधिकारी परिचय डॉकेट',
+    sign_out: 'साइन आउट',
+    sign_out_desc: 'टर्मिनल बंद करें',
 
     // Navigation Tabs
     tab_scan: 'प्रत्यक्ष निरीक्षण एवं स्कैन',

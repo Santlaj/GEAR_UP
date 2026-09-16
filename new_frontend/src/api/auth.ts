@@ -1,8 +1,9 @@
 /**
- * Auth API functions — calls the existing backend auth endpoints.
+ * Auth API functions — calls the backend auth endpoints.
  */
 
 import { apiFetch } from './client';
+import { UserContext } from '../shared/schema';
 
 export interface BackendScope {
   role: string;
@@ -17,6 +18,15 @@ export interface LoginResponse {
   access_token: string;
   token_type: string;
   scope: BackendScope;
+  session_id?: string | null;
+}
+
+export interface AuthMeResponse {
+  user: UserContext;
+  scope: BackendScope;
+  session_id?: string | null;
+  role?: string;
+  user_id?: string;
 }
 
 /**
@@ -34,8 +44,21 @@ export async function loginApi(
 }
 
 /**
- * GET /api/auth/me — returns the server-derived jurisdiction scope
+ * POST /api/auth/logout — revokes session on the server
  */
-export async function fetchMe(): Promise<BackendScope> {
-  return apiFetch<BackendScope>('/auth/me');
+export async function logoutApi(): Promise<{ success: boolean; message: string }> {
+  try {
+    return await apiFetch<{ success: boolean; message: string }>('/auth/logout', {
+      method: 'POST',
+    });
+  } catch {
+    return { success: true, message: 'Local session cleared' };
+  }
+}
+
+/**
+ * GET /api/auth/me — returns authoritative user profile, session identity, and jurisdiction scope
+ */
+export async function fetchMe(): Promise<AuthMeResponse> {
+  return apiFetch<AuthMeResponse>('/auth/me');
 }

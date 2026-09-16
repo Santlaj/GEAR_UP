@@ -19,8 +19,22 @@ class Base(DeclarativeBase):
 
 
 settings = get_settings()
-engine = create_async_engine(settings.database_url, pool_pre_ping=True)
-admin_engine = create_async_engine(settings.database_admin_url, pool_pre_ping=True)
+engine = create_async_engine(
+    settings.database_url,
+    pool_pre_ping=True,
+    connect_args={
+        "statement_cache_size": 0,
+        "prepared_statement_cache_size": 0,
+    },
+)
+admin_engine = create_async_engine(
+    settings.database_admin_url,
+    pool_pre_ping=True,
+    connect_args={
+        "statement_cache_size": 0,
+        "prepared_statement_cache_size": 0,
+    },
+)
 SessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 AdminSessionLocal = async_sessionmaker(admin_engine, expire_on_commit=False, class_=AsyncSession)
 
@@ -42,15 +56,15 @@ async def bind_rls_context(session: AsyncSession, scope: JurisdictionScope) -> N
 
     await session.execute(
         text(
-            "SELECT set_config('app.user_id', :user_id, true),"
-            " set_config('app.role', :role, true),"
-            " set_config('app.district_id', :district_id, true),"
-            " set_config('app.state_id', :state_id, true),"
-            " set_config('app.auditor_level', :auditor_level, true)"
+            "SELECT set_config('app.user_id', :user_id, false),"
+            " set_config('app.role', :role, false),"
+            " set_config('app.district_id', :district_id, false),"
+            " set_config('app.state_id', :state_id, false),"
+            " set_config('app.auditor_level', :auditor_level, false)"
         ),
         {
             "user_id": scope.user_id,
-            "role": scope.role.value,
+            "role": scope.role.value if hasattr(scope.role, "value") else str(scope.role),
             "district_id": scope.district_id or "",
             "state_id": scope.state_id or "",
             "auditor_level": scope.auditor_level or "",
@@ -75,7 +89,9 @@ def __getattr__(name: str):
     mapping = {
         "JurisdictionRow": ("app.models.jurisdiction", "JurisdictionRow"),
         "UserRow": ("app.models.user", "UserRow"),
+        "SessionRow": ("app.models.session", "SessionRow"),
         "ScanReportRow": ("app.models.scan", "ScanReportRow"),
+        "ScanImageRow": ("app.models.scan_image", "ScanImageRow"),
         "AuditLogRow": ("app.models.audit", "AuditLogRow"),
     }
     if name not in mapping:
@@ -90,7 +106,9 @@ __all__ = [
     "Base",
     "JurisdictionRow",
     "UserRow",
+    "SessionRow",
     "ScanReportRow",
+    "ScanImageRow",
     "AuditLogRow",
     "engine",
     "admin_engine",

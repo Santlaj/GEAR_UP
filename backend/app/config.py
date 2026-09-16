@@ -25,6 +25,12 @@ class Settings(BaseSettings):
     verify_base_url: str = "https://verify.lmcs.example.gov.in/r"
     report_storage_dir: str = "storage/reports"
 
+    # ── Supabase Storage settings ──────────────────────────────────────
+    supabase_url: str = ""
+    supabase_service_role_key: str = ""
+    supabase_bucket: str = "lmcs-images"
+    supabase_signed_url_ttl: int = 300
+
     # ── Rules-engine settings ──────────────────────────────────────────
     default_best_effort_policy: str = "NEEDS_REVIEW"
     """Policy for BEST_EFFORT capability rules: 'ALLOW_PASS_FAIL' or 'NEEDS_REVIEW'."""

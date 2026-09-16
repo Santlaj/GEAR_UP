@@ -73,7 +73,7 @@ export const GovHeader: React.FC<GovHeaderProps> = ({
                 ? 'bg-[#0a2540] text-white border-[#0a2540] shadow-md ring-2 ring-amber-400/80'
                 : 'bg-slate-50 hover:bg-slate-100 text-slate-900 border-slate-300 hover:border-[#0a2540] shadow-2xs'
             }`}
-            title="Click to view full Inspector Profile & Statutory Authority"
+            title={lang === 'hi' ? 'निरीक्षक प्रोफाइल एवं अधिकार विवरण देखें' : 'Click to view full Inspector Profile & Statutory Authority'}
             aria-label="Inspector Profile and Cadre Dossier"
           >
             <div className="text-right">
@@ -91,7 +91,7 @@ export const GovHeader: React.FC<GovHeaderProps> = ({
               </div>
             </div>
             
-            {/* User Avatar Circle (Matching Image 5) */}
+            {/* User Avatar Circle */}
             <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 shadow-inner overflow-hidden ${
               isProfileActive
                 ? 'border-amber-400 ring-2 ring-amber-400/50 bg-[#e2e8f0]'

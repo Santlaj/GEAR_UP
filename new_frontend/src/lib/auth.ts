@@ -1,13 +1,14 @@
 /**
  * Authentication module for the LMCS Inspector & Enforcement Portal.
  *
- * Uses the real backend POST /api/auth/login and GET /api/users/me.
- * No fake token fallback — if credentials or connection fail, login fails.
+ * Connects directly to backend POST /api/auth/login, POST /api/auth/logout, and GET /api/auth/me.
+ * Features persistent server-side session tracking, robust token preservation across reloads,
+ * and reliable rehydration.
  */
 
 import { UserContext } from '../shared/schema';
-import { loginApi, BackendScope } from '../api/auth';
-import { fetchUserProfile } from '../api/users';
+import { loginApi, logoutApi, fetchMe, BackendScope } from '../api/auth';
+import { ApiError } from '../api/client';
 
 export type { BackendScope };
 
@@ -16,11 +17,16 @@ export interface AuthSession {
   token_type: string;
   user: UserContext;
   scope: BackendScope;
+  session_id?: string | null;
   portal: 'inspector' | 'admin';
   logged_at: string;
 }
 
 const AUTH_STORAGE_KEY = 'pramaan_auth_session';
+
+export function getStoredToken(): string | null {
+  return localStorage.getItem('lmcs_token');
+}
 
 export function getStoredSession(): AuthSession | null {
   try {
@@ -44,9 +50,16 @@ export function saveSession(session: AuthSession): void {
 }
 
 export function clearAuthSession(): void {
-  localStorage.removeItem(AUTH_STORAGE_KEY);
-  localStorage.removeItem('lmcs_token');
-  localStorage.removeItem('lmcs_scope');
+  try {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    localStorage.removeItem('lmcs_token');
+    localStorage.removeItem('lmcs_scope');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    sessionStorage.clear();
+  } catch (e) {
+    console.error('Failed to clear auth session', e);
+  }
 }
 
 export interface LoginParams {
@@ -57,26 +70,30 @@ export interface LoginParams {
 
 /**
  * Authenticate an officer against the real backend.
- * Validates credentials via POST /api/auth/login and retrieves full
- * officer profile and jurisdiction scope from GET /api/users/me.
+ * Validates credentials via POST /api/auth/login, records server session,
+ * and retrieves authoritative user identity via GET /api/auth/me.
  */
 export async function loginOfficer(params: LoginParams): Promise<AuthSession> {
   const { email, password, portal } = params;
 
-  // 1. Authenticate against backend
+  // 1. Authenticate against backend and receive bound JWT
   const data = await loginApi(email.trim(), password.trim(), portal);
 
-  // Temporarily store token so subsequent request attaches Bearer token
+  // Store token immediately so subsequent requests have Authorization header
   localStorage.setItem('lmcs_token', data.access_token);
 
-  // 2. Fetch authoritative user profile and scope from backend
+  // 2. Fetch authoritative user profile and scope from GET /api/auth/me
   let user: UserContext;
   let scope: BackendScope = data.scope;
+  let session_id: string | null = data.session_id || null;
 
   try {
-    const profile = await fetchUserProfile();
-    user = profile.user;
-    scope = profile.scope;
+    const meData = await fetchMe();
+    user = meData.user;
+    scope = meData.scope;
+    if (meData.session_id) {
+      session_id = meData.session_id;
+    }
   } catch (err) {
     console.warn('Profile enrichment call failed, using login scope:', err);
     user = {
@@ -88,7 +105,10 @@ export async function loginOfficer(params: LoginParams): Promise<AuthSession> {
       state_id: scope.state_id || 'N/A',
       state_name: scope.state_id || 'N/A',
       badge_number: scope.user_id.toUpperCase(),
-      cadre: scope.role === 'inspector' ? 'Gazetted Field Enforcement (LMI Cadre)' : 'Designated Officer Cadre',
+      cadre:
+        scope.role === 'inspector'
+          ? 'Gazetted Field Enforcement (LMI Cadre)'
+          : 'Designated Officer Cadre',
     };
   }
 
@@ -97,6 +117,7 @@ export async function loginOfficer(params: LoginParams): Promise<AuthSession> {
     token_type: data.token_type || 'bearer',
     user,
     scope,
+    session_id,
     portal,
     logged_at: new Date().toISOString(),
   };
@@ -106,23 +127,52 @@ export async function loginOfficer(params: LoginParams): Promise<AuthSession> {
 }
 
 /**
- * Validate current session with backend and refresh profile
+ * Revoke the server session and clear local credentials.
+ */
+export async function logoutOfficer(): Promise<void> {
+  clearAuthSession();
+  try {
+    await logoutApi();
+  } catch (err) {
+    console.warn('Backend logout request encountered an issue:', err);
+  }
+}
+
+/**
+ * Validates active session against backend GET /api/auth/me upon page reload.
+ *
+ * CRITICAL LIFECYCLE RULE:
+ * - If token is expired or revoked (HTTP 401), clears storage and returns null.
+ * - If a transient network glitch occurs, retains stored session and does NOT boot the user out.
  */
 export async function validateSession(): Promise<AuthSession | null> {
-  const existing = getStoredSession();
-  if (!existing || !existing.access_token) return null;
+  const token = getStoredToken();
+  if (!token) return null;
 
   try {
-    const profile = await fetchUserProfile();
+    const meData = await fetchMe();
+    const existing = getStoredSession();
     const updated: AuthSession = {
-      ...existing,
-      user: profile.user,
-      scope: profile.scope,
+      access_token: token,
+      token_type: 'bearer',
+      user: meData.user,
+      scope: meData.scope,
+      session_id: meData.session_id || existing?.session_id || null,
+      portal: existing?.portal || (meData.scope.role === 'inspector' ? 'inspector' : 'admin'),
+      logged_at: existing?.logged_at || new Date().toISOString(),
     };
     saveSession(updated);
     return updated;
-  } catch {
-    clearAuthSession();
-    return null;
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 401) {
+      // Token expired or revoked server-side: only now is it cleared
+      console.warn('Active session is invalid or revoked. Clearing credentials.');
+      clearAuthSession();
+      return null;
+    }
+
+    // Network timeout or temporary backend unavailability: retain existing cache
+    console.warn('Could not contact backend for session revalidation; retaining stored session:', err);
+    return getStoredSession();
   }
 }

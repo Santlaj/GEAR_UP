@@ -25,15 +25,30 @@ def _env() -> Environment:
 def template_context(record: ScanRecord) -> dict:
     pending = record.review_status != ScanReviewStatus.approved
     image_data_uri = None
-    if record.product.image_path:
-        img_p = Path(record.product.image_path)
-        if img_p.exists():
-            try:
-                raw_bytes = img_p.read_bytes()
-                mime = "image/jpeg" if img_p.suffix.lower() in [".jpg", ".jpeg"] else "image/png"
-                image_data_uri = f"data:{mime};base64,{base64.b64encode(raw_bytes).decode('ascii')}"
-            except Exception:
-                pass
+    if record.product and record.product.image_path:
+        raw_path = record.product.image_path
+        candidates = [
+            Path(raw_path),
+            Path("captures") / raw_path,
+            Path("captures") / raw_path.replace("scans/", ""),
+            Path("captures") / record.scan_id / "evidence.jpg",
+        ]
+        # Also check captures/{scan_id} folder for any image
+        scan_dir = Path("captures") / record.scan_id
+        if scan_dir.is_dir():
+            for f in scan_dir.iterdir():
+                if f.is_file() and f.suffix.lower() in [".jpg", ".jpeg", ".png"]:
+                    candidates.append(f)
+
+        for img_p in candidates:
+            if img_p.is_file():
+                try:
+                    raw_bytes = img_p.read_bytes()
+                    mime = "image/png" if img_p.suffix.lower() == ".png" else "image/jpeg"
+                    image_data_uri = f"data:{mime};base64,{base64.b64encode(raw_bytes).decode('ascii')}"
+                    break
+                except Exception:
+                    pass
 
     return {
         "record": record,

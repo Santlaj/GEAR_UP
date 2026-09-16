@@ -17,12 +17,28 @@ from app.api import (
     scans_router,
     users_router,
 )
+from uuid import uuid4
+from sqlalchemy import text
 from app.rule_engine import load_ruleset
+from app.db import admin_engine
+from app.storage import download_scan_image
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     load_ruleset()  # cache ruleset once at startup
+    get_settings.cache_clear()  # ensure fresh env variables on reload
+
+    # Automatically ensure sessions and scan_images tables exist in Neon PostgreSQL
+    try:
+        from app.models.session import SessionRow
+        from app.models.scan_image import ScanImageRow
+
+        await SessionRow.ensure_table()
+        await ScanImageRow.ensure_table()
+        print(">>> Sessions & ScanImages tables successfully ensured in Neon PostgreSQL", flush=True)
+    except Exception as exc:
+        print(f">>> Table setup note: {exc}", flush=True)
 
     # Warm the compliance engine (360+ rules, classifier) so first scan is fast
     try:
@@ -61,6 +77,19 @@ def create_app() -> FastAPI:
     )
 
     @app.middleware("http")
+    async def correlation_id_middleware(request: Request, call_next):
+        client_req_id = request.headers.get("x-request-id")
+        request_id = (
+            client_req_id.strip()
+            if client_req_id and len(client_req_id) <= 64
+            else f"req_{uuid4().hex}"
+        )
+        request.state.request_id = request_id
+        response = await call_next(request)
+        response.headers["X-Request-ID"] = request_id
+        return response
+
+    @app.middleware("http")
     async def handle_head_requests(request: Request, call_next):
         if request.method == "HEAD":
             request.scope["method"] = "GET"
@@ -82,6 +111,39 @@ def create_app() -> FastAPI:
     captures_dir = Path(__file__).resolve().parent.parent / "captures"
     captures_dir.mkdir(parents=True, exist_ok=True)
     app.mount("/captures", StaticFiles(directory=str(captures_dir)), name="captures")
+
+    @app.get("/scans/{file_path:path}")
+    async def serve_scan_file(file_path: str):
+        clean_name = file_path.lstrip("/")
+        # Check local disk
+        candidates = [
+            captures_dir / clean_name,
+            captures_dir / "scans" / clean_name,
+        ]
+        parts = clean_name.split("/")
+        if len(parts) >= 2:
+            candidates.append(captures_dir / parts[0] / parts[-1])
+        for c in candidates:
+            if c.is_file():
+                mime = "image/png" if c.suffix.lower() == ".png" else "image/jpeg"
+                return Response(content=c.read_bytes(), media_type=mime, headers={"Cache-Control": "public, max-age=86400"})
+
+        # Fetch from Supabase
+        settings = get_settings()
+        storage_path = f"scans/{clean_name}" if not clean_name.startswith("scans/") else clean_name
+        bucket = settings.supabase_bucket or "lmcs-images"
+        result = await download_scan_image(bucket=bucket, storage_path=storage_path, settings=settings)
+        if result:
+            raw_bytes, mime = result
+            try:
+                save_dest = captures_dir / clean_name
+                save_dest.parent.mkdir(parents=True, exist_ok=True)
+                save_dest.write_bytes(raw_bytes)
+            except Exception:
+                pass
+            return Response(content=raw_bytes, media_type=mime, headers={"Cache-Control": "public, max-age=86400"})
+
+        return Response(status_code=404, content=b"Scan image not found")
 
     @app.api_route("/health", methods=["GET", "HEAD"])
     async def health() -> dict[str, str]:

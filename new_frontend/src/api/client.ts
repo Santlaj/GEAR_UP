@@ -41,14 +41,25 @@ export function resolveAssetUrl(path: string | null | undefined): string | null 
   return origin ? `${origin}/${clean}` : `/${clean}`;
 }
 
+export function getScanEvidenceImageUrl(scanId: string): string {
+  return `${API_BASE}/scans/${encodeURIComponent(scanId)}/evidence-image`;
+}
+
 function getToken(): string | null {
   return localStorage.getItem('lmcs_token');
 }
 
 export function clearSession(): void {
-  localStorage.removeItem('pramaan_auth_session');
-  localStorage.removeItem('lmcs_token');
-  localStorage.removeItem('lmcs_scope');
+  try {
+    localStorage.removeItem('pramaan_auth_session');
+    localStorage.removeItem('lmcs_token');
+    localStorage.removeItem('lmcs_scope');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    sessionStorage.clear();
+  } catch (e) {
+    console.error('Failed to clear session', e);
+  }
 }
 
 export class ApiError extends Error {

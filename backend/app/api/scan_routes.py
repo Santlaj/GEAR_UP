@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -43,6 +43,24 @@ class IssueNoticeRequest(BaseModel):
     recipient: str
     fine_amount: float = 25000.0
     reason: str
+
+
+class ScanImageItem(BaseModel):
+    id: str
+    role: str
+    original_filename: str | None = None
+    mime_type: str | None = None
+    file_size: int | None = None
+    url: str | None = None
+    expires_in: int = 300
+    storage_provider: str = "supabase"
+    created_at: str | None = None
+
+
+class ScanImagesResponse(BaseModel):
+    scan_id: str
+    report_no: str
+    images: list[ScanImageItem]
 
 
 @scans_router.post("", response_model=ScanRecord)
@@ -133,6 +151,36 @@ async def list_versions(
         session=session,
         settings=settings,
     )
+
+
+@scans_router.get("/{scan_id}/images", response_model=ScanImagesResponse)
+async def get_scan_images(
+    scan_id: str,
+    scope: JurisdictionScope = Depends(get_current_scope),
+    session: AsyncSession = Depends(get_session),
+    settings: Settings = Depends(get_settings),
+) -> ScanImagesResponse:
+    res = await scan_controller.get_scan_images(
+        scan_id=scan_id,
+        scope=scope,
+        session=session,
+        settings=settings,
+    )
+    return ScanImagesResponse(**res)
+
+
+@scans_router.get("/{scan_id}/evidence-image")
+async def get_scan_evidence_image(
+    scan_id: str,
+    session: AsyncSession = Depends(get_session),
+    settings: Settings = Depends(get_settings),
+) -> Response:
+    return await scan_controller.get_scan_evidence_image_bytes(
+        scan_id=scan_id,
+        session=session,
+        settings=settings,
+    )
+
 
 
 @scans_router.post("/{scan_id}/re-evaluate", response_model=ScanRecord)

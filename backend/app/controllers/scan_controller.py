@@ -8,7 +8,8 @@ from typing import Any
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import apply_server_scope
@@ -17,6 +18,7 @@ from app.db import bind_rls_context
 from app.models import get_rules_engine
 from app.models.audit import append_audit
 from app.models.scan import ScanReportRow
+from app.models.scan_image import ScanImageRow
 from app.models.scan_ingest import (
     CaptureGeometry,
     assemble_from_capture,
@@ -36,6 +38,7 @@ from app.schema import (
     ScanReviewStatus,
     ScanSource,
 )
+from app.storage import create_signed_url, delete_scan_images, download_scan_image, upload_scan_image
 from app.views import scan_view
 
 
@@ -74,52 +77,93 @@ async def submit_scan(
 
     # scan_id MUST be generated BEFORE the engine call
     scan_id = str(uuid4())
-    compliance_fields = build_compliance_fields(
-        material.product, material.declarations, material.ingredients, geometry=geometry
-    )
-    compliance_detail, engine_verdict = ScanReportRow.evaluate(compliance_fields, scan_id)
 
-    report_no = f"LM-{datetime.now(UTC).strftime('%Y%m%d')}-{scan_id[:8].upper()}"
-    draft = ScanRecord(
-        scan_id=scan_id,
-        report_no=report_no,
-        report_version=1,
-        previous_report_hash=None,
-        report_hash="",
-        date_scanned=datetime.now(UTC),
-        gps=GpsCoordinates(lat=gps_lat, lng=gps_lng),
-        inspector_id=scope.user_id,
-        district_id=resolved["district_id"],
-        state_id=resolved["state_id"],
-        source=source,
-        source_url=source_url,
-        product=material.product,
-        declarations=material.declarations,
-        ingredients=material.ingredients,
-        overall_verdict=engine_verdict,
-        remarks_summary=material.remarks_summary,
-        qr_payload=f"{settings.verify_base_url}/{scan_id}?v=1",
-        review_status=ScanReviewStatus.pending,
-        override=None,
-        compliance_detail=compliance_detail,
-    )
-    record = attach_hash(draft)
-    pdf_path, docx_path = generate_report_files(record)
-    ScanReportRow.record_new_version(
-        session, record, pdf_path=str(pdf_path), docx_path=str(docx_path)
-    )
-    await append_audit(
-        session,
-        scope=scope,
-        action="scan.submit",
-        resource_type="scan_report",
-        resource_id=record.scan_id,
-        detail={"report_hash": record.report_hash},
-        district_id=record.district_id,
-        state_id=record.state_id,
-    )
-    await session.commit()
-    return record
+    # Upload evidence images to Supabase Storage (or fallback)
+    uploaded_storage_results: list[dict[str, Any]] = []
+    images_to_cleanup: list[tuple[str, str, str]] = []
+
+    try:
+        for meta in material.uploaded_images_meta:
+            res = await upload_scan_image(
+                scan_id=scan_id,
+                image_id=meta.image_id,
+                raw_bytes=meta.raw_bytes,
+                content_type=meta.content_type,
+                extension=meta.extension,
+                settings=settings,
+            )
+            images_to_cleanup.append((res["provider"], res["bucket"], res["storage_path"]))
+            uploaded_storage_results.append({
+                "scan_id": scan_id,
+                "storage_provider": res["provider"],
+                "bucket": res["bucket"],
+                "storage_path": res["storage_path"],
+                "original_filename": meta.original_filename,
+                "mime_type": res["mime_type"],
+                "file_size": res["file_size"],
+                "image_role": meta.role,
+                "storage_status": "uploaded",
+                "inspector_id": scope.user_id,
+                "district_id": resolved["district_id"],
+                "state_id": resolved["state_id"],
+            })
+
+        if uploaded_storage_results:
+            material.product.image_path = uploaded_storage_results[0]["storage_path"]
+            await ScanImageRow.create_images(session, uploaded_storage_results)
+
+        compliance_fields = build_compliance_fields(
+            material.product, material.declarations, material.ingredients, geometry=geometry
+        )
+        compliance_detail, engine_verdict = ScanReportRow.evaluate(compliance_fields, scan_id)
+
+        report_no = f"LM-{datetime.now(UTC).strftime('%Y%m%d')}-{scan_id[:8].upper()}"
+        draft = ScanRecord(
+            scan_id=scan_id,
+            report_no=report_no,
+            report_version=1,
+            previous_report_hash=None,
+            report_hash="",
+            date_scanned=datetime.now(UTC),
+            gps=GpsCoordinates(lat=gps_lat, lng=gps_lng),
+            inspector_id=scope.user_id,
+            district_id=resolved["district_id"],
+            state_id=resolved["state_id"],
+            source=source,
+            source_url=source_url,
+            product=material.product,
+            declarations=material.declarations,
+            ingredients=material.ingredients,
+            overall_verdict=engine_verdict,
+            remarks_summary=material.remarks_summary,
+            qr_payload=f"{settings.verify_base_url}/{scan_id}?v=1",
+            review_status=ScanReviewStatus.pending,
+            override=None,
+            compliance_detail=compliance_detail,
+        )
+        record = attach_hash(draft)
+        pdf_path, docx_path = generate_report_files(record)
+        ScanReportRow.record_new_version(
+            session, record, pdf_path=str(pdf_path), docx_path=str(docx_path)
+        )
+        await append_audit(
+            session,
+            scope=scope,
+            action="scan.submit",
+            resource_type="scan_report",
+            resource_id=record.scan_id,
+            detail={"report_hash": record.report_hash},
+            district_id=record.district_id,
+            state_id=record.state_id,
+        )
+        await session.commit()
+        return record
+    except Exception:
+        # Failure cleanup: prevent orphan objects in Supabase / disk
+        if images_to_cleanup:
+            await delete_scan_images(images_to_cleanup, settings)
+        await session.rollback()
+        raise
 
 
 async def list_scans(
@@ -485,3 +529,126 @@ async def issue_notice(
         "issued_at": issued_at,
         "status": "DISPATCHED_TREASURY_PENDING",
     }
+
+
+async def get_scan_images(
+    *,
+    scan_id: str,
+    scope: JurisdictionScope,
+    session: AsyncSession,
+    settings: Settings,
+) -> dict[str, Any]:
+    await bind_rls_context(session, scope)
+    resolved = apply_server_scope(scope)
+    report = await ScanReportRow.latest_version_for(session, scan_id, resolved)
+    if not report:
+        raise HTTPException(status_code=404, detail="Scan not found or not in authorized jurisdiction")
+
+    rows = await ScanImageRow.get_images_for_scan(session, scan_id)
+    images_payload = []
+    for r in rows:
+        signed_url = await create_signed_url(
+            storage_provider=r.storage_provider,
+            bucket=r.bucket,
+            storage_path=r.storage_path,
+            settings=settings,
+            expires_in=settings.supabase_signed_url_ttl,
+        )
+        images_payload.append({
+            "id": str(r.id),
+            "role": r.image_role,
+            "original_filename": r.original_filename,
+            "mime_type": r.mime_type,
+            "file_size": r.file_size,
+            "url": signed_url,
+            "expires_in": settings.supabase_signed_url_ttl,
+            "storage_provider": r.storage_provider,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+        })
+
+    return {
+        "scan_id": scan_id,
+        "report_no": report.report_no,
+        "images": images_payload,
+    }
+
+
+async def get_scan_evidence_image_bytes(
+    *,
+    scan_id: str,
+    session: AsyncSession,
+    settings: Settings,
+) -> Response:
+    """Fetches evidence image directly from local disk or Supabase using service role credentials."""
+    # 1. Local disk search (captures/{scan_id}/* or captures/scans/{scan_id}/*)
+    local_candidates = [
+        Path("captures") / scan_id,
+        Path("captures") / "scans" / scan_id,
+    ]
+    for d in local_candidates:
+        if d.is_dir():
+            for f in sorted(d.iterdir()):
+                if f.is_file() and f.suffix.lower() in [".jpg", ".jpeg", ".png", ".webp"]:
+                    mime = "image/png" if f.suffix.lower() == ".png" else "image/jpeg"
+                    return Response(
+                        content=f.read_bytes(),
+                        media_type=mime,
+                        headers={"Cache-Control": "public, max-age=86400"},
+                    )
+
+    # 2. Database lookup for storage path
+    storage_path: str | None = None
+    bucket = settings.supabase_bucket or "lmcs-images"
+    try:
+        rows = await ScanImageRow.get_images_for_scan(session, scan_id)
+        if rows:
+            storage_path = rows[0].storage_path
+            bucket = rows[0].bucket or bucket
+    except Exception:
+        pass
+
+    if not storage_path:
+        # Check report row
+        try:
+            stmt = select(ScanReportRow).where(ScanReportRow.scan_id == scan_id)
+            res = await session.execute(stmt)
+            rep = res.scalars().first()
+            if rep and rep.product and isinstance(rep.product, dict) and rep.product.get("image_path"):
+                storage_path = rep.product["image_path"]
+        except Exception:
+            pass
+
+    # Default prefix if path not yet in DB
+    if not storage_path:
+        storage_path = f"scans/{scan_id}"
+
+    # 3. Download from Supabase
+    download_res = await download_scan_image(
+        bucket=bucket,
+        storage_path=storage_path,
+        settings=settings,
+    )
+    if download_res:
+        raw_bytes, mime = download_res
+        try:
+            cache_file = Path("captures") / scan_id / "evidence.jpg"
+            cache_file.parent.mkdir(parents=True, exist_ok=True)
+            cache_file.write_bytes(raw_bytes)
+        except Exception:
+            pass
+        return Response(
+            content=raw_bytes,
+            media_type=mime,
+            headers={"Cache-Control": "public, max-age=86400"},
+        )
+
+    # Return a 1x1 fallback SVG rather than 404 to gracefully handle missing files
+    fallback_svg = (
+        b'<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">'
+        b'<rect width="600" height="400" fill="#0f172a"/>'
+        b'<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#64748b" font-family="sans-serif" font-size="14">'
+        b'Optical Evidence Capture Stored in Cloud</text></svg>'
+    )
+    return Response(content=fallback_svg, media_type="image/svg+xml")
+
+

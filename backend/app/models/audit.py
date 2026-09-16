@@ -43,10 +43,12 @@ async def append_audit(
     district_id: str | None = None,
     state_id: str | None = None,
 ) -> None:
+    from app.db import bind_rls_context
+    await bind_rls_context(session, scope)
     session.add(
         AuditLogRow(
             actor_id=scope.user_id,
-            actor_role=scope.role.value,
+            actor_role=scope.role.value if hasattr(scope.role, "value") else str(scope.role),
             action=action,
             resource_type=resource_type,
             resource_id=resource_id,

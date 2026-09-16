@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScanRecord } from '../../shared/schema';
 import { useLanguage } from '../../lib/i18n';
-import { resolveAssetUrl } from '../../api/client';
 
 interface CertificateViewProps {
   scanRecord: ScanRecord;
@@ -365,14 +364,15 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
 
               <div className="p-3 bg-slate-900 flex-1 flex flex-col justify-between">
                 <div className="relative overflow-hidden border border-slate-700 bg-black flex items-center justify-center min-h-[180px]">
-                  {scanRecord.product?.image_path ? (
+                  {evidenceUrl || scanRecord.product?.image_path ? (
                     <img
                       src={
-                        scanRecord.product.image_path.startsWith('captures/')
+                        evidenceUrl ||
+                        (scanRecord.product.image_path.startsWith('captures/')
                           ? resolveAssetUrl(scanRecord.product.image_path) || scanRecord.product.image_path
-                          : scanRecord.product.image_path.startsWith('http') || scanRecord.product.image_path.startsWith('/')
+                          : scanRecord.product.image_path.startsWith('http') || scanRecord.product.image_path.startsWith('/') || scanRecord.product.image_path.startsWith('data:')
                             ? scanRecord.product.image_path
-                            : resolveAssetUrl(`captures/${scanRecord.product.image_path}`) || scanRecord.product.image_path
+                            : scanRecord.product.image_path)
                       }
                       alt="Seized Evidence Annexure"
                       className="max-h-[220px] w-auto object-contain block"

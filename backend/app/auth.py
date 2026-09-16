@@ -49,6 +49,8 @@ def create_access_token(
     settings: Settings,
     auditor_level: str | None = None,
     scope_expires_at: datetime | None = None,
+    session_id: str | None = None,
+    jti: str | None = None,
     extra: dict[str, Any] | None = None,
 ) -> str:
     now = datetime.now(UTC)
@@ -62,7 +64,8 @@ def create_access_token(
         "scope_expires_at": scope_expires_at.isoformat() if scope_expires_at else None,
         "iat": int(now.timestamp()),
         "exp": int((now + timedelta(seconds=settings.jwt_ttl_seconds)).timestamp()),
-        "jti": str(uuid4()),
+        "jti": jti or str(uuid4()),
+        "session_id": str(session_id) if session_id else None,
     }
     if extra:
         payload.update(extra)
@@ -137,6 +140,30 @@ async def get_current_scope(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Wrong portal")
     if token_portal == "admin" and host in settings.inspector_hosts:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Wrong portal")
+
+    # Session revocation & expiration check if session_id is present
+    session_id = claims.get("session_id")
+    if session_id:
+        from app.db import AdminSessionLocal
+        from app.models.session import SessionRow
+        from app.models.user import UserRow
+
+        async with AdminSessionLocal() as db_session:
+            active_session = await SessionRow.get_active(db_session, session_id)
+            if active_session is None:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Session has been revoked or expired. Please sign in again.",
+                )
+            user = await UserRow.get_by_id(db_session, scope.user_id)
+            if user is None or not user.active:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Officer account is inactive or disabled.",
+                )
+            await SessionRow.touch(db_session, session_id)
+
+    request.state.session_id = session_id
     request.state.scope = scope
     return scope
 

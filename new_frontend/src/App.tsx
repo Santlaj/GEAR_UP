@@ -8,6 +8,8 @@ import { GovFooter } from './components/layout/GovFooter';
 // Authentication & Officer Context
 import {
   getStoredSession,
+  getStoredToken,
+  logoutOfficer,
   clearAuthSession,
   AuthSession,
   validateSession,
@@ -33,6 +35,9 @@ import { fetchScans, getScanPdfUrl } from './api/scans';
 import { LanguageProvider } from './lib/i18n';
 
 export function App() {
+  // Explicit Hydration Lifecycle: Only true if token exists without a full cached session
+  const [isHydrating, setIsHydrating] = useState<boolean>(() => !!getStoredToken() && !getStoredSession());
+
   // Officer Profile State: loaded strictly from stored session
   const [authSession, setAuthSession] = useState<AuthSession | null>(() => getStoredSession());
   const [currentUser, setCurrentUser] = useState<UserContext | null>(() => {
@@ -93,24 +98,51 @@ export function App() {
     }
   }, []);
 
-  // Validate session on mount and fetch authentic records
+  // Hydrate & validate session on mount without flashing login
   useEffect(() => {
-    if (authSession) {
-      validateSession()
-        .then((validated: AuthSession | null) => {
-          if (validated) {
-            setAuthSession(validated);
-            setCurrentUser(validated.user);
-            loadRecords();
-          } else {
-            handleLogout();
-          }
-        })
-        .catch(() => {
-          loadRecords();
-        });
+    const token = getStoredToken();
+    if (!token) {
+      setIsHydrating(false);
+      setAuthSession(null);
+      setCurrentUser(null);
+      return;
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Safety timeout: never block UI for more than 2.5 seconds
+    const safetyTimer = setTimeout(() => {
+      setIsHydrating(false);
+    }, 2500);
+
+    validateSession()
+      .then((validated: AuthSession | null) => {
+        if (validated) {
+          setAuthSession(validated);
+          setCurrentUser(validated.user);
+          loadRecords();
+        } else {
+          setAuthSession(null);
+          setCurrentUser(null);
+        }
+      })
+      .catch((err) => {
+        console.warn('Session verification fallback triggered:', err);
+        const existing = getStoredSession();
+        if (existing) {
+          setAuthSession(existing);
+          setCurrentUser(existing.user);
+          loadRecords();
+        } else {
+          setAuthSession(null);
+          setCurrentUser(null);
+        }
+      })
+      .finally(() => {
+        clearTimeout(safetyTimer);
+        setIsHydrating(false);
+      });
+
+    return () => clearTimeout(safetyTimer);
+  }, [loadRecords]);
 
   const handleLoginSuccess = (user: UserContext) => {
     const session = getStoredSession();
@@ -119,14 +151,23 @@ export function App() {
     loadRecords();
   };
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
+    // 1. Immediately purge all local storage tokens & cached credentials
     clearAuthSession();
+
+    // 2. Immediately reset state so UI switches to LoginView synchronously with zero delay
     setAuthSession(null);
     setCurrentUser(null);
     setRecords([]);
     setCurrentScan(null);
     setActiveTab('scan');
-  };
+    setIsHydrating(false);
+
+    // 3. Notify backend asynchronously to revoke session
+    logoutOfficer().catch((err) => {
+      console.warn('Background logout notice warning:', err);
+    });
+  }, []);
 
   const handleToggleOnline = () => {
     setIsOnline(!isOnline);
@@ -154,7 +195,42 @@ export function App() {
     }
   };
 
-  // If user is not authenticated, display official Login Gateway
+  // 1. Explicit Hydration Screen: Only show if hydrating AND no cached session is available
+  if (isHydrating && (!authSession || !currentUser)) {
+    return (
+      <div className="min-h-screen bg-[#f4f6f8] flex flex-col items-center justify-center p-4 select-none">
+        <div className="bg-white border border-slate-300 p-8 rounded shadow-sm text-center max-w-md w-full">
+          <img
+            src="/assets/emblem_circle.png"
+            alt="National Emblem of India"
+            className="w-16 h-16 object-contain mx-auto mb-4"
+          />
+          <h2 className="text-base font-bold text-[#0f2744] tracking-wide uppercase">
+            Government of India
+          </h2>
+          <p className="text-xs text-slate-600 mt-0.5">
+            Department of Consumer Affairs • Legal Metrology Enforcement Division
+          </p>
+          <div className="my-6 flex items-center justify-center gap-2.5 text-xs font-bold text-slate-800">
+            <div className="w-4 h-4 border-2 border-[#0f2744] border-t-transparent rounded-full animate-spin"></div>
+            <span>Verifying Statutory Security Credentials...</span>
+          </div>
+          <p className="text-[11px] text-slate-500 font-mono mb-4">
+            Cryptographic Session Rehydration in Progress
+          </p>
+          <button
+            id="cancel-hydration-signout-btn"
+            onClick={handleLogout}
+            className="w-full bg-red-50 hover:bg-red-100 active:bg-red-200 text-red-700 border border-red-300 py-2 px-3 rounded text-xs font-bold transition-colors cursor-pointer shadow-xs"
+          >
+            Cancel &amp; Sign Out to Login (लॉग आउट करें)
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. If user is unauthenticated after hydration, render Login Gateway
   if (!authSession || !currentUser) {
     return <LoginView onLoginSuccess={handleLoginSuccess} />;
   }
@@ -212,8 +288,18 @@ export function App() {
               <div className="bg-white border border-slate-300 p-8 rounded shadow-sm max-w-lg mx-auto">
                 <div className="flex justify-center mb-4 text-[#0f2744]">
                   <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
                   </svg>
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 mb-2">No Scans Recorded</h3>
@@ -237,8 +323,18 @@ export function App() {
                   className="bg-[#0f2744] hover:bg-[#1a385c] text-white text-sm font-bold px-5 py-2.5 rounded transition-colors shadow-sm inline-flex items-center gap-2 cursor-pointer"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
                   </svg>
                   <span>Start New Scan</span>
                 </button>
@@ -278,9 +374,7 @@ export function App() {
             />
           )}
 
-          {activeTab === 'rules' && (
-            <StatutoryRulesRepositoryView />
-          )}
+          {activeTab === 'rules' && <StatutoryRulesRepositoryView />}
 
           {activeTab === 'dashboard' && (
             <EnforcementDashboardView
@@ -333,7 +427,6 @@ export function App() {
             onScanCreated={handleScanCreated}
           />
         )}
-
       </div>
     </LanguageProvider>
   );

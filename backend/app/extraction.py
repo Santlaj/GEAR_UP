@@ -270,7 +270,7 @@ async def extract_fields_from_image(
             payload: dict[str, Any] = {
                 "model": model_name,
                 "temperature": 0,
-                "max_tokens": 2048,
+                "max_tokens": 850,
                 "messages": [system_msg, user_msg],
             }
             if "qwen" in model_name.lower():

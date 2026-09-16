@@ -22,3 +22,29 @@ services:
         generateValue: true
       - key: VERIFY_BASE_URL
         value: https://verify.lmcs.example.gov.in/r
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: lmcs-images
+      - key: SUPABASE_SIGNED_URL_TTL
+        value: 300
+
+  - type: web
+    name: pramaan-frontend
+    runtime: static
+    rootDir: new_frontend
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: pramaan-backend
+          property: host

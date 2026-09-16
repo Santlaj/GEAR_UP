@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ScanRecord, BoundingBox } from '../../shared/schema';
 import { useLanguage } from '../../lib/i18n';
 import { submitScan, reevaluateScan } from '../../api/scans';
-import { resolveAssetUrl } from '../../api/client';
+import { resolveAssetUrl, getScanEvidenceImageUrl } from '../../api/client';
+import { fetchScanImages, ScanImageItem } from '../../api/images';
 import {
   Camera,
   FolderOpen,
@@ -158,17 +159,44 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
     statutoryConsequence: 'Awaiting inspection findings',
   };
 
-  // Determine active display image: real backend image from product or custom preview
-  const rawImagePath = scanRecord.product?.image_path;
-  const resolvedBackendImage = rawImagePath
-    ? rawImagePath.startsWith('captures/')
-      ? resolveAssetUrl(rawImagePath)
-      : rawImagePath.startsWith('http') || rawImagePath.startsWith('/')
-        ? rawImagePath
-        : resolveAssetUrl(`captures/${rawImagePath}`)
+  // Multi-image evidence loaded from Supabase Storage via backend signed URLs
+  const [evidenceImages, setEvidenceImages] = useState<ScanImageItem[]>([]);
+  const [activeImageIdx, setActiveImageIdx] = useState<number>(0);
+
+  useEffect(() => {
+    if (scanRecord.scan_id) {
+      fetchScanImages(scanRecord.scan_id).then((imgs) => {
+        if (imgs && imgs.length > 0) {
+          setEvidenceImages(imgs);
+          setActiveImageIdx(0);
+        }
+      });
+    }
+  }, [scanRecord.scan_id]);
+
+  const [imageLoadFailed, setImageLoadFailed] = useState<boolean>(false);
+
+  useEffect(() => {
+    setImageLoadFailed(false);
+  }, [scanRecord.scan_id, activeImageIdx]);
+
+  const signedEvidenceUrl = evidenceImages.length > 0 && evidenceImages[activeImageIdx]?.url
+    ? evidenceImages[activeImageIdx].url
     : null;
 
-  const activeImage = customImage || resolvedBackendImage;
+  const backendEvidenceUrl = scanRecord.scan_id
+    ? getScanEvidenceImageUrl(scanRecord.scan_id)
+    : null;
+
+  // Determine active display image: Supabase signed URL, real backend image from product, or custom preview
+  const rawImagePath = scanRecord.product?.image_path;
+  const resolvedBackendImage = rawImagePath ? resolveAssetUrl(rawImagePath) : null;
+
+  const activeImage =
+    customImage ||
+    (!imageLoadFailed && signedEvidenceUrl) ||
+    backendEvidenceUrl ||
+    resolvedBackendImage;
 
   // Camera stream cleanup
   const stopCameraStream = () => {
@@ -423,6 +451,33 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
             </div>
           </div>
 
+          {/* Evidence Angle Switcher (Front / Back / Side) */}
+          {evidenceImages.length > 1 && !isCameraActive && (
+            <div className="flex items-center justify-center gap-2 py-1.5 px-4 bg-slate-900 border-b border-slate-800 text-xs">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Evidence Angle:</span>
+              <div className="flex items-center gap-1.5">
+                {evidenceImages.map((img, idx) => {
+                  const roleLabel = img.role === 'front' ? 'Front Label' : img.role === 'back' ? 'Back / Nutrition' : img.role === 'side' ? 'Side / MRP' : `Angle ${idx + 1}`;
+                  const isCurrent = activeImageIdx === idx;
+                  return (
+                    <button
+                      key={img.id || idx}
+                      type="button"
+                      onClick={() => setActiveImageIdx(idx)}
+                      className={`px-3 py-1 rounded text-xs font-bold transition-all cursor-pointer ${
+                        isCurrent
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
+                      }`}
+                    >
+                      {roleLabel}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Viewport Image & Live Camera Canvas Area */}
           <div className="flex-1 relative bg-[#0b131e] p-3 sm:p-4 overflow-hidden flex items-center justify-center min-h-[580px] lg:min-h-[700px]">
             
@@ -521,6 +576,12 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
                     <img
                       src={activeImage}
                       alt="Packaged Commodity Optical Evidence"
+                      onError={() => {
+                        if (!imageLoadFailed && signedEvidenceUrl) {
+                          console.warn('Evidence signed URL failed to render, switching to backend evidence proxy');
+                          setImageLoadFailed(true);
+                        }
+                      }}
                       className="max-h-[580px] sm:max-h-[680px] w-auto max-w-full object-contain block border border-slate-700/80 shadow-2xl rounded-xs"
                     />
 

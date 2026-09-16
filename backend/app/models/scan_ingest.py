@@ -96,12 +96,23 @@ def build_compliance_fields(
 
 
 @dataclass
+class UploadedScanImageMeta:
+    image_id: str
+    raw_bytes: bytes
+    content_type: str
+    extension: str
+    original_filename: str
+    role: str
+
+
+@dataclass
 class IngestedScanMaterial:
     product: Product
     declarations: list[Declaration]
     ingredients: list[Ingredient]
     remarks_summary: str
     image_path: str
+    uploaded_images_meta: list[UploadedScanImageMeta]
 
 
 async def assemble_from_capture(
@@ -114,6 +125,8 @@ async def assemble_from_capture(
     user_id: str,
 ) -> IngestedScanMaterial:
     """Validate inputs, run extraction + merge, apply product heuristics, legacy field eval."""
+    uploaded_meta: list[UploadedScanImageMeta] = []
+
     if source == ScanSource.photo:
         uploaded_images: list[UploadFile] = []
         if images and isinstance(images, list):
@@ -141,8 +154,7 @@ async def assemble_from_capture(
             )
 
         image_items: list[tuple[str, str]] = []
-        image_paths: list[str] = []
-        for img in uploaded_images:
+        for idx, img in enumerate(uploaded_images):
             raw = await img.read()
             b64 = base64.b64encode(raw).decode("ascii")
             content_type = img.content_type or "image/jpeg"
@@ -153,12 +165,21 @@ async def assemble_from_capture(
                 ext = "png"
             elif "webp" in content_type.lower():
                 ext = "webp"
-            saved_path = f"captures/{user_id}/{uuid4()}.{ext}"
-            Path(saved_path).parent.mkdir(parents=True, exist_ok=True)
-            Path(saved_path).write_bytes(raw)
-            image_paths.append(saved_path)
 
-        image_path = image_paths[0]
+            role = "front" if idx == 0 else ("back" if idx == 1 else "side")
+            orig_name = getattr(img, "filename", f"scan_{idx + 1}.{ext}") or f"scan_{idx + 1}.{ext}"
+            uploaded_meta.append(
+                UploadedScanImageMeta(
+                    image_id=str(uuid4()),
+                    raw_bytes=raw,
+                    content_type=content_type,
+                    extension=ext,
+                    original_filename=orig_name,
+                    role=role,
+                )
+            )
+
+        image_path = f"scans/{uploaded_meta[0].image_id}.{uploaded_meta[0].extension}"
         extracted = await extract_fields_from_image(image_items)
     else:
         if not source_url:
@@ -178,24 +199,14 @@ async def assemble_from_capture(
         None,
     )
     mfg = product_raw.get("manufacturer")
-    if not mfg or mfg in {"Unknown", "Sample Foods Pvt Ltd"}:
-        mfg = inferred_mfg or "Unknown"
+    if not mfg and inferred_mfg:
+        mfg = inferred_mfg
+    if not mfg:
+        mfg = "Unknown Manufacturer"
 
     product_name = product_raw.get("name")
-    if not product_name or product_name in {"Unknown", "Sample Packaged Commodity", "Packaged Commodity"}:
-        for b in geometry.blocks:
-            t = str(b.get("text", "")).strip()
-            if t and len(t) >= 4 and not any(
-                kw in t.lower()
-                for kw in [
-                    "mfd", "mrp", "lic", "net", "consumer", "date", "http",
-                    "skill", "whatsapp", "cipherschool", "batch",
-                ]
-            ):
-                product_name = t
-                break
-        if not product_name:
-            product_name = "Packaged Commodity"
+    if not product_name:
+        product_name = "Inspected Commercial Product"
 
     product = Product(
         name=product_name,
@@ -218,4 +229,5 @@ async def assemble_from_capture(
         ingredients=ingredients,
         remarks_summary=summary,
         image_path=image_path,
+        uploaded_images_meta=uploaded_meta,
     )
