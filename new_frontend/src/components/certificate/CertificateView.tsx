@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ScanRecord } from '../../shared/schema';
-import { QRCodeCanvas } from '../common/QRCodeCanvas';
 import { useLanguage } from '../../lib/i18n';
 import { resolveAssetUrl } from '../../api/client';
 
@@ -103,7 +102,7 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
             className="flex-1 sm:flex-none bg-[#0f2744] hover:bg-[#1a385c] text-white text-xs font-bold px-3.5 py-2 rounded transition-colors shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <span>📥</span>
-            <span>{lang === 'hi' ? 'पीडीएफ डाउनलोड (डीएससी)' : 'Download Gazette PDF (DSC)'}</span>
+            <span>{lang === 'hi' ? 'पीडीएफ डाउनलोड करें' : 'Download Gazette PDF'}</span>
           </button>
 
           {isDeficient && (
@@ -495,27 +494,8 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
           {/* Bottom Attestation & Signature Box */}
           <div className="border border-slate-300 p-3 sm:p-4 bg-white grid grid-cols-1 md:grid-cols-12 gap-4 items-center shadow-2xs">
             
-            {/* Left: REAL SCANNABLE GENUINE QR CODE CANVAS */}
-            <div
-              onClick={onVerifyQr}
-              className="md:col-span-3 flex flex-col items-center justify-center p-3 border-2 border-dashed border-[#0a2540]/40 bg-[#f8fbfe] rounded hover:border-[#0a2540] hover:bg-[#eef5fb] transition-all cursor-pointer group shadow-xs"
-              title="Click to verify cryptographic hash ledger and digital certificate token"
-            >
-              <QRCodeCanvas
-                value={qrVerificationUrl}
-                size={100}
-                title="Official Ministry Verification Token"
-              />
-              <div className="text-[10.5px] font-black text-[#0a2540] uppercase mt-2 text-center flex items-center gap-1 group-hover:underline">
-                <span>🔍 SCAN TO VERIFY</span>
-              </div>
-              <div className="text-[9px] font-mono text-slate-500 text-center">
-                DCA IMMUTABLE TOKEN
-              </div>
-            </div>
-
-            {/* Middle: Statutory Declaration Text */}
-            <div className="md:col-span-6 text-sm text-slate-700">
+            {/* Statutory Declaration Text */}
+            <div className="md:col-span-8 text-sm text-slate-700">
               <div className="font-black text-[#0f2744] text-xs sm:text-sm uppercase tracking-wide mb-1.5 flex items-center gap-2">
                 <span>⚖</span>
                 <span>Attestation &amp; Statutory Declaration</span>
@@ -526,7 +506,7 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
             </div>
 
             {/* Right: Inspector Signature */}
-            <div className="md:col-span-3 text-left md:text-right flex flex-col items-start md:items-end justify-center border-t md:border-t-0 md:border-l border-slate-200 pt-3 md:pt-0 md:pl-4">
+            <div className="md:col-span-4 text-left md:text-right flex flex-col items-start md:items-end justify-center border-t md:border-t-0 md:border-l border-slate-200 pt-3 md:pt-0 md:pl-4">
               <div className="font-serif italic text-lg text-[#0f2744] tracking-wide font-bold">
                 {inspectorName}
               </div>
