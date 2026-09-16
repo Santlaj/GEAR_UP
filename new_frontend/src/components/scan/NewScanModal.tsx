@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ScanRecord, UserContext } from '../../shared/schema';
 import { submitScan } from '../../api/scans';
 import { ApiError } from '../../api/client';
+import { X } from 'lucide-react';
 
 interface NewScanModalProps {
   user: UserContext;
