@@ -19,7 +19,6 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
   onVerifyQr,
 }) => {
   const { t, lang } = useLanguage();
-  const [isRoutingForwarded, setIsRoutingForwarded] = useState(false);
   const qrVerificationUrl =
     scanRecord.qr_payload ||
     `https://consumeraffairs.nic.in/verify?docket=${encodeURIComponent(scanRecord.report_no)}&hash=${encodeURIComponent(scanRecord.report_hash)}`;
@@ -354,10 +353,8 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
             </table>
           </div>
 
-          {/* Section III & Section IV: Side-by-side Grids */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-            
-            {/* Section III: Seized Packaged Commodity Evidence */}
+          {/* Section III: Seized Packaged Commodity Evidence */}
+          <div className="mb-5">
             <div className="border border-slate-300 bg-white flex flex-col shadow-2xs overflow-hidden">
               <div className="bg-[#0f2744] text-white px-3 sm:px-4 py-2 flex items-center justify-between text-xs sm:text-sm font-bold">
                 <span>Section III: Packaged Commodity Evidence (Photo Annexure A-1)</span>
@@ -403,92 +400,6 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
                 </div>
               </div>
             </div>
-
-            {/* Section IV: Metrology Discrepancy & Compounding Assessment */}
-            <div className="border border-slate-300 bg-white flex flex-col shadow-2xs">
-              <div className="bg-[#0f2744] text-white px-3 sm:px-4 py-2 flex items-center justify-between text-xs sm:text-sm font-bold">
-                <span>Section IV: Metrology Discrepancy &amp; Compounding Assessment</span>
-                <span
-                  className={`text-[10px] px-2 py-0.5 rounded uppercase font-bold text-white ${
-                    isCompliant ? 'bg-emerald-700' : 'bg-red-700'
-                  }`}
-                >
-                  {isCompliant ? 'COMPLIANT' : 'PENAL NOTICE'}
-                </span>
-              </div>
-
-              <div className="p-3 sm:p-4 text-sm flex-1 flex flex-col justify-between space-y-3">
-                <div>
-                  <div
-                    className={`text-xs font-bold uppercase tracking-wide ${
-                      isCompliant ? 'text-emerald-800' : 'text-red-800'
-                    }`}
-                  >
-                    {isCompliant
-                      ? 'ASSESSMENT FINDINGS: COMPLIANT'
-                      : 'PRIMARY INFRACTIONS IDENTIFIED:'}
-                  </div>
-                  <div className="font-black text-slate-900 text-xs sm:text-sm mt-0.5 leading-snug">
-                    {isCompliant
-                      ? 'All Rule 6 statutory declarations satisfied pursuant to LM(PC) Rules, 2011.'
-                      : nonCompliantDecls.length > 0
-                      ? `Contravened Provisions: ${nonCompliantDecls.map((d) => d.statutory_parameter || d.field).join(', ')}.`
-                      : 'Non-conformity recorded against prescribed packaging specifications.'}
-                  </div>
-                  <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
-                    {isCompliant
-                      ? 'Commodity verified in full compliance with Legal Metrology mandates. Certified eligible for unhindered distribution in all states and union territories.'
-                      : 'The packaged commodity exhibits deficiencies under statutory rules. Notice issued for compounding proceedings under Section 48 or prosecution under Section 36.'}
-                  </p>
-                </div>
-
-                {/* 4 Penalty Blocks */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700 text-xs">
-                  <div className="bg-slate-50 border border-slate-200 p-2 rounded">
-                    <div className="text-[10px] font-bold text-slate-500 uppercase">APPLICABLE STATUTORY SECTION:</div>
-                    <div className="font-black text-slate-900 text-xs mt-0.5">
-                      {isCompliant ? 'Section 15 (Verification)' : 'Section 36(1) LM Act, 2011'}
-                    </div>
-                  </div>
-
-                  <div className={`border p-2 rounded ${isCompliant ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
-                    <div className={`text-[10px] font-bold uppercase ${isCompliant ? 'text-emerald-800' : 'text-red-800'}`}>
-                      STATUTORY PENAL TARIFF:
-                    </div>
-                    <div className={`font-black text-xs mt-0.5 ${isCompliant ? 'text-emerald-700' : 'text-red-700'}`}>
-                      {isCompliant ? '₹ 0.00 (Cleared)' : '₹ 25,000.00 (Standard)'}
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-50 border border-slate-200 p-2 rounded">
-                    <div className="text-[10px] font-bold text-slate-500 uppercase">REPORT VERSION:</div>
-                    <div className="font-semibold text-slate-800 text-xs mt-0.5">
-                      Version {scanRecord.report_version || 1} • Seizure Ledger
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-50 border border-slate-200 p-2 rounded">
-                    <div className="text-[10px] font-bold text-slate-500 uppercase">ADJUDICATING JURISDICTION:</div>
-                    <div className="font-semibold text-slate-800 text-xs mt-0.5">
-                      {districtName}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Docket Routing Button */}
-                <div className="pt-2 flex flex-wrap items-center justify-between border-t border-slate-200 gap-2">
-                  <span className="text-xs font-bold text-slate-700">Docket Routing:</span>
-                  <button
-                    onClick={() => setIsRoutingForwarded(true)}
-                    className="bg-[#0f2744] hover:bg-[#1a385c] text-white text-xs font-bold px-3 py-1.5 rounded transition-colors shadow-sm cursor-pointer"
-                  >
-                    {isRoutingForwarded ? '✔ Forwarded to District Controller' : 'Forward to District Controller'}
-                  </button>
-                </div>
-
-              </div>
-            </div>
-
           </div>
 
           {/* Bottom Attestation & Signature Box */}
