@@ -127,7 +127,7 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
         <div className="gazette-corner gazette-corner-bl"></div>
         <div className="gazette-corner gazette-corner-br"></div>
 
-        <div className="gazette-inner-border ashoka-watermark w-full">
+        <div className="gazette-inner-border w-full">
           
           {/* Top National Header */}
           <div className="text-center flex flex-col items-center mb-5">
@@ -523,9 +523,6 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
               <p className="text-xs leading-relaxed text-slate-600">
                 I hereby certify that the aforesaid packaged commodity inspection was conducted in strict adherence with powers vested under <strong className="text-slate-900">Section 15 of the Legal Metrology Act, 2011</strong>. The digital imaging, GPS spatial tracking, and rule-by-rule discrepancy metrics were compiled contemporaneously on-site.
               </p>
-              <div className="mt-2.5 text-xs font-mono text-slate-700 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded inline-block break-all">
-                🔒 DSC Token: NIC-GOI-CA-2026-CLASS-3 | HASH: {scanRecord.report_hash || 'N/A'}
-              </div>
             </div>
 
             {/* Right: Inspector Signature */}
@@ -553,16 +550,6 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
               </div>
             </div>
 
-          </div>
-
-          {/* Certificate Footer Line */}
-          <div className="mt-5 pt-3 border-t border-slate-300 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-600 font-mono">
-            <div>
-              OFFICIAL RECORD OF THE GOVERNMENT OF INDIA - DEPARTMENT OF CONSUMER AFFAIRS • FORM LM-AUDIT-2026
-            </div>
-            <div className="font-bold text-slate-800">
-              SERIAL NUMBER: {scanRecord.report_no}
-            </div>
           </div>
 
         </div>
