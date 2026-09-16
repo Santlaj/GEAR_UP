@@ -694,24 +694,6 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
               </p>
             </div>
 
-            {/* Evidentiary Hash Row */}
-            <div className="border-t border-slate-200 pt-2 flex items-center justify-between text-xs text-slate-600">
-              <div className="flex items-center gap-2">
-                <span className="font-mono bg-slate-100 px-1.5 py-0.5 border border-slate-300 rounded text-[10px] font-black text-slate-800">
-                  QR
-                </span>
-                <div>
-                  <div className="font-bold text-slate-800 text-[9.5px] uppercase tracking-wider">SHA-256 DOSSIER HASH</div>
-                  <div className="font-mono text-slate-500 text-[9.5px] break-all max-w-[260px] sm:max-w-[320px]">{scanRecord.report_hash}</div>
-                </div>
-              </div>
-
-              <div className="text-right shrink-0">
-                <div className="font-bold text-slate-800 uppercase text-[9.5px] tracking-wider">{t('official_cadre_stamp')}</div>
-                <div className="font-mono text-slate-600 font-semibold text-[9.5px]">{scanRecord.inspector_id} • {scanRecord.district_id}</div>
-              </div>
-            </div>
-
           </div>
 
           {/* Lower Half: Complete Statutory Checklist */}
