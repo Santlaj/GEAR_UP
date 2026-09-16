@@ -198,17 +198,6 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({
           >
             {isRefreshing ? 'Syncing...' : 'Refresh'}
           </button>
-          {onBack && (
-            <button
-              onClick={onBack}
-              className="hidden md:inline-flex items-center bg-[#0a2540] text-white hover:bg-amber-500 hover:text-slate-950 text-xs font-bold px-3 py-1.5 rounded transition-colors cursor-pointer shadow-xs"
-            >
-              <span>Back to Active Scan</span>
-            </button>
-          )}
-          <span className="inline-flex items-center bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-black px-3 py-1.5 rounded shadow-2xs">
-            <span>AUTHENTICATED PORTAL SESSION</span>
-          </span>
         </div>
       </div>
 
