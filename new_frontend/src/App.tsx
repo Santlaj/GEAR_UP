@@ -3,9 +3,7 @@ import { TabId, NavTabs } from './components/layout/NavTabs';
 import { GovTopBar } from './components/layout/GovTopBar';
 import { GovHeader } from './components/layout/GovHeader';
 
-import { StatutoryMarquee } from './components/layout/StatutoryMarquee';
 import { GovFooter } from './components/layout/GovFooter';
-import { AshokaBackground } from './components/layout/AshokaBackground';
 
 // Authentication & Officer Context
 import {
@@ -166,9 +164,6 @@ export function App() {
   return (
     <LanguageProvider lang={lang} setLang={setLang}>
       <div className="min-h-screen flex flex-col bg-[#f1f5f9] text-[#0f172a] w-full relative overflow-x-hidden">
-        
-        {/* ── ROTATING ASHOKA CHAKRA WATERMARK BACKGROUND ── */}
-        <AshokaBackground opacity={0.045} durationSeconds={85} />
 
         {/* ── 1. Sovereign Tricolor Stripe & Government Accessibility Top Bar ── */}
         <GovTopBar
@@ -197,9 +192,6 @@ export function App() {
           totalScansCount={records.length}
           showDashboardTab={true}
         />
-
-        {/* ── 4. Official Gazette Directives Moving Strip ── */}
-        <StatutoryMarquee />
 
         {/* ── 5. Main Operational Content Area ── */}
         <main id="main-content" className="flex-1 w-full relative z-10">

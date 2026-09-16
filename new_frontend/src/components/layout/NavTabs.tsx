@@ -103,24 +103,6 @@ export const NavTabs: React.FC<NavTabsProps> = ({
           })}
         </div>
 
-        {/* Right: Breadcrumb indicator if Profile is active from corner */}
-        {activeTab === 'profile' && (
-          <div className="hidden md:flex items-center gap-2 py-2 px-3 bg-amber-400/20 border border-amber-400/40 rounded text-xs text-amber-200">
-            <svg className="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            <span className="font-bold text-white">
-              {lang === 'hi' ? 'अधिकारी परिचय विवरणिका' : 'Viewing Inspector Dossier'}
-            </span>
-            <button
-              onClick={() => onTabChange('scan')}
-              className="ml-2 text-xs bg-white text-[#0a2540] font-black px-2 py-0.5 rounded hover:bg-amber-300 transition-colors cursor-pointer"
-            >
-              {lang === 'hi' ? '← प्रत्यक्ष स्कैन पर लौटें' : '← Return to Scan'}
-            </button>
-          </div>
-        )}
-
       </div>
     </nav>
   );

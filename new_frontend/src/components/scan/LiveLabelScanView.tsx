@@ -333,61 +333,6 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
   return (
     <div className="w-full px-2 sm:px-6 py-3 sm:py-4 select-none">
       
-      {/* ── Top Live Optical Metrology Audit & Inspection Dossier Bar ── */}
-      <div className="bg-white border border-slate-300 p-3 sm:p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-sm mb-3.5 shadow-sm rounded-sm">
-        <div>
-          <div className="flex items-center gap-2.5 mb-1 flex-wrap">
-            <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-              {t('live_dossier_title')}
-            </h2>
-            <span
-              className={`px-2.5 py-0.5 rounded text-xs font-black uppercase tracking-wider border ${
-                isDeficient
-                  ? 'bg-red-100 text-red-900 border-red-300'
-                  : !isCompliant
-                  ? 'bg-amber-100 text-amber-900 border-amber-300'
-                  : 'bg-emerald-100 text-emerald-900 border-emerald-300'
-              }`}
-            >
-              {scanRecord.overall_verdict.replace(/_/g, ' ').toUpperCase()}
-            </span>
-          </div>
-          <p className="text-xs text-slate-600 font-medium">
-            {scanRecord.product?.name || 'Packaged Commodity Field Inspection'} • Docket: {scanRecord.report_no}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3 shrink-0 flex-wrap">
-          <div className="flex items-center border border-slate-300 rounded overflow-hidden bg-slate-50 text-center text-xs">
-            <div className="px-3 py-1.5 border-r border-slate-300">
-              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('total_clauses')}</div>
-              <div className="text-base font-black text-slate-900 font-mono">{String(totalClausesCount).padStart(2, '0')}</div>
-            </div>
-            <div className="px-3 py-1.5 border-r border-slate-300 bg-emerald-50/50">
-              <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">{t('valid_clauses')}</div>
-              <div className="text-base font-black text-emerald-700 font-mono">{String(validClausesCount).padStart(2, '0')}</div>
-            </div>
-            <div className="px-3 py-1.5 border-r border-slate-300 bg-amber-50/50">
-              <div className="text-[10px] font-bold text-amber-800 uppercase tracking-wider">{t('review_clauses')}</div>
-              <div className="text-base font-black text-amber-600 font-mono">{String(reviewClausesCount).padStart(2, '0')}</div>
-            </div>
-            <div className="px-3 py-1.5 bg-red-50/50">
-              <div className="text-[10px] font-bold text-red-800 uppercase tracking-wider">{t('defect_clauses')}</div>
-              <div className="text-base font-black text-red-600 font-mono">{String(defectClausesCount).padStart(2, '0')}</div>
-            </div>
-          </div>
-
-          <div className="border-2 border-dashed border-amber-500/80 bg-amber-50/60 px-3 py-1.5 rounded text-center leading-tight">
-            <div className="text-[11px] font-black text-amber-900 uppercase tracking-wider">
-              {defectClausesCount > 0 ? t('actionable_sec_36') : reviewClausesCount > 0 ? 'ADVISORY REVIEW' : t('all_rules_passed')}
-            </div>
-            <div className="text-[9.5px] font-bold text-amber-800 uppercase tracking-wider">
-              {defectClausesCount > 0 ? t('seizure_noticeable') : reviewClausesCount > 0 ? 'ADVISORY MEMO' : 'STATUTORY COMPLIANT'}
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* ── Main 2-Column Operational Grid ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
         
@@ -747,24 +692,6 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
               <p className="text-slate-800 mt-0.5 leading-normal text-xs ml-3.5">
                 {currentClause.statutoryConsequence}
               </p>
-            </div>
-
-            {/* Evidentiary Hash Row */}
-            <div className="border-t border-slate-200 pt-2 flex items-center justify-between text-xs text-slate-600">
-              <div className="flex items-center gap-2">
-                <span className="font-mono bg-slate-100 px-1.5 py-0.5 border border-slate-300 rounded text-[10px] font-black text-slate-800">
-                  QR
-                </span>
-                <div>
-                  <div className="font-bold text-slate-800 text-[9.5px] uppercase tracking-wider">SHA-256 DOSSIER HASH</div>
-                  <div className="font-mono text-slate-500 text-[9.5px] break-all max-w-[260px] sm:max-w-[320px]">{scanRecord.report_hash}</div>
-                </div>
-              </div>
-
-              <div className="text-right shrink-0">
-                <div className="font-bold text-slate-800 uppercase text-[9.5px] tracking-wider">{t('official_cadre_stamp')}</div>
-                <div className="font-mono text-slate-600 font-semibold text-[9.5px]">{scanRecord.inspector_id} • {scanRecord.district_id}</div>
-              </div>
             </div>
 
           </div>
