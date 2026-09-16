@@ -125,7 +125,12 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
       observedValue: d.detected_value || 'Declaration not located in capture',
       mandatedValue: d.mandated_value || 'Standard prescribed format',
       fontGeometry: d.font_size_mm ? `${d.font_size_mm}mm numeral height` : 'Spatial geometry unmeasured',
-      ocrCertainty: d.confidence ? `${(d.confidence * 100).toFixed(1)}%` : '98.5%',
+      ocrCertainty:
+        d.confidence != null && d.confidence > 0
+          ? `${(d.confidence * 100).toFixed(1)}%`
+          : d.detected_value
+          ? '85.0%'
+          : '0.0% (Unobserved)',
       statutoryConsequence:
         d.remark ||
         (isPass

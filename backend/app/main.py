@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -39,6 +40,25 @@ async def lifespan(_app: FastAPI):
         print(">>> Sessions & ScanImages tables successfully ensured in Neon PostgreSQL", flush=True)
     except Exception as exc:
         print(f">>> Table setup note: {exc}", flush=True)
+
+    # Automatically verify and ensure Supabase storage bucket exists
+    settings = get_settings()
+    from app.storage import ensure_bucket_exists, is_supabase_configured
+    if is_supabase_configured(settings):
+        try:
+            ok = await ensure_bucket_exists(
+                base_url=settings.supabase_url,
+                bucket=settings.supabase_bucket,
+                service_role_key=settings.supabase_service_role_key,
+            )
+            if ok:
+                print(f">>> Supabase Storage bucket '{settings.supabase_bucket}' verified and ready", flush=True)
+            else:
+                print(f">>> Supabase Storage bucket '{settings.supabase_bucket}' could not be verified", flush=True)
+        except Exception as exc:
+            print(f">>> Supabase Storage setup error: {exc}", flush=True)
+    else:
+        print(">>> [STORAGE WARNING] Supabase Storage is NOT configured! Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables.", flush=True)
 
     # Warm the compliance engine (360+ rules, classifier) so first scan is fast
     try:
@@ -146,8 +166,14 @@ def create_app() -> FastAPI:
         return Response(status_code=404, content=b"Scan image not found")
 
     @app.api_route("/health", methods=["GET", "HEAD"])
-    async def health() -> dict[str, str]:
-        return {"status": "ok"}
+    async def health() -> dict[str, Any]:
+        settings = get_settings()
+        from app.storage import is_supabase_configured
+        return {
+            "status": "ok",
+            "supabase_configured": is_supabase_configured(settings),
+            "supabase_bucket": settings.supabase_bucket,
+        }
 
     return app
 

@@ -18,6 +18,42 @@ def is_supabase_configured(settings: Settings) -> bool:
     return bool(settings.supabase_url.strip() and settings.supabase_service_role_key.strip())
 
 
+async def ensure_bucket_exists(
+    base_url: str,
+    bucket: str,
+    service_role_key: str,
+) -> bool:
+    """Checks if Supabase bucket exists; creates it automatically if missing."""
+    if not base_url or not service_role_key:
+        return False
+    headers = {
+        "Authorization": f"Bearer {service_role_key}",
+        "apikey": service_role_key,
+        "Content-Type": "application/json",
+    }
+    clean_base = base_url.rstrip("/")
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            chk = await client.get(f"{clean_base}/storage/v1/bucket/{bucket}", headers=headers)
+            if chk.status_code == 200:
+                return True
+            # Create bucket if not found
+            payload = {
+                "id": bucket,
+                "name": bucket,
+                "public": True,
+                "file_size_limit": 52428800,
+            }
+            create_res = await client.post(f"{clean_base}/storage/v1/bucket", headers=headers, json=payload)
+            if create_res.status_code in (200, 201, 409):
+                print(f">>> [SUPABASE] Bucket '{bucket}' verified/created in Supabase Storage", flush=True)
+                return True
+            print(f">>> [SUPABASE ERROR] Failed to create bucket '{bucket}': HTTP {create_res.status_code} - {create_res.text}", flush=True)
+    except Exception as exc:
+        print(f">>> [SUPABASE ERROR] ensure_bucket_exists exception: {exc}", flush=True)
+    return False
+
+
 async def upload_scan_image(
     *,
     scan_id: str,
@@ -50,10 +86,10 @@ async def upload_scan_image(
         }
 
         try:
-            async with httpx.AsyncClient(timeout=15.0) as client:
+            async with httpx.AsyncClient(timeout=20.0) as client:
                 res = await client.post(url, headers=headers, content=raw_bytes)
                 if res.status_code in (200, 201):
-                    logger.info("Successfully uploaded %s to Supabase bucket %s", storage_path, bucket)
+                    print(f">>> [SUPABASE] Uploaded {storage_path} to bucket '{bucket}' ({len(raw_bytes)} bytes)", flush=True)
                     return {
                         "provider": "supabase",
                         "bucket": bucket,
@@ -61,14 +97,31 @@ async def upload_scan_image(
                         "mime_type": content_type,
                         "file_size": len(raw_bytes),
                     }
+                elif res.status_code in (400, 404):
+                    # Bucket may not exist yet — try to auto-create and retry
+                    print(f">>> [SUPABASE] Upload returned {res.status_code}. Ensuring bucket '{bucket}' exists...", flush=True)
+                    created = await ensure_bucket_exists(base_url, bucket, settings.supabase_service_role_key)
+                    if created:
+                        retry_res = await client.post(url, headers=headers, content=raw_bytes)
+                        if retry_res.status_code in (200, 201):
+                            print(f">>> [SUPABASE] Uploaded {storage_path} after bucket creation ({len(raw_bytes)} bytes)", flush=True)
+                            return {
+                                "provider": "supabase",
+                                "bucket": bucket,
+                                "storage_path": storage_path,
+                                "mime_type": content_type,
+                                "file_size": len(raw_bytes),
+                            }
+                        else:
+                            print(f">>> [SUPABASE ERROR] Retry upload failed ({retry_res.status_code}): {retry_res.text}", flush=True)
+                    else:
+                        print(f">>> [SUPABASE ERROR] Initial upload failed ({res.status_code}): {res.text}", flush=True)
                 else:
-                    logger.error(
-                        "Supabase storage upload failed (%d): %s. Using local copy.",
-                        res.status_code,
-                        res.text,
-                    )
+                    print(f">>> [SUPABASE ERROR] Upload failed ({res.status_code}): {res.text}", flush=True)
         except Exception as exc:
-            logger.warning("Supabase storage exception: %s. Using local copy.", exc)
+            print(f">>> [SUPABASE ERROR] Upload exception: {exc}", flush=True)
+    else:
+        print(">>> [SUPABASE WARNING] Supabase not configured! SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing on host. Falling back to local storage.", flush=True)
 
     # Local return if Supabase not configured or upload failed
     return {
