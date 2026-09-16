@@ -3,7 +3,7 @@ import { ScanRecord } from '../../shared/schema';
 import { useLanguage } from '../../lib/i18n';
 import { resolveAssetUrl, getScanEvidenceImageUrl } from '../../api/client';
 import { getScanDocxUrl, getScanHtmlUrl } from '../../api/scans';
-import { fetchScanImages, ScanImageItem } from '../../api/images';
+import { fetchScanImages } from '../../api/images';
 import { exportScanToCsv } from '../../lib/exportUtils';
 
 interface CertificateViewProps {
