@@ -1,9 +1,6 @@
 /**
- * Centralized API client for the mm inspector frontend.
+ * Centralized API client for the new_frontend inspector frontend.
  * All backend calls go through this module.
- *
- * In development, uses Vite dev proxy (/api → http://127.0.0.1:8000).
- * In production (e.g. Vercel), uses VITE_API_BASE_URL if set.
  */
 
 const metaEnv = (import.meta as any).env;
