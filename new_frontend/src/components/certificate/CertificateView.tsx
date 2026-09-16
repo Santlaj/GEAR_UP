@@ -79,10 +79,10 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
   };
 
   return (
-    <div className="w-full px-2 sm:px-6 py-3 sm:py-4 select-none text-black">
+    <div className="w-full bg-slate-100/70 min-h-screen py-4 sm:py-6 px-2 sm:px-4 select-none text-black print:bg-white print:p-0">
       
       {/* Top Attestation Action Ribbon with Export Controls */}
-      <div className="bg-white border border-slate-300 p-3 sm:p-4 mb-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-sm rounded-sm text-black">
+      <div className="max-w-[794px] mx-auto bg-white border border-slate-300 p-3 sm:p-4 mb-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-sm rounded-sm text-black no-print">
         <div>
           <div className="font-black text-xs sm:text-sm text-black flex flex-wrap items-center gap-1.5">
             <span>{lang === 'hi' ? 'वैधानिक डॉकेट रिकॉर्ड / मेमो सं:' : 'STATUTORY DOCKET RECORD / MEMO NO:'}</span>
@@ -120,15 +120,10 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
         </div>
       </div>
 
-      {/* Ornate Official Gazette Certificate Container */}
-      <div className="gazette-outer-border w-full text-black">
-        {/* Four Traditional Filigree Corner Accents */}
-        <div className="gazette-corner gazette-corner-tl"></div>
-        <div className="gazette-corner gazette-corner-tr"></div>
-        <div className="gazette-corner gazette-corner-bl"></div>
-        <div className="gazette-corner gazette-corner-br"></div>
-
-        <div className="gazette-inner-border w-full text-black">
+      {/* Ornate Official Gazette Certificate Container (Standard A4 Dimensions: 210mm x 297mm) */}
+      <div className="a4-sheet max-w-[794px] w-full min-h-[1123px] mx-auto bg-white border-2 border-black p-4 sm:p-6 shadow-2xl relative text-black print:shadow-none print:m-0 print:w-[210mm] print:min-h-[297mm] print:border-2 print:border-black">
+        {/* Double Official Gazette Framing */}
+        <div className="border border-black p-3 sm:p-5 w-full text-black flex flex-col justify-between">
           
           {/* Top National Header */}
           <div className="text-center flex flex-col items-center mb-5 text-black">

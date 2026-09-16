@@ -776,3 +776,32 @@ button {
     text-align: center;
   }
 }
+
+/* =========================================================
+   A4 SHEET & PRINT STYLING
+   ========================================================= */
+@page {
+  size: A4 portrait;
+  margin: 10mm;
+}
+
+@media print {
+  body, html {
+    background: #ffffff !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .a4-sheet {
+    box-shadow: none !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    border: 2px solid #000000 !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}

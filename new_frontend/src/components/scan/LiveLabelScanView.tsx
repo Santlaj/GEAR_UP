@@ -350,10 +350,10 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
               <button
                 onClick={() => (isCameraActive ? stopCameraStream() : handleStartCamera('environment'))}
                 disabled={isCameraStarting}
-                className={`text-xs font-black px-3 py-1.5 rounded transition-all flex items-center cursor-pointer shadow-xs border ${
+                className={`text-xs font-bold px-3 py-1.5 rounded transition-all flex items-center cursor-pointer shadow-xs border ${
                   isCameraActive
-                    ? 'bg-red-600 hover:bg-red-700 text-white border-red-400 animate-pulse'
-                    : 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-400'
+                    ? 'bg-slate-900 hover:bg-black text-white border-slate-600'
+                    : 'bg-white hover:bg-slate-100 text-slate-900 border-slate-300'
                 }`}
                 title={isCameraActive ? 'Close Live Camera' : 'Open Live Camera'}
               >
@@ -366,7 +366,7 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
                   stopCameraStream();
                   fileInputRef.current?.click();
                 }}
-                className="text-xs font-bold px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded border border-amber-300 transition-all flex items-center shadow-xs cursor-pointer"
+                className="text-xs font-bold px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-900 rounded border border-slate-300 transition-all flex items-center shadow-xs cursor-pointer"
                 title="Select product image for live analysis"
               >
                 <span>{lang === 'hi' ? 'फोटो चुनें' : 'Choose File'}</span>
@@ -385,7 +385,7 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
               <button
                 onClick={handleReevaluate}
                 disabled={isScanning}
-                className="text-xs font-bold px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded border border-blue-400 transition-all flex items-center shadow-xs cursor-pointer disabled:opacity-50"
+                className="text-xs font-bold px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-900 rounded border border-slate-300 transition-all flex items-center shadow-xs cursor-pointer disabled:opacity-50"
                 title="Re-run ComplianceEngine evaluation"
               >
                 <span>{isScanning ? 'Evaluating...' : 'Re-Evaluate'}</span>
@@ -395,10 +395,10 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
               {!isCameraActive && (
                 <button
                   onClick={() => setShowAnnotations(!showAnnotations)}
-                  className={`hidden sm:inline-flex text-xs font-bold px-2 py-1.5 rounded border transition-colors cursor-pointer ${
+                  className={`hidden sm:inline-flex text-xs font-bold px-2.5 py-1.5 rounded border transition-colors cursor-pointer ${
                     showAnnotations
-                      ? 'bg-white text-[#0f2744] border-white shadow-2xs'
-                      : 'bg-slate-700 text-slate-200 border-slate-500'
+                      ? 'bg-white text-slate-900 border-slate-300 shadow-2xs'
+                      : 'bg-slate-800 text-slate-300 border-slate-600'
                   }`}
                 >
                   {t('annotations_toggle')}: {showAnnotations ? 'ON' : 'OFF'}
@@ -409,7 +409,7 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
               {!isCameraActive && (
                 <button
                   onClick={() => setIsZoomed(!isZoomed)}
-                  className="text-xs font-bold px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded border border-slate-600 transition-colors cursor-pointer"
+                  className="text-xs font-bold px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-900 rounded border border-slate-300 transition-colors cursor-pointer"
                 >
                   {isZoomed ? '150%' : '100%'}
                 </button>

@@ -74,11 +74,8 @@ export const GovHeader: React.FC<GovHeaderProps> = ({
             aria-label="Inspector Profile and Cadre Dossier"
           >
             <div className="text-right">
-              <div className="flex items-center justify-end gap-1.5">
-                <span className={`w-2 h-2 rounded-full ${isProfileActive ? 'bg-amber-400 animate-pulse' : 'bg-emerald-600'}`}></span>
-                <span className={`text-xs font-bold leading-none ${isProfileActive ? 'text-white' : 'text-slate-900'}`}>
-                  {user.name}
-                </span>
+              <div className={`text-xs font-bold leading-none ${isProfileActive ? 'text-white' : 'text-slate-900'}`}>
+                {user.name}
               </div>
               <div className={`text-[11px] font-medium mt-0.5 leading-tight ${isProfileActive ? 'text-slate-200' : 'text-slate-600'}`}>
                 {t('inspector')} ({user.badge_number})

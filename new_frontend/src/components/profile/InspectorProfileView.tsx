@@ -176,20 +176,12 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({
             </button>
           )}
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="bg-[#0a2540] text-amber-300 font-mono font-bold text-xs px-2.5 py-0.5 rounded-sm uppercase tracking-wider">
-                LMI CADRE DOSSIER
-              </span>
-              <span className="text-xs font-bold text-slate-500 font-mono">
-                RECORD ID: {activeUser?.id || 'AUTH-001'}
-              </span>
-              {isRefreshing && (
-                <span className="inline-flex items-center gap-1 text-[11px] text-blue-700 font-semibold">
-                  <span>Syncing...</span>
-                </span>
-              )}
-            </div>
-            <h2 className="text-xl font-black text-slate-900 mt-1 font-serif">
+            {isRefreshing && (
+              <div className="inline-flex items-center gap-1 text-[11px] text-blue-700 font-semibold mb-1">
+                <span>Syncing...</span>
+              </div>
+            )}
+            <h2 className="text-xl font-black text-slate-900 mt-0.5 font-serif">
               {lang === 'hi'
                 ? 'निरीक्षक प्रोफाइल एवं वैधानिक प्राधिकार'
                 : 'Inspector Statutory Authority & Credentials'}
