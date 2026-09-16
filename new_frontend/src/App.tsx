@@ -29,7 +29,7 @@ import { VerifyTokenModal } from './components/certificate/VerifyTokenModal';
 import { NewScanModal } from './components/scan/NewScanModal';
 
 import { ScanRecord, UserContext } from './shared/schema';
-import { fetchScans, getScanPdfUrl } from './api/scans';
+import { fetchScans, getScanPdfUrl, getScanDocxUrl } from './api/scans';
 import { LanguageProvider } from './lib/i18n';
 
 export function App() {
@@ -255,6 +255,16 @@ export function App() {
                 const link = document.createElement('a');
                 link.href = pdfUrl;
                 link.download = `${currentScan.report_no.replace(/\//g, '_')}_Official_Gazette.pdf`;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}
+              onDownloadDocx={() => {
+                const docxUrl = getScanDocxUrl(currentScan.scan_id);
+                const link = document.createElement('a');
+                link.href = docxUrl;
+                link.download = `${currentScan.report_no.replace(/\//g, '_')}_Official_Report.docx`;
                 link.target = '_blank';
                 document.body.appendChild(link);
                 link.click();

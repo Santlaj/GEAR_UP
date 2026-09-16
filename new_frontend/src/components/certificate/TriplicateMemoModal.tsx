@@ -58,7 +58,6 @@ export const TriplicateMemoModal: React.FC<TriplicateMemoModalProps> = ({ scanRe
         {/* Modal Header */}
         <div className="bg-[#0f2744] text-white px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span>🖨️</span>
             <span className="font-bold text-xs">
               OFFICIAL FORM-V TRIPLICATE INSPECTION MEMO (ACT 1 OF 2010)
             </span>

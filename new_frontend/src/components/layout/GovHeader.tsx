@@ -44,9 +44,6 @@ export const GovHeader: React.FC<GovHeaderProps> = ({
             <span className="text-[11px] font-medium text-slate-600 leading-tight">
               {t('ministry_title')}
             </span>
-            <span className="text-[10px] font-bold tracking-wider text-[#0a2540] uppercase mt-1 bg-slate-100 px-1.5 py-0.5 rounded w-fit border border-slate-200">
-              {t('legal_metrology_div')}
-            </span>
           </div>
         </div>
 
@@ -77,17 +74,11 @@ export const GovHeader: React.FC<GovHeaderProps> = ({
             aria-label="Inspector Profile and Cadre Dossier"
           >
             <div className="text-right">
-              <div className="flex items-center justify-end gap-1.5">
-                <span className={`w-2 h-2 rounded-full ${isProfileActive ? 'bg-amber-400 animate-pulse' : 'bg-emerald-600'}`}></span>
-                <span className={`text-xs font-bold leading-none ${isProfileActive ? 'text-white' : 'text-slate-900'}`}>
-                  {user.name}
-                </span>
+              <div className={`text-xs font-bold leading-none ${isProfileActive ? 'text-white' : 'text-slate-900'}`}>
+                {user.name}
               </div>
               <div className={`text-[11px] font-medium mt-0.5 leading-tight ${isProfileActive ? 'text-slate-200' : 'text-slate-600'}`}>
                 {t('inspector')} ({user.badge_number})
-              </div>
-              <div className={`text-[10px] font-bold tracking-wider uppercase mt-0.5 ${isProfileActive ? 'text-amber-300' : 'text-[#0a2540]'}`}>
-                {lang === 'hi' ? 'राजपत्रित प्रवर्तन संवर्ग' : 'GAZETTED FIELD ENFORCEMENT'}
               </div>
             </div>
             
@@ -107,13 +98,6 @@ export const GovHeader: React.FC<GovHeaderProps> = ({
                 <path d="M20 82 C20 65, 34 54, 50 54 C66 54, 80 65, 80 82 Z" fill="#718096" />
               </svg>
             </div>
-
-            {/* Micro Badge */}
-            <span className={`absolute -bottom-2 right-2 text-[9px] font-extrabold uppercase px-1 rounded transition-colors ${
-              isProfileActive ? 'bg-amber-400 text-slate-950' : 'bg-slate-200 text-slate-700 group-hover:bg-[#0a2540] group-hover:text-white'
-            }`}>
-              {isProfileActive ? (lang === 'hi' ? 'सक्रिय' : 'ACTIVE') : t('profile_badge')}
-            </span>
           </button>
         </div>
 
