@@ -5,7 +5,6 @@ import { fetchUserProfile } from '../../api/users';
 import { fetchDashboardStats, DashboardStats } from '../../api/dashboard';
 import {
   CheckCircle2,
-  LogOut,
   Scale,
   Radio,
   ArrowLeft,
@@ -253,10 +252,6 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({
           <div className="text-xs font-bold text-slate-600 uppercase tracking-wide mt-1">
             {roleName}
           </div>
-          <div className="text-sm font-mono font-extrabold text-[#0f2744] bg-blue-50 border border-blue-200 px-3 py-1 rounded mt-2">
-            BADGE: {badgeNumber}
-          </div>
-
           <div className="w-full border-t border-slate-200 mt-4 pt-4 text-xs space-y-2 text-left">
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-500 font-semibold">CADRE:</span>
@@ -283,10 +278,9 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({
           {onLogout && (
             <button
               onClick={onLogout}
-              className="mt-4 w-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-300 py-2 px-3 rounded text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+              className="mt-4 w-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-300 py-2 px-3 rounded text-xs font-bold transition-colors flex items-center justify-center cursor-pointer shadow-xs"
             >
-              <LogOut className="w-4 h-4" />
-              <span>Sign Out of Terminal (लॉग आउट)</span>
+              <span>Sign Out</span>
             </button>
           )}
         </div>
