@@ -65,22 +65,19 @@ def create_app() -> FastAPI:
         if request.method == "HEAD":
             request.scope["method"] = "GET"
             response = await call_next(request)
-            return Response(status_code=response.status_code, headers=dict(response.headers))
+            headers = dict(response.headers)
+            headers.pop("content-length", None)
+            return Response(status_code=response.status_code, headers=headers)
         return await call_next(request)
 
-    app.include_router(auth_router, prefix="/api")
-    app.include_router(scans_router, prefix="/api")
-    app.include_router(users_router, prefix="/api")
-    app.include_router(rules_router, prefix="/api")
-    app.include_router(dashboard_router, prefix="/api")
-    app.include_router(jurisdictions_router, prefix="/api")
-
-    app.include_router(auth_router, prefix="/api/v1")
-    app.include_router(scans_router, prefix="/api/v1")
-    app.include_router(users_router, prefix="/api/v1")
-    app.include_router(rules_router, prefix="/api/v1")
-    app.include_router(dashboard_router, prefix="/api/v1")
-    app.include_router(jurisdictions_router, prefix="/api/v1")
+    # Mount at root (""), "/api", and "/api/v1" so requests work with or without /api prefix
+    for prefix in ("", "/api", "/api/v1"):
+        app.include_router(auth_router, prefix=prefix)
+        app.include_router(scans_router, prefix=prefix)
+        app.include_router(users_router, prefix=prefix)
+        app.include_router(rules_router, prefix=prefix)
+        app.include_router(dashboard_router, prefix=prefix)
+        app.include_router(jurisdictions_router, prefix=prefix)
 
     captures_dir = Path(__file__).resolve().parent.parent / "captures"
     captures_dir.mkdir(parents=True, exist_ok=True)

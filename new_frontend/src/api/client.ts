@@ -7,7 +7,17 @@
  */
 
 const metaEnv = (import.meta as any).env;
-export const API_BASE = ((metaEnv && metaEnv.VITE_API_BASE_URL) || '/api').replace(/\/+$/, '');
+
+function resolveApiBase(): string {
+  const raw = metaEnv && metaEnv.VITE_API_BASE_URL ? String(metaEnv.VITE_API_BASE_URL).trim().replace(/\/+$/, '') : '';
+  if (!raw) return '/api';
+  if (!raw.endsWith('/api') && !raw.endsWith('/api/v1')) {
+    return `${raw}/api`;
+  }
+  return raw;
+}
+
+export const API_BASE = resolveApiBase();
 
 export function getBackendOrigin(): string {
   if (API_BASE.startsWith('http://') || API_BASE.startsWith('https://')) {
