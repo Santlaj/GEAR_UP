@@ -58,11 +58,8 @@ export const NavTabs: React.FC<NavTabsProps> = ({
                 }`}
                 aria-current={isActive ? 'page' : undefined}
               >
-                <div className="flex flex-col text-left leading-tight">
-                  <span className={`font-bold ${lang === 'hi' ? 'font-devanagari text-[13px]' : ''}`}>{tab.label}</span>
-                  <span className={`text-[10px] font-normal ${isActive ? 'text-slate-600' : 'text-slate-400'} ${lang === 'hi' ? 'font-devanagari' : ''}`}>
-                    {tab.subLabel}
-                  </span>
+                <div className="flex items-center text-left leading-tight">
+                  <span className={`font-bold text-xs sm:text-sm ${lang === 'hi' ? 'font-devanagari text-[13px]' : ''}`}>{tab.label}</span>
                 </div>
 
                 {tab.id === 'scan' && pendingCount > 0 && (

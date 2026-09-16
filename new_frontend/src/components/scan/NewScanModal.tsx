@@ -1,8 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ScanRecord, UserContext } from '../../shared/schema';
 import { submitScan } from '../../api/scans';
 import { ApiError } from '../../api/client';
-import { Camera, ShoppingBag, FolderOpen, Square, AlertTriangle, RefreshCw, X } from 'lucide-react';
 
 interface NewScanModalProps {
   user: UserContext;
@@ -31,10 +30,10 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
   const [gpsLng, setGpsLng] = useState<number>(73.8567);
   const [gpsStatus, setGpsStatus] = useState<string>('Acquiring GPS...');
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Acquire GPS on mount
   useEffect(() => {
@@ -71,6 +70,15 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
     setIsCameraActive(false);
   };
 
+  useEffect(() => {
+    if (isCameraActive && videoRef.current && mediaStreamRef.current) {
+      if (videoRef.current.srcObject !== mediaStreamRef.current) {
+        videoRef.current.srcObject = mediaStreamRef.current;
+      }
+      videoRef.current.play().catch((e) => console.error('Modal camera play error:', e));
+    }
+  }, [isCameraActive]);
+
   const handleStartCamera = async () => {
     setCameraError(null);
     stopCameraStream();
@@ -80,11 +88,11 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
         audio: false,
       });
       mediaStreamRef.current = stream;
+      setIsCameraActive(true);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
       }
-      setIsCameraActive(true);
     } catch (err: any) {
       console.error('Camera access failed:', err);
       setCameraError('Camera access unavailable. Please use "Choose File" to select a photo.');
@@ -197,16 +205,15 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
         {/* Modal Header */}
         <div className="bg-[#0f2744] text-white px-5 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Camera className="w-4 h-4 text-amber-400" />
             <span className="font-black text-sm tracking-wide uppercase">
               FIELD ON-SITE COMMODITY CAPTURE &amp; AUDIT
             </span>
           </div>
           <button
             onClick={onClose}
-            className="text-white hover:text-slate-300 p-1 cursor-pointer"
+            className="text-white hover:text-slate-300 px-2 py-1 font-bold text-base cursor-pointer"
           >
-            <X className="w-4 h-4" />
+            ✕
           </button>
         </div>
 
@@ -222,26 +229,24 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
               <button
                 type="button"
                 onClick={() => setSourceType('photo')}
-                className={`py-2.5 px-4 border rounded text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                className={`py-2.5 px-4 border rounded text-xs font-bold flex items-center justify-center transition-colors cursor-pointer ${
                   sourceType === 'photo'
                     ? 'bg-[#0f2744] text-white border-[#0f2744] shadow-sm'
                     : 'bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100'
                 }`}
               >
-                <Camera className="w-4 h-4" />
                 <span>Camera / Photo Capture</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setSourceType('listing_url')}
-                className={`py-2.5 px-4 border rounded text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                className={`py-2.5 px-4 border rounded text-xs font-bold flex items-center justify-center transition-colors cursor-pointer ${
                   sourceType === 'listing_url'
                     ? 'bg-[#0f2744] text-white border-[#0f2744] shadow-sm'
                     : 'bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100'
                 }`}
               >
-                <ShoppingBag className="w-4 h-4" />
                 <span>E-Commerce Listing URL</span>
               </button>
             </div>
@@ -256,22 +261,20 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
                 <button
                   type="button"
                   onClick={() => (isCameraActive ? stopCameraStream() : handleStartCamera())}
-                  className={`px-3.5 py-2 rounded text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  className={`px-3.5 py-2 rounded text-xs font-bold flex items-center transition-all cursor-pointer ${
                     isCameraActive
                       ? 'bg-red-700 text-white'
                       : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs'
                   }`}
                 >
-                  {isCameraActive ? <Square className="w-3.5 h-3.5 fill-current" /> : <Camera className="w-3.5 h-3.5" />}
                   <span>{isCameraActive ? 'Close Camera' : 'Open Live Camera'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="px-3.5 py-2 rounded text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+                  className="px-3.5 py-2 rounded text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center transition-all shadow-xs cursor-pointer"
                 >
-                  <FolderOpen className="w-3.5 h-3.5" />
                   <span>Choose File / Gallery</span>
                 </button>
                 <input
@@ -294,7 +297,13 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
               {isCameraActive ? (
                 <div className="relative bg-black rounded overflow-hidden max-h-56 flex flex-col items-center justify-center p-2">
                   <video
-                    ref={videoRef}
+                    ref={(el) => {
+                      videoRef.current = el;
+                      if (el && mediaStreamRef.current && el.srcObject !== mediaStreamRef.current) {
+                        el.srcObject = mediaStreamRef.current;
+                        el.play().catch((e) => console.error('Modal camera play error:', e));
+                      }
+                    }}
                     autoPlay
                     playsInline
                     muted
@@ -304,9 +313,8 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
                     <button
                       type="button"
                       onClick={handleCapturePhoto}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-4 py-2 rounded-full border border-white shadow flex items-center gap-1.5 cursor-pointer"
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-4 py-2 rounded-full border border-white shadow flex items-center cursor-pointer"
                     >
-                      <Camera className="w-3.5 h-3.5" />
                       <span>Capture Photo</span>
                     </button>
                     <button
@@ -361,7 +369,6 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
           {/* Error Display */}
           {submitError && (
             <div className="text-xs text-red-700 bg-red-50 border border-red-300 p-3 rounded leading-relaxed flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
               <span><strong>SUBMISSION ERROR:</strong> {submitError}</span>
             </div>
           )}
@@ -380,7 +387,6 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
               disabled={isProcessing || !isOnline}
               className="bg-[#0f2744] hover:bg-[#1a385c] text-white font-bold text-sm px-5 py-2 rounded transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
-              {isProcessing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
               <span>{isProcessing ? 'Submitting to Backend...' : 'Submit Scan to Server'}</span>
             </button>
           </div>

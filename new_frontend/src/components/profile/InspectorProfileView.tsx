@@ -3,15 +3,7 @@ import { UserContext } from '../../shared/schema';
 import { useLanguage } from '../../lib/i18n';
 import { fetchUserProfile } from '../../api/users';
 import { fetchDashboardStats, DashboardStats } from '../../api/dashboard';
-import {
-  CheckCircle2,
-  Scale,
-  Radio,
-  ArrowLeft,
-  RefreshCw,
-  AlertCircle,
-  ShieldCheck,
-} from 'lucide-react';
+
 
 interface InspectorProfileViewProps {
   user?: UserContext | null;
@@ -111,7 +103,6 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({
       <div className="w-full px-4 sm:px-6 py-12 max-w-7xl mx-auto flex flex-col items-center justify-center min-h-[400px] text-center">
         <div className="bg-red-50 border border-red-200 p-6 rounded-md max-w-lg shadow-sm">
           <div className="flex items-center justify-center gap-2 text-red-700 font-bold mb-2">
-            <AlertCircle className="w-5 h-5 text-red-600" />
             <span>Statutory Profile Query Failed</span>
           </div>
           <p className="text-xs text-red-600 mb-4">{error}</p>
@@ -119,16 +110,15 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({
             {onBack && (
               <button
                 onClick={onBack}
-                className="px-3 py-1.5 rounded border border-slate-300 text-xs font-bold text-slate-700 bg-white hover:bg-slate-50"
+                className="px-3 py-1.5 rounded border border-slate-300 text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 cursor-pointer"
               >
                 Go Back
               </button>
             )}
             <button
               onClick={() => loadData(false)}
-              className="px-3 py-1.5 rounded bg-[#0a2540] text-white text-xs font-bold hover:bg-slate-800 transition-colors flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded bg-[#0a2540] text-white text-xs font-bold hover:bg-slate-800 transition-colors flex items-center cursor-pointer"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
               <span>Retry /api/users/me</span>
             </button>
           </div>
@@ -179,10 +169,10 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({
           {onBack && (
             <button
               onClick={onBack}
-              className="p-1.5 rounded hover:bg-slate-100 text-slate-700 transition-colors cursor-pointer border border-slate-200"
+              className="px-2.5 py-1 rounded hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors cursor-pointer border border-slate-200"
               title="Return to Scan Workspace"
             >
-              <ArrowLeft className="w-4 h-4" />
+              ← Back
             </button>
           )}
           <div>
@@ -195,7 +185,6 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({
               </span>
               {isRefreshing && (
                 <span className="inline-flex items-center gap-1 text-[11px] text-blue-700 font-semibold">
-                  <RefreshCw className="w-3 h-3 animate-spin" />
                   <span>Syncing...</span>
                 </span>
               )}
@@ -212,22 +201,20 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({
           <button
             onClick={() => loadData(true)}
             disabled={isRefreshing}
-            className="p-1.5 rounded hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer border border-slate-200"
+            className="px-2.5 py-1 rounded hover:bg-slate-100 text-slate-600 font-bold text-xs transition-colors cursor-pointer border border-slate-200"
             title="Refresh credentials from backend"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-blue-600' : ''}`} />
+            {isRefreshing ? 'Syncing...' : 'Refresh'}
           </button>
           {onBack && (
             <button
               onClick={onBack}
-              className="hidden md:inline-flex items-center gap-1.5 bg-[#0a2540] text-white hover:bg-amber-500 hover:text-slate-950 text-xs font-bold px-3 py-1.5 rounded transition-colors cursor-pointer shadow-xs"
+              className="hidden md:inline-flex items-center bg-[#0a2540] text-white hover:bg-amber-500 hover:text-slate-950 text-xs font-bold px-3 py-1.5 rounded transition-colors cursor-pointer shadow-xs"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Active Scan</span>
             </button>
           )}
-          <span className="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-black px-3 py-1.5 rounded shadow-2xs">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+          <span className="inline-flex items-center bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-black px-3 py-1.5 rounded shadow-2xs">
             <span>AUTHENTICATED PORTAL SESSION</span>
           </span>
         </div>
@@ -289,8 +276,7 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({
         <div className="md:col-span-8 flex flex-col gap-4">
           {/* Statutory Powers Card */}
           <div className="bg-white border border-slate-300 p-5 shadow-sm rounded-sm">
-            <h4 className="text-sm font-black text-[#0f2744] uppercase tracking-wide border-b border-slate-200 pb-2 mb-3 flex items-center gap-2">
-              <Scale className="w-4 h-4 text-amber-600" />
+            <h4 className="text-sm font-black text-[#0f2744] uppercase tracking-wide border-b border-slate-200 pb-2 mb-3 flex items-center">
               <span>STATUTORY ENFORCEMENT POWERS (LM ACT, 2011)</span>
             </h4>
 
@@ -323,8 +309,7 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({
 
           {/* Terminal & Sensor Telemetry Card */}
           <div className="bg-white border border-slate-300 p-5 shadow-sm rounded-sm">
-            <h4 className="text-sm font-black text-[#0f2744] uppercase tracking-wide border-b border-slate-200 pb-2 mb-3 flex items-center gap-2">
-              <Radio className="w-4 h-4 text-blue-600" />
+            <h4 className="text-sm font-black text-[#0f2744] uppercase tracking-wide border-b border-slate-200 pb-2 mb-3 flex items-center">
               <span>FIELD TERMINAL HARDWARE &amp; SENSOR TELEMETRY</span>
             </h4>
 

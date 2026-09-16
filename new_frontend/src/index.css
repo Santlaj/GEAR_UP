@@ -12,8 +12,8 @@
   --pramaan-navy: #12385f;
   --pramaan-navy-dark: #0e2f50;
 
-  --pramaan-text: #17202a;
-  --pramaan-muted: #657383;
+  --pramaan-text: #000000;
+  --pramaan-muted: #333333;
 
   --pramaan-border: #c8ced5;
   --pramaan-border-light: #dfe3e7;
@@ -24,8 +24,8 @@
   --pramaan-saffron: #f39a24;
   --pramaan-green: #19843a;
 
-  --font-ui: Arial, "Segoe UI", sans-serif;
-  --font-brand: Georgia, "Times New Roman", serif;
+  --font-ui: Arial, Helvetica, sans-serif;
+  --font-brand: Arial, Helvetica, sans-serif;
 }
 
 
@@ -37,6 +37,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: Arial, Helvetica, sans-serif !important;
 }
 
 html,
@@ -47,7 +48,7 @@ body,
 }
 
 body {
-  font-family: var(--font-ui);
+  font-family: Arial, Helvetica, sans-serif !important;
   background: var(--pramaan-bg);
   color: var(--pramaan-text);
   font-size: 14px;
@@ -55,8 +56,13 @@ body {
 }
 
 button,
-input {
-  font-family: var(--font-ui);
+input,
+select,
+textarea,
+table,
+th,
+td {
+  font-family: Arial, Helvetica, sans-serif !important;
   font-size: inherit;
 }
 
