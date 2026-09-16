@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import get_current_scope, require_roles
 from app.config import Settings, get_settings
 from app.controllers import scan_controller
-from app.db import get_session
+from app.db import get_admin_session, get_session
 from app.schema import JurisdictionScope, OverallVerdict, Role, ScanRecord, ScanSource
 
 scans_router = APIRouter(prefix="/scans", tags=["scans"])
@@ -228,7 +228,7 @@ async def confirm_field_missing(
 @scans_router.get("/{scan_id}/report.pdf")
 async def get_scan_report_pdf(
     scan_id: str,
-    session: AsyncSession = Depends(get_session),
+    session: AsyncSession = Depends(get_admin_session),
     settings: Settings = Depends(get_settings),
 ) -> FileResponse:
     return await scan_controller.get_report_pdf(
@@ -239,7 +239,7 @@ async def get_scan_report_pdf(
 @scans_router.get("/{scan_id}/report.docx")
 async def get_scan_report_docx(
     scan_id: str,
-    session: AsyncSession = Depends(get_session),
+    session: AsyncSession = Depends(get_admin_session),
     settings: Settings = Depends(get_settings),
 ) -> FileResponse:
     return await scan_controller.get_report_docx(
@@ -247,10 +247,21 @@ async def get_scan_report_docx(
     )
 
 
+@scans_router.get("/{scan_id}/report.html")
+async def get_scan_report_html(
+    scan_id: str,
+    session: AsyncSession = Depends(get_admin_session),
+    settings: Settings = Depends(get_settings),
+) -> Response:
+    return await scan_controller.get_report_html(
+        scan_id=scan_id, session=session, settings=settings
+    )
+
+
 @scans_router.get("/{scan_id}/verify")
 async def verify_scan_integrity(
     scan_id: str,
-    session: AsyncSession = Depends(get_session),
+    session: AsyncSession = Depends(get_admin_session),
     settings: Settings = Depends(get_settings),
 ) -> dict[str, Any]:
     return await scan_controller.verify_scan_integrity(

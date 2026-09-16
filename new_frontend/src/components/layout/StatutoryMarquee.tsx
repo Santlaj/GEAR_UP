@@ -1,6 +1,5 @@
 import React from 'react';
 import { useLanguage } from '../../lib/i18n';
-import { ShieldAlert } from 'lucide-react';
 
 export const StatutoryMarquee: React.FC = () => {
   const { lang } = useLanguage();
@@ -10,7 +9,6 @@ export const StatutoryMarquee: React.FC = () => {
       
       {/* Authoritative Badge Pill */}
       <div className="flex items-center gap-2 bg-[#0a2540] text-amber-300 px-3.5 py-1.5 rounded font-black text-xs tracking-wider uppercase shrink-0 shadow-xs border border-[#173a5e]">
-        <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
         <span>{lang === 'hi' ? 'राजपत्र वैधानिक निर्देश' : 'STATUTORY GAZETTE DIRECTIVE'}</span>
       </div>
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useLanguage } from '../../lib/i18n';
-import { Landmark, Scale } from 'lucide-react';
 
 export const GovFooter: React.FC = () => {
   const { t, lang } = useLanguage();
@@ -38,8 +37,7 @@ export const GovFooter: React.FC = () => {
 
           {/* Col 2: Government Portals Network */}
           <div className="space-y-2">
-            <h4 className="text-white font-bold text-xs uppercase tracking-wider border-b border-slate-700/80 pb-1.5 flex items-center gap-1.5">
-              <Landmark className="w-3.5 h-3.5 text-amber-400" />
+            <h4 className="text-white font-bold text-xs uppercase tracking-wider border-b border-slate-700/80 pb-1.5 flex items-center">
               <span>{lang === 'hi' ? 'राष्ट्रीय सरकारी पोर्टल' : 'National Portals'}</span>
             </h4>
             <ul className="space-y-1.5 text-[11px] text-slate-300">
@@ -72,8 +70,7 @@ export const GovFooter: React.FC = () => {
 
           {/* Col 3: Statutory Legal Framework */}
           <div className="space-y-2">
-            <h4 className="text-white font-bold text-xs uppercase tracking-wider border-b border-slate-700/80 pb-1.5 flex items-center gap-1.5">
-              <Scale className="w-3.5 h-3.5 text-amber-400" />
+            <h4 className="text-white font-bold text-xs uppercase tracking-wider border-b border-slate-700/80 pb-1.5 flex items-center">
               <span>{lang === 'hi' ? 'वैधानिक विधिक रूपरेखा' : 'Statutory Framework'}</span>
             </h4>
             <ul className="space-y-1.5 text-[11px] text-slate-300">

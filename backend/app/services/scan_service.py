@@ -475,12 +475,25 @@ class ScanService:
         if not row:
             raise HTTPException(status_code=404, detail="Scan record not found")
 
+        backend_root = Path(__file__).resolve().parent.parent
         pdf_path = Path(row.pdf_path) if row.pdf_path else None
-        if not pdf_path or not pdf_path.exists():
+        if pdf_path and not pdf_path.is_absolute():
+            pdf_path = backend_root / pdf_path
+
+        is_valid_pdf = False
+        if pdf_path and pdf_path.is_file() and pdf_path.suffix.lower() == ".pdf":
+            try:
+                sample = pdf_path.read_bytes()[:10]
+                if sample.startswith(b"%PDF"):
+                    is_valid_pdf = True
+            except Exception:
+                is_valid_pdf = False
+
+        if not is_valid_pdf:
             record = ScanRecord.model_validate(row.payload)
-            generated_pdf, _ = generate_report_files(record)
+            generated_pdf, generated_docx = generate_report_files(record)
             pdf_path = generated_pdf
-            self._scans.update_report_paths(row, pdf_path=str(pdf_path))
+            self._scans.update_report_paths(row, pdf_path=str(pdf_path), docx_path=str(generated_docx))
             await self._session.commit()
 
         filename = f"{row.report_no.replace('/', '_')}_Official_Gazette.pdf"
@@ -491,8 +504,12 @@ class ScanService:
         if not row:
             raise HTTPException(status_code=404, detail="Scan record not found")
 
+        backend_root = Path(__file__).resolve().parent.parent
         docx_path = Path(row.docx_path) if row.docx_path else None
-        if not docx_path or not docx_path.exists():
+        if docx_path and not docx_path.is_absolute():
+            docx_path = backend_root / docx_path
+
+        if not docx_path or not docx_path.is_file():
             record = ScanRecord.model_validate(row.payload)
             _, generated_docx = generate_report_files(record)
             docx_path = generated_docx

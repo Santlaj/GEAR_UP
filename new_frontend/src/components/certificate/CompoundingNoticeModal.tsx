@@ -69,7 +69,6 @@ export const CompoundingNoticeModal: React.FC<CompoundingNoticeModalProps> = ({ 
         {/* Modal Header */}
         <div className="bg-red-800 text-white px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-base">⚖️</span>
             <span className="font-extrabold text-xs tracking-wide uppercase">
               STATUTORY PENAL NOTICE UNDER SECTION 36(1) OF LEGAL METROLOGY ACT, 2011
             </span>
@@ -86,9 +85,6 @@ export const CompoundingNoticeModal: React.FC<CompoundingNoticeModalProps> = ({ 
         <div className="p-5 text-xs">
           {issuedResult ? (
             <div className="bg-emerald-50 border border-emerald-300 p-4 rounded text-center my-3">
-              <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg font-bold mx-auto mb-2">
-                ✔
-              </div>
               <h3 className="font-extrabold text-emerald-900 text-sm">
                 Statutory Notice Successfully Issued &amp; Dispatched
               </h3>
@@ -185,9 +181,8 @@ export const CompoundingNoticeModal: React.FC<CompoundingNoticeModalProps> = ({ 
                 <button
                   onClick={handleIssueNotice}
                   disabled={isSubmitting}
-                  className="bg-red-700 hover:bg-red-800 text-white font-semibold text-xs px-4 py-1.5 rounded transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  className="bg-red-700 hover:bg-red-800 text-white font-semibold text-xs px-4 py-1.5 rounded transition-colors shadow-sm flex items-center cursor-pointer disabled:opacity-50"
                 >
-                  <span>⚡</span>
                   <span>{isSubmitting ? 'Issuing Notice...' : 'Confirm & Issue Notice U/S 36'}</span>
                 </button>
               </div>

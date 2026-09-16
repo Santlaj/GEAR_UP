@@ -26,7 +26,7 @@ from app.models.scan_ingest import (
     parse_geometry_json,
 )
 from app.report_hashing import attach_hash, next_override_version
-from app.reports import generate_report_files
+from app.reports import generate_report_files, render_html
 from app.schema import (
     ConfirmationState,
     DeclarationFieldStatus,
@@ -411,16 +411,38 @@ async def get_report_pdf(
     if not row:
         raise HTTPException(status_code=404, detail="Scan record not found")
 
+    backend_root = Path(__file__).resolve().parent.parent
     pdf_path = Path(row.pdf_path) if row.pdf_path else None
-    if not pdf_path or not pdf_path.exists():
+    if pdf_path and not pdf_path.is_absolute():
+        pdf_path = backend_root / pdf_path
+
+    # Verify that file exists and is a valid binary PDF (not an HTML placeholder or empty)
+    is_valid_pdf = False
+    if pdf_path and pdf_path.is_file() and pdf_path.suffix.lower() == ".pdf":
+        try:
+            sample = pdf_path.read_bytes()[:10]
+            if sample.startswith(b"%PDF"):
+                is_valid_pdf = True
+        except Exception:
+            is_valid_pdf = False
+
+    if not is_valid_pdf:
         record = scan_view.to_scan_record(row)
-        generated_pdf, _ = generate_report_files(record)
+        generated_pdf, generated_docx = generate_report_files(record)
         pdf_path = generated_pdf
-        row.update_report_paths(pdf_path=str(pdf_path))
+        row.update_report_paths(pdf_path=str(pdf_path), docx_path=str(generated_docx))
         await session.commit()
 
     filename = f"{row.report_no.replace('/', '_')}_Official_Gazette.pdf"
-    return FileResponse(path=str(pdf_path), media_type="application/pdf", filename=filename)
+    return FileResponse(
+        path=str(pdf_path),
+        media_type="application/pdf",
+        filename=filename,
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Cache-Control": "no-cache, must-revalidate",
+        },
+    )
 
 
 async def get_report_docx(
@@ -433,8 +455,12 @@ async def get_report_docx(
     if not row:
         raise HTTPException(status_code=404, detail="Scan record not found")
 
+    backend_root = Path(__file__).resolve().parent.parent
     docx_path = Path(row.docx_path) if row.docx_path else None
-    if not docx_path or not docx_path.exists():
+    if docx_path and not docx_path.is_absolute():
+        docx_path = backend_root / docx_path
+
+    if not docx_path or not docx_path.is_file():
         record = scan_view.to_scan_record(row)
         _, generated_docx = generate_report_files(record)
         docx_path = generated_docx
@@ -446,6 +472,29 @@ async def get_report_docx(
         path=str(docx_path),
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         filename=filename,
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Cache-Control": "no-cache, must-revalidate",
+        },
+    )
+
+
+async def get_report_html(
+    *,
+    scan_id: str,
+    session: AsyncSession,
+    settings: Settings,
+) -> Response:
+    row = await ScanReportRow.latest_version_for(session, scan_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Scan record not found")
+
+    record = scan_view.to_scan_record(row)
+    html_content = render_html(record)
+    return Response(
+        content=html_content,
+        media_type="text/html",
+        headers={"Cache-Control": "no-cache, must-revalidate"},
     )
 
 

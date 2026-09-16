@@ -105,17 +105,15 @@ export const MyScansView: React.FC<MyScansViewProps> = ({
             <button
               onClick={onRefresh}
               disabled={loading}
-              className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-sm font-bold px-4 py-2 rounded transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50"
+              className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-sm font-bold px-4 py-2 rounded transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 cursor-pointer"
             >
-              <span>{loading ? '⏳' : '🔄'}</span>
               <span>{loading ? 'Loading...' : 'Refresh'}</span>
             </button>
           )}
           <button
             onClick={onNewScanClick}
-            className="bg-[#0f2744] hover:bg-[#1a385c] text-white text-sm font-bold px-4 py-2 rounded transition-colors shadow-sm flex items-center gap-2"
+            className="bg-[#0f2744] hover:bg-[#1a385c] text-white text-sm font-bold px-4 py-2 rounded transition-colors shadow-sm flex items-center gap-2 cursor-pointer"
           >
-            <span>📸</span>
             <span>+ Capture New Scan</span>
           </button>
         </div>
@@ -128,7 +126,6 @@ export const MyScansView: React.FC<MyScansViewProps> = ({
         <div className="bg-white border border-slate-300 p-4 shadow-sm rounded-sm flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-500 text-xs">
             <span className="font-bold uppercase tracking-wider text-slate-700">TOTAL SCANS BY YOU</span>
-            <span className="text-base">📄</span>
           </div>
           <div className="flex items-baseline gap-2 mt-2">
             <span className="text-3xl font-black text-slate-900">{totalScans}</span>
@@ -143,7 +140,6 @@ export const MyScansView: React.FC<MyScansViewProps> = ({
         <div className="bg-white border border-slate-300 p-4 shadow-sm rounded-sm flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-500 text-xs">
             <span className="font-bold uppercase tracking-wider text-red-800">BREACHES FLAGGED (SEC 36)</span>
-            <span className="text-base">🚨</span>
           </div>
           <div className="flex items-baseline gap-2 mt-2">
             <span className="text-3xl font-black text-red-700">{violationScans}</span>
@@ -160,7 +156,6 @@ export const MyScansView: React.FC<MyScansViewProps> = ({
         <div className="bg-white border border-slate-300 p-4 shadow-sm rounded-sm flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-500 text-xs">
             <span className="font-bold uppercase tracking-wider text-emerald-800">COMPLIANT PACKAGES</span>
-            <span className="text-base">🛡️</span>
           </div>
           <div className="flex items-baseline gap-2 mt-2">
             <span className="text-3xl font-black text-emerald-700">{compliantScans}</span>
@@ -175,7 +170,6 @@ export const MyScansView: React.FC<MyScansViewProps> = ({
         <div className="bg-white border border-slate-300 p-4 shadow-sm rounded-sm flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-500 text-xs">
             <span className="font-bold uppercase tracking-wider text-amber-800">MANUAL REVIEW / BORDERLINE</span>
-            <span className="text-base">⏳</span>
           </div>
           <div className="flex items-baseline gap-2 mt-2">
             <span className="text-3xl font-black text-amber-700">{needsReviewScans}</span>
@@ -202,9 +196,8 @@ export const MyScansView: React.FC<MyScansViewProps> = ({
                 placeholder="e.g. Asha Spices, PB-00482, Mustard..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:border-[#0f2744]"
+                className="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:border-[#0f2744]"
               />
-              <span className="absolute left-2.5 top-2 text-slate-400">🔍</span>
             </div>
           </div>
 
@@ -274,9 +267,8 @@ export const MyScansView: React.FC<MyScansViewProps> = ({
             </span>
             <button
               onClick={handleExportCsv}
-              className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold px-3 py-1 rounded transition-colors shadow-2xs flex items-center gap-1.5"
+              className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold px-3 py-1 rounded transition-colors shadow-2xs flex items-center cursor-pointer"
             >
-              <span>📥</span>
               <span>Export CSV</span>
             </button>
           </div>
@@ -301,13 +293,13 @@ export const MyScansView: React.FC<MyScansViewProps> = ({
             {loading ? (
               <tr>
                 <td colSpan={6} className="text-center py-8 text-slate-500 text-sm">
-                  ⏳ Loading scan records from backend server...
+                  Loading scan records from backend server...
                 </td>
               </tr>
             ) : error ? (
               <tr>
                 <td colSpan={6} className="text-center py-8 text-red-600 text-sm">
-                  ⚠ Error loading records: {error}
+                  Error loading records: {error}
                   {onRefresh && (
                     <button onClick={onRefresh} className="ml-2 text-[#0f2744] font-bold underline">Retry</button>
                   )}
@@ -362,15 +354,15 @@ export const MyScansView: React.FC<MyScansViewProps> = ({
                     <td>
                       {rec.overall_verdict === 'compliant' ? (
                         <span className="badge-compliant">
-                          ✔ COMPLIANT
+                          COMPLIANT
                         </span>
                       ) : rec.overall_verdict === 'needs_review' ? (
                         <span className="badge-review">
-                          ⚠ REVIEW
+                          REVIEW
                         </span>
                       ) : (
                         <span className="badge-non-compliant">
-                          ✖ BREACH (SEC 36)
+                          BREACH (SEC 36)
                         </span>
                       )}
                     </td>

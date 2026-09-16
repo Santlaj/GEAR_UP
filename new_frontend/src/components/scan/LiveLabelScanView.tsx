@@ -218,6 +218,16 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
     };
   }, []);
 
+  // Ensure video stream attaches to video element when live camera is activated
+  useEffect(() => {
+    if (isCameraActive && videoRef.current && mediaStreamRef.current) {
+      if (videoRef.current.srcObject !== mediaStreamRef.current) {
+        videoRef.current.srcObject = mediaStreamRef.current;
+      }
+      videoRef.current.play().catch((e) => console.error('Camera play error:', e));
+    }
+  }, [isCameraActive]);
+
   // Initialize camera stream
   const handleStartCamera = async (facingMode: 'environment' | 'user' = 'environment') => {
     stopCameraStream();
@@ -235,11 +245,11 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
       });
 
       mediaStreamRef.current = stream;
+      setIsCameraActive(true);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
       }
-      setIsCameraActive(true);
       setCameraFacingMode(facingMode);
     } catch (err: any) {
       console.warn('Camera stream error, falling back:', err);
@@ -249,11 +259,11 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
           audio: false,
         });
         mediaStreamRef.current = fallbackStream;
+        setIsCameraActive(true);
         if (videoRef.current) {
           videoRef.current.srcObject = fallbackStream;
           await videoRef.current.play();
         }
-        setIsCameraActive(true);
       } catch (fallbackErr: any) {
         console.error('Camera blocked:', fallbackErr);
         setCameraError(
@@ -370,7 +380,6 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
           {/* Viewport Top Primary Control Bar */}
           <div className="bg-[#0f2744] text-white px-3 sm:px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
             <div className="font-bold flex items-center gap-2">
-              <Camera className="w-4 h-4 text-amber-400" />
               <span className="uppercase tracking-wide font-extrabold">{t('optical_viewport_title')}</span>
             </div>
             
@@ -380,14 +389,13 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
               <button
                 onClick={() => (isCameraActive ? stopCameraStream() : handleStartCamera('environment'))}
                 disabled={isCameraStarting}
-                className={`text-xs font-black px-3 py-1.5 rounded transition-all flex items-center gap-1.5 cursor-pointer shadow-xs border ${
+                className={`text-xs font-bold px-3 py-1.5 rounded transition-all flex items-center cursor-pointer shadow-xs border ${
                   isCameraActive
-                    ? 'bg-red-600 hover:bg-red-700 text-white border-red-400 animate-pulse'
-                    : 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-400'
+                    ? 'bg-slate-900 hover:bg-black text-white border-slate-600'
+                    : 'bg-white hover:bg-slate-100 text-slate-900 border-slate-300'
                 }`}
                 title={isCameraActive ? 'Close Live Camera' : 'Open Live Camera'}
               >
-                {isCameraActive ? <Square className="w-3.5 h-3.5 fill-current" /> : <Camera className="w-3.5 h-3.5" />}
                 <span>{isCameraActive ? (lang === 'hi' ? 'कैमरा बंद करें' : 'Close Camera') : (lang === 'hi' ? 'लाइव कैमरा' : 'Live Camera')}</span>
               </button>
 
@@ -397,10 +405,9 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
                   stopCameraStream();
                   fileInputRef.current?.click();
                 }}
-                className="text-xs font-bold px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded border border-amber-300 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+                className="text-xs font-bold px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-900 rounded border border-slate-300 transition-all flex items-center shadow-xs cursor-pointer"
                 title="Select product image for live analysis"
               >
-                <FolderOpen className="w-3.5 h-3.5" />
                 <span>{lang === 'hi' ? 'फोटो चुनें' : 'Choose File'}</span>
               </button>
               
@@ -417,10 +424,9 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
               <button
                 onClick={handleReevaluate}
                 disabled={isScanning}
-                className="text-xs font-bold px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded border border-blue-400 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+                className="text-xs font-bold px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-900 rounded border border-slate-300 transition-all flex items-center shadow-xs cursor-pointer disabled:opacity-50"
                 title="Re-run ComplianceEngine evaluation"
               >
-                {isScanning ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 fill-current" />}
                 <span>{isScanning ? 'Evaluating...' : 'Re-Evaluate'}</span>
               </button>
 
@@ -428,10 +434,10 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
               {!isCameraActive && (
                 <button
                   onClick={() => setShowAnnotations(!showAnnotations)}
-                  className={`hidden sm:inline-flex text-xs font-bold px-2 py-1.5 rounded border transition-colors cursor-pointer ${
+                  className={`hidden sm:inline-flex text-xs font-bold px-2.5 py-1.5 rounded border transition-colors cursor-pointer ${
                     showAnnotations
-                      ? 'bg-white text-[#0f2744] border-white shadow-2xs'
-                      : 'bg-slate-700 text-slate-200 border-slate-500'
+                      ? 'bg-white text-slate-900 border-slate-300 shadow-2xs'
+                      : 'bg-slate-800 text-slate-300 border-slate-600'
                   }`}
                 >
                   {t('annotations_toggle')}: {showAnnotations ? 'ON' : 'OFF'}
@@ -442,7 +448,7 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
               {!isCameraActive && (
                 <button
                   onClick={() => setIsZoomed(!isZoomed)}
-                  className="text-xs font-bold px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded border border-slate-600 transition-colors cursor-pointer"
+                  className="text-xs font-bold px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-900 rounded border border-slate-300 transition-colors cursor-pointer"
                 >
                   {isZoomed ? '150%' : '100%'}
                 </button>
@@ -487,7 +493,13 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
             {isCameraActive ? (
               <div className="relative w-full h-full min-h-[560px] flex flex-col items-center justify-center bg-black rounded overflow-hidden">
                 <video
-                  ref={videoRef}
+                  ref={(el) => {
+                    videoRef.current = el;
+                    if (el && mediaStreamRef.current && el.srcObject !== mediaStreamRef.current) {
+                      el.srcObject = mediaStreamRef.current;
+                      el.play().catch((e) => console.error('Video play error:', e));
+                    }
+                  }}
                   autoPlay
                   playsInline
                   muted
@@ -513,27 +525,24 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
                     <button
                       type="button"
                       onClick={handleToggleFacingMode}
-                      className="text-xs bg-slate-800 hover:bg-slate-700 text-white font-bold px-3 py-2 rounded-full border border-slate-600 transition-colors flex items-center gap-1.5 cursor-pointer"
+                      className="text-xs bg-slate-800 hover:bg-slate-700 text-white font-bold px-4 py-2 rounded-full border border-slate-600 transition-colors flex items-center cursor-pointer"
                     >
-                      <RefreshCw className="w-3.5 h-3.5" />
                       <span>Flip</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={handleCapturePhoto}
-                      className="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm px-6 py-2.5 rounded-full border-2 border-white shadow-lg transition-all flex items-center gap-2 cursor-pointer animate-pulse"
+                      className="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm px-7 py-2.5 rounded-full border-2 border-white shadow-lg transition-all flex items-center cursor-pointer animate-pulse"
                     >
-                      <Camera className="w-4 h-4" />
                       <span>CAPTURE &amp; SCAN</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={stopCameraStream}
-                      className="text-xs bg-red-700 hover:bg-red-800 text-white font-bold px-3 py-2 rounded-full transition-colors flex items-center gap-1.5 cursor-pointer"
+                      className="text-xs bg-red-700 hover:bg-red-800 text-white font-bold px-4 py-2 rounded-full transition-colors flex items-center cursor-pointer"
                     >
-                      <X className="w-3.5 h-3.5" />
                       <span>Cancel</span>
                     </button>
                   </div>
@@ -558,15 +567,12 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
 
                 {cameraError && (
                   <div className="absolute top-4 left-4 right-4 z-20 bg-red-900/90 text-white p-3 rounded border border-red-500 text-xs flex items-center justify-between gap-2 shadow-lg">
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-amber-400" />
-                      <span>{cameraError}</span>
-                    </div>
+                    <span>{cameraError}</span>
                     <button
                       onClick={() => setCameraError(null)}
                       className="text-white hover:text-red-200 font-bold px-2 py-0.5 cursor-pointer"
                     >
-                      <X className="w-3.5 h-3.5" />
+                      ✕
                     </button>
                   </div>
                 )}
@@ -619,17 +625,10 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
                               }}
                               title={clause.titleEn}
                             >
-                              <div className={`absolute -top-5 left-0 text-white text-[9.5px] font-black px-1.5 py-0.5 rounded-t whitespace-nowrap flex items-center gap-1 shadow ${
+                              <div className={`absolute -top-5 left-0 text-white text-[9.5px] font-black px-1.5 py-0.5 rounded-t whitespace-nowrap flex items-center shadow ${
                                 isFail ? 'bg-red-700' : isReview ? 'bg-amber-700' : 'bg-emerald-700'
                               }`}>
                                 <span>{clause.tagTitle}</span>
-                                {isFail ? (
-                                  <XCircle className="w-2.5 h-2.5 text-white" />
-                                ) : isReview ? (
-                                  <AlertTriangle className="w-2.5 h-2.5 text-white" />
-                                ) : (
-                                  <CheckCircle2 className="w-2.5 h-2.5 text-white" />
-                                )}
                               </div>
                             </div>
                           );
@@ -639,7 +638,6 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
                   </div>
                 ) : (
                   <div className="text-center p-8 text-slate-400">
-                    <Camera className="w-16 h-16 mx-auto mb-3 opacity-40 text-slate-500" />
                     <div className="font-bold text-sm text-slate-300">Inspection Image Capture Not Stored</div>
                     <div className="text-xs text-slate-500 mt-1">Tap "Live Camera" or "Choose File" above to submit a package photo for audit.</div>
                   </div>
@@ -691,9 +689,6 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
                   ? 'text-amber-800'
                   : 'text-emerald-800'
               }`}>
-                <span className={`text-xs ${currentClause.type === 'fail' ? 'text-red-600' : currentClause.type === 'review' ? 'text-amber-600' : 'text-emerald-600'}`}>
-                  {currentClause.type === 'pass' ? '✓' : '▲'}
-                </span>
                 <span>TAG #{currentClause.num} • {currentClause.ruleProvision.toUpperCase()}</span>
               </div>
               <div className="text-sm sm:text-base font-black text-slate-900 mt-0.5 ml-3.5">
@@ -747,7 +742,6 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
               <div className={`flex items-center gap-1.5 text-[10.5px] font-black uppercase tracking-wide ${
                 currentClause.type === 'fail' ? 'text-red-800' : currentClause.type === 'review' ? 'text-amber-800' : 'text-emerald-800'
               }`}>
-                <span className={`text-xs ${currentClause.type === 'fail' ? 'text-red-600' : currentClause.type === 'review' ? 'text-amber-600' : 'text-emerald-600'}`}>▲</span>
                 <span>STATUTORY ACTION / PENALTY</span>
               </div>
               <p className="text-slate-800 mt-0.5 leading-normal text-xs ml-3.5">
@@ -807,33 +801,27 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
             </div>
           </div>
 
+          {/* Directives Bar: Directly below Statutory Checklist */}
+          <div className="bg-white border border-slate-300 p-3 sm:p-3.5 shadow-sm rounded-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>
+              <div className="font-black text-[#0f2744] text-xs">
+                {t('enforcement_directives')}
+              </div>
+              <div className="text-[11px] text-slate-600 mt-0.5 leading-snug">
+                {t('enforcement_subtitle')}
+              </div>
+            </div>
+
+            <button
+              onClick={onProceedToCertificate}
+              className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-4 py-2 rounded transition-all shadow-sm flex items-center justify-center cursor-pointer w-full sm:w-auto shrink-0"
+            >
+              <span>{t('proceed_to_certificate')}</span>
+            </button>
+          </div>
+
         </div>
 
-      </div>
-
-      {/* ── Bottom Action Bar ── */}
-      <div className="mt-4 bg-white border border-slate-300 p-3 sm:p-4 shadow-sm rounded-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded bg-[#0f2744] text-white flex items-center justify-center shadow-2xs shrink-0">
-            <Scale className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="font-black text-[#0f2744] text-xs sm:text-sm">
-              {t('enforcement_directives')}
-            </div>
-            <div className="text-[11px] sm:text-xs text-slate-600 mt-0.5">
-              {t('enforcement_subtitle')}
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={onProceedToCertificate}
-          className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-5 py-2.5 rounded transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto shrink-0"
-        >
-          <CheckCircle2 className="w-4 h-4" />
-          <span>{t('proceed_to_certificate')}</span>
-        </button>
       </div>
 
     </div>

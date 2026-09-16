@@ -31,7 +31,7 @@ import { VerifyTokenModal } from './components/certificate/VerifyTokenModal';
 import { NewScanModal } from './components/scan/NewScanModal';
 
 import { ScanRecord, UserContext } from './shared/schema';
-import { fetchScans, getScanPdfUrl } from './api/scans';
+import { fetchScans, getScanPdfUrl, getScanDocxUrl, getScanHtmlUrl, downloadScanPdf, downloadScanDocx } from './api/scans';
 import { LanguageProvider } from './lib/i18n';
 
 export function App() {
@@ -346,15 +346,23 @@ export function App() {
             <CertificateView
               scanRecord={currentScan}
               onPrintTriplicate={() => setShowTriplicateModal(true)}
-              onDownloadPdf={() => {
-                const pdfUrl = getScanPdfUrl(currentScan.scan_id);
-                const link = document.createElement('a');
-                link.href = pdfUrl;
-                link.download = `${currentScan.report_no.replace(/\//g, '_')}_Official_Gazette.pdf`;
-                link.target = '_blank';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+              onDownloadPdf={async () => {
+                const filename = `${currentScan.report_no.replace(/[\/\\?%*:|"<>]/g, '_')}_Official_Gazette.pdf`;
+                try {
+                  await downloadScanPdf(currentScan.scan_id, filename);
+                } catch (err) {
+                  console.warn('Direct blob download failed, falling back to window.open:', err);
+                  window.open(getScanPdfUrl(currentScan.scan_id), '_blank');
+                }
+              }}
+              onDownloadDocx={async () => {
+                const filename = `${currentScan.report_no.replace(/[\/\\?%*:|"<>]/g, '_')}_Official_Report.docx`;
+                try {
+                  await downloadScanDocx(currentScan.scan_id, filename);
+                } catch (err) {
+                  console.warn('Direct blob download failed, falling back to window.open:', err);
+                  window.open(getScanDocxUrl(currentScan.scan_id), '_blank');
+                }
               }}
               onIssueNotice={() => setShowCompoundingModal(true)}
               onVerifyQr={() => setShowVerifyTokenModal(true)}

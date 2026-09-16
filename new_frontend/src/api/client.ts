@@ -28,17 +28,30 @@ export function getBackendOrigin(): string {
 }
 
 /**
- * Resolves static assets (like captured images) to full URLs in production
- * or relative paths in local development.
+ * Resolves static asset paths to displayable URLs.
+ *
+ * ── Production (Render / Supabase) ──
+ * The old flow constructed URLs like `/captures/insp-pb-xxx/image.jpg`
+ * which only worked on localhost where the /captures directory existed.
+ * On Render, these return 404 because the filesystem is ephemeral.
+ *
+ * ── New flow ──
+ * - If the path is already an absolute URL (http/https/data:), return as-is.
+ *   This handles Supabase signed URLs returned by the images API.
+ * - For relative paths (scans/xxx.jpg, captures/xxx/yyy.jpg), return null.
+ *   The caller should use fetchScanImages() or getScanEvidenceImageUrl()
+ *   which route through the backend API → Supabase.
  */
 export function resolveAssetUrl(path: string | null | undefined): string | null {
   if (!path) return null;
+  // Already an absolute URL (Supabase signed URL, data: URI, etc.)
   if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
     return path;
   }
-  const clean = path.startsWith('/') ? path.slice(1) : path;
-  const origin = getBackendOrigin();
-  return origin ? `${origin}/${clean}` : `/${clean}`;
+  // Relative path like "scans/xxx.jpg" or "captures/insp-pb-xxx/img.jpg"
+  // These MUST NOT be turned into direct file URLs — they don't exist on Render.
+  // Return null so the caller falls back to the backend API evidence endpoint.
+  return null;
 }
 
 export function getScanEvidenceImageUrl(scanId: string): string {

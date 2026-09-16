@@ -70,6 +70,60 @@ export function getScanDocxUrl(scanId: string): string {
   return `${API_BASE}/scans/${encodeURIComponent(scanId)}/report.docx`;
 }
 
+/**
+ * Returns the direct URL to view the authentic print-ready Gazette HTML report
+ */
+export function getScanHtmlUrl(scanId: string): string {
+  return `${API_BASE}/scans/${encodeURIComponent(scanId)}/report.html`;
+}
+
+/**
+ * Triggers a download of the PDF report by fetching as blob.
+ * Avoids browser navigation drops and handles errors gracefully.
+ */
+export async function downloadScanPdf(scanId: string, filename: string): Promise<void> {
+  const token = localStorage.getItem('lmcs_token');
+  const url = getScanPdfUrl(scanId);
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to download PDF report (HTTP ${res.status})`);
+  }
+  const blob = await res.blob();
+  const objectUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = objectUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(objectUrl);
+  document.body.removeChild(a);
+}
+
+/**
+ * Triggers a download of the DOCX report by fetching as blob.
+ */
+export async function downloadScanDocx(scanId: string, filename: string): Promise<void> {
+  const token = localStorage.getItem('lmcs_token');
+  const url = getScanDocxUrl(scanId);
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to download DOCX report (HTTP ${res.status})`);
+  }
+  const blob = await res.blob();
+  const objectUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = objectUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(objectUrl);
+  document.body.removeChild(a);
+}
+
 export interface ScanVerificationResult {
   valid: boolean;
   scan_id: string;
