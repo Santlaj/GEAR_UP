@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { RotateCcw, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
-import { MOCK_REPORTS } from '../data/mockData';
 import type { ReportRecord } from '../data/mockData';
 import { fetchScans, scanRecordToReportRecord } from '../api';
 

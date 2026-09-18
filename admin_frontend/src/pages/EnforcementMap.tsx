@@ -7,7 +7,6 @@ import {
   Navigation, 
   MapPin 
 } from 'lucide-react';
-import { MOCK_REPORTS, MOCK_FEED_ITEMS } from '../data/mockData';
 import type { ReportRecord, MapInspectionFeedItem } from '../data/mockData';
 import L from 'leaflet';
 import {

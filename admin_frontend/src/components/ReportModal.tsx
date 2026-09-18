@@ -9,7 +9,7 @@ interface ReportModalProps {
   onViewOnMap?: (report: ReportRecord) => void;
 }
 
-export const ReportModal: React.FC<ReportModalProps> = ({ report, onClose, onViewOnMap }) => {
+export const ReportModal: React.FC<ReportModalProps> = ({ report, onClose }) => {
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [downloadingDocx, setDownloadingDocx] = useState(false);
 

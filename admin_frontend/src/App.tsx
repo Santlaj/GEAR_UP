@@ -15,7 +15,7 @@ import type { ReportRecord, TriageCase } from './data/mockData';
 import { fetchScans } from './api';
 import { fetchCurrentScope, logoutAdmin, getStoredScope, setStoredScope } from './api/auth';
 import type { UserScope } from './api/auth';
-import { getToken, clearSession } from './api/client';
+import { getToken } from './api/client';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<TabType>('map');

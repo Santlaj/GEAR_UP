@@ -14,7 +14,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const [pendingReviewCount, setPendingReviewCount] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isDemoStats, setIsDemoStats] = useState<boolean>(false);
-  const [isDemoRecent, setIsDemoRecent] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -47,17 +46,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             (s) => s.review_status === 'pending' || s.review_status === 'needs_review'
           ).length;
           setPendingReviewCount(pending);
-          setIsDemoRecent(false);
         } else {
           setRecentReports([]);
           setPendingReviewCount(0);
-          setIsDemoRecent(false);
         }
       } catch (err) {
         console.warn('Dashboard data fetch error:', err);
         if (isMounted) {
           setIsDemoStats(false);
-          setIsDemoRecent(false);
           setRecentReports([]);
           setPendingReviewCount(0);
         }
