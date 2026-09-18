@@ -19,6 +19,8 @@ export interface LoginResponse {
   token_type: string;
   scope: BackendScope;
   session_id?: string | null;
+  portal?: string;
+  user?: any;
 }
 
 export interface AuthMeResponse {
@@ -35,7 +37,7 @@ export interface AuthMeResponse {
 export async function loginApi(
   email: string,
   password: string,
-  portal: 'inspector' | 'admin',
+  portal: 'inspector' | 'admin' | 'auto' = 'auto',
 ): Promise<LoginResponse> {
   return apiFetch<LoginResponse>('/auth/login', {
     method: 'POST',

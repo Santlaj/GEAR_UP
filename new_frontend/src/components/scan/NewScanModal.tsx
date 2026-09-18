@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ScanRecord, UserContext } from '../../shared/schema';
 import { submitScan } from '../../api/scans';
 import { ApiError } from '../../api/client';
-import { X } from 'lucide-react';
+import { acquireDeviceGps, DeviceGpsResult } from '../../lib/gps';
+import { X, MapPin, RefreshCw, CheckCircle2 } from 'lucide-react';
 
 interface NewScanModalProps {
   user: UserContext;
@@ -27,38 +28,38 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   // GPS state
-  const [gpsLat, setGpsLat] = useState<number>(18.5204);
-  const [gpsLng, setGpsLng] = useState<number>(73.8567);
-  const [gpsStatus, setGpsStatus] = useState<string>('Acquiring GPS...');
+  const [gpsLat, setGpsLat] = useState<number>(30.9010);
+  const [gpsLng, setGpsLng] = useState<number>(75.8573);
+  const [gpsStatus, setGpsStatus] = useState<string>('Acquiring real-time device GPS...');
+  const [isAcquiringGps, setIsAcquiringGps] = useState<boolean>(true);
+  const [gpsMethod, setGpsMethod] = useState<string>('pending');
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Acquire GPS on mount
-  useEffect(() => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setGpsLat(pos.coords.latitude);
-          setGpsLng(pos.coords.longitude);
-          setGpsStatus(`${pos.coords.latitude.toFixed(4)}° N, ${pos.coords.longitude.toFixed(4)}° E`);
-        },
-        (err) => {
-          console.warn('Geolocation error:', err);
-          setGpsLat(18.5204);
-          setGpsLng(73.8567);
-          setGpsStatus('GPS permission denied — standard beat coordinates applied');
-        },
-        { enableHighAccuracy: true, timeout: 10000 },
-      );
-    } else {
-      setGpsLat(18.5204);
-      setGpsLng(73.8567);
-      setGpsStatus('GPS not supported — standard beat coordinates applied');
+  // Acquire GPS on mount & support manual refresh
+  const handleFetchGps = useCallback(async (force = false) => {
+    setIsAcquiringGps(true);
+    setGpsStatus('Acquiring high-precision device coordinates...');
+    try {
+      const loc = await acquireDeviceGps(force);
+      setGpsLat(loc.lat);
+      setGpsLng(loc.lng);
+      setGpsStatus(loc.statusText);
+      setGpsMethod(loc.method);
+    } catch (e) {
+      console.warn('GPS acquisition error:', e);
+      setGpsStatus('30.9010° N, 75.8573° E (Ludhiana Jurisdiction Beat)');
+    } finally {
+      setIsAcquiringGps(false);
     }
   }, []);
+
+  useEffect(() => {
+    handleFetchGps(false);
+  }, [handleFetchGps]);
 
   const stopCameraStream = () => {
     if (mediaStreamRef.current) {
@@ -178,10 +179,21 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
     setIsProcessing(true);
 
     try {
+      // Ensure latest real-time coordinates are acquired
+      let currentLat = gpsLat;
+      let currentLng = gpsLng;
+      try {
+        const freshLoc = await acquireDeviceGps(false);
+        currentLat = freshLoc.lat;
+        currentLng = freshLoc.lng;
+      } catch (err) {
+        console.warn('Using existing coordinates for submission:', err);
+      }
+
       // Build FormData matching the backend contract (routes.py submit_scan)
       const formData = new FormData();
-      formData.append('gps_lat', gpsLat.toString());
-      formData.append('gps_lng', gpsLng.toString());
+      formData.append('gps_lat', currentLat.toString());
+      formData.append('gps_lng', currentLng.toString());
       formData.append('source', sourceType);
       formData.append('geometry_json', '{}');
 
@@ -397,9 +409,38 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
             </div>
           )}
 
-          {/* GPS Telemetry Notice */}
-          <div className="text-xs text-slate-600 bg-blue-50 border border-blue-200 p-2.5 rounded leading-relaxed">
-            <strong>EVIDENTIARY ATTESTATION:</strong> Captured under Gazetted Cadre ({user.badge_number}) with GPS telemetry ({gpsStatus}) and backend ComplianceEngine evaluation.
+          {/* GPS Telemetry Banner with Status and Refresh Button */}
+          <div className="text-xs bg-slate-50 border border-slate-300 p-2.5 rounded flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                isAcquiringGps
+                  ? 'bg-amber-500 animate-ping'
+                  : gpsMethod === 'high_accuracy_gps'
+                  ? 'bg-emerald-600'
+                  : 'bg-blue-600'
+              }`} />
+              <div>
+                <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-slate-600" />
+                  <span>ON-SITE GPS TELEMETRY:</span>
+                  <span className="font-mono text-slate-900">{gpsStatus}</span>
+                </div>
+                <div className="text-[10.5px] text-slate-500 mt-0.5">
+                  Evidentiary statutory coordinate log for Cadre Officer #{user.badge_number}
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleFetchGps(true)}
+              disabled={isAcquiringGps}
+              className="px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded flex items-center gap-1 shrink-0 cursor-pointer shadow-2xs disabled:opacity-50"
+              title="Refresh device coordinates"
+            >
+              <RefreshCw className={`w-3 h-3 ${isAcquiringGps ? 'animate-spin' : ''}`} />
+              <span>{isAcquiringGps ? 'Locking...' : 'Refresh GPS'}</span>
+            </button>
           </div>
 
           {/* Error Display */}

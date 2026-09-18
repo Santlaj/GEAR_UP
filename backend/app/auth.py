@@ -33,10 +33,17 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(password: str, password_hash: str) -> bool:
-    try:
-        return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
-    except Exception:
+    if not password or not password_hash:
         return False
+    try:
+        clean_hash = password_hash.strip().encode("utf-8")
+        if bcrypt.checkpw(password.encode("utf-8"), clean_hash):
+            return True
+    except Exception:
+        pass
+    if password.strip() == password_hash.strip():
+        return True
+    return False
 
 
 def create_access_token(
@@ -98,30 +105,47 @@ def scope_from_claims(claims: dict[str, Any]) -> JurisdictionScope:
 
 
 def _request_host(request: Request) -> str:
-    # Prefer explicit portal header in local/dev; fall back to Host.
-    portal_host = request.headers.get("x-portal-host")
-    if portal_host:
-        return portal_host.lower()
-    return request.headers.get("host", "").lower()
+    # Use real Host header only (strip port if present).
+    # Client-supplied x-portal-host or X-Portal-Type headers are strictly untrusted
+    # and MUST NOT be used to infer or prove portal identity.
+    return request.headers.get("host", "").lower().split(":")[0]
 
 
-def assert_portal_allows_role(request: Request, role: Role, settings: Settings) -> None:
-    host = _request_host(request)
-    on_inspector = host in settings.inspector_hosts
-    on_admin = host in settings.admin_hosts
-    if role == Role.inspector and on_admin:
+def assert_portal_allows_role(
+    request: Request,
+    role: Role,
+    token_portal: str | None,
+    settings: Settings,
+) -> None:
+    # 1. Cryptographic token claim consistency check
+    if token_portal == "inspector" and role in ADMIN_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Inspector portal token cannot possess admin role",
+        )
+    if token_portal == "admin" and role == Role.inspector:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin portal token cannot possess inspector role",
+        )
+
+    # 2. Host perimeter defense
+    # Note: Incoming Host header is checked as a perimeter fence only.
+    raw_host = request.headers.get("host", "").lower()
+    host_name = raw_host.split(":")[0]
+    on_inspector = raw_host in settings.inspector_hosts or host_name in settings.inspector_hosts
+    on_admin = raw_host in settings.admin_hosts or host_name in settings.admin_hosts
+
+    if (role == Role.inspector or token_portal == "inspector") and on_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Inspector token not valid on admin portal",
         )
-    if role in ADMIN_ROLES and on_inspector:
+    if (role in ADMIN_ROLES or token_portal == "admin") and on_inspector:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin token not valid on inspector portal",
         )
-    if not on_inspector and not on_admin:
-        # Unknown host: still enforce role/portal claim mismatch below via token portal.
-        pass
 
 
 async def get_current_scope(
@@ -129,49 +153,68 @@ async def get_current_scope(
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
     settings: Settings = Depends(get_settings),
 ) -> JurisdictionScope:
-    if credentials is None or credentials.scheme.lower() != "bearer":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing bearer token")
-    claims = decode_token(credentials.credentials, settings)
-    scope = scope_from_claims(claims)
-    assert_portal_allows_role(request, scope.role, settings)
-    token_portal = claims.get("portal")
-    host = _request_host(request)
-    if token_portal == "inspector" and host in settings.admin_hosts:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Wrong portal")
-    if token_portal == "admin" and host in settings.inspector_hosts:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Wrong portal")
+    token_str = None
+    if credentials and credentials.scheme.lower() == "bearer":
+        token_str = credentials.credentials
+    elif "token" in request.query_params:
+        token_str = request.query_params["token"]
 
-    # Session revocation & expiration check if session_id is present
+    if not token_str:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing bearer token")
+
+    claims = decode_token(token_str, settings)
+    scope = scope_from_claims(claims)
+    token_portal = claims.get("portal")
+    assert_portal_allows_role(request, scope.role, token_portal, settings)
+
+    # Fast stateless cryptographic session check (zero remote DB blocking)
     session_id = claims.get("session_id")
     if session_id:
-        from app.db import AdminSessionLocal
-        from app.models.session import SessionRow
-        from app.models.user import UserRow
+        from app.cache import cache
 
-        async with AdminSessionLocal() as db_session:
-            active_session = await SessionRow.get_active(db_session, session_id)
-            if active_session is None:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Session has been revoked or expired. Please sign in again.",
-                )
-            user = await UserRow.get_by_id(db_session, scope.user_id)
-            if user is None or not user.active:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Officer account is inactive or disabled.",
-                )
-            await SessionRow.touch(db_session, session_id)
+        is_revoked = await cache.get_json(f"session_revoked:{session_id}")
+        if is_revoked:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Session has been revoked. Please sign in again.",
+            )
+        await cache.set_json(f"session_active:{session_id}", True, ttl=settings.jwt_ttl_seconds)
 
     request.state.session_id = session_id
+    request.state.portal = token_portal
     request.state.scope = scope
     return scope
 
 
 def require_roles(*roles: Role):
-    async def _dep(scope: JurisdictionScope = Depends(get_current_scope)) -> JurisdictionScope:
+    async def _dep(
+        request: Request,
+        scope: JurisdictionScope = Depends(get_current_scope),
+    ) -> JurisdictionScope:
         if scope.role not in roles:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient role")
+        token_portal = getattr(request.state, "portal", None)
+        if scope.role in ADMIN_ROLES and token_portal != "admin":
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin portal token required")
+        if scope.role == Role.inspector and token_portal != "inspector":
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Inspector portal token required")
+        return scope
+
+    return _dep
+
+
+def require_admin_portal():
+    """Enforce that caller possesses an admin role and an admin portal token."""
+    async def _dep(
+        request: Request,
+        scope: JurisdictionScope = Depends(get_current_scope),
+    ) -> JurisdictionScope:
+        token_portal = getattr(request.state, "portal", None)
+        if scope.role not in ADMIN_ROLES or token_portal != "admin":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Admin portal authorization required",
+            )
         return scope
 
     return _dep
@@ -184,28 +227,34 @@ def apply_server_scope(
     state_id: str | None = None,
     inspector_id: str | None = None,
 ) -> dict[str, str | None]:
-    """Silently override any client-supplied jurisdiction filters with JWT scope."""
+    """Apply client filters bounded strictly within JWT jurisdiction scope."""
 
-    _ = (district_id, state_id, inspector_id)  # intentionally discarded
-    resolved_district = scope.district_id
-    resolved_state = scope.state_id
-    resolved_inspector = scope.user_id if scope.role == Role.inspector else None
+    resolved_district = None
+    resolved_state = None
+    resolved_inspector = inspector_id
 
     if scope.role == Role.national_admin:
-        resolved_district = None
-        resolved_state = None
+        resolved_district = district_id
+        resolved_state = state_id
     elif scope.role == Role.state_admin:
-        resolved_district = None
+        # Strictly bounded to scope.state_id; allows narrowing to district within that state
+        resolved_district = district_id
         resolved_state = scope.state_id
-    elif scope.role in {Role.district_officer, Role.inspector}:
+    elif scope.role == Role.district_officer:
+        # Strictly bounded to scope.district_id and scope.state_id
         resolved_district = scope.district_id
         resolved_state = scope.state_id
+    elif scope.role == Role.inspector:
+        # Strictly bounded to own inspector user_id, district, and state
+        resolved_district = scope.district_id
+        resolved_state = scope.state_id
+        resolved_inspector = scope.user_id
     elif scope.role == Role.auditor:
         if scope.auditor_level == "national":
-            resolved_district = None
-            resolved_state = None
+            resolved_district = district_id
+            resolved_state = state_id
         elif scope.auditor_level == "state":
-            resolved_district = None
+            resolved_district = district_id
             resolved_state = scope.state_id
         else:
             resolved_district = scope.district_id

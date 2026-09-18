@@ -116,9 +116,15 @@ export function App() {
     validateSession()
       .then((validated: AuthSession | null) => {
         if (validated) {
-          setAuthSession(validated);
-          setCurrentUser(validated.user);
-          loadRecords();
+          if (validated.scope.role !== 'inspector' && validated.portal !== 'inspector') {
+            clearAuthSession();
+            setAuthSession(null);
+            setCurrentUser(null);
+          } else {
+            setAuthSession(validated);
+            setCurrentUser(validated.user);
+            loadRecords();
+          }
         } else {
           setAuthSession(null);
           setCurrentUser(null);
@@ -127,11 +133,12 @@ export function App() {
       .catch((err) => {
         console.warn('Session verification fallback triggered:', err);
         const existing = getStoredSession();
-        if (existing) {
+        if (existing && (existing.scope.role === 'inspector' || existing.portal === 'inspector')) {
           setAuthSession(existing);
           setCurrentUser(existing.user);
           loadRecords();
         } else {
+          clearAuthSession();
           setAuthSession(null);
           setCurrentUser(null);
         }

@@ -4,7 +4,6 @@ from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 
 from starlette.requests import Request
 from starlette.responses import Response
@@ -22,7 +21,6 @@ from uuid import uuid4
 from sqlalchemy import text
 from app.rule_engine import load_ruleset
 from app.db import admin_engine
-from app.storage import download_scan_image
 
 
 @asynccontextmanager
@@ -34,10 +32,23 @@ async def lifespan(_app: FastAPI):
     try:
         from app.models.session import SessionRow
         from app.models.scan_image import ScanImageRow
+        from app.db import admin_engine
 
         await SessionRow.ensure_table()
         await ScanImageRow.ensure_table()
-        print(">>> Sessions & ScanImages tables successfully ensured in Neon PostgreSQL", flush=True)
+
+        # Ensure lmcs_app role has UPDATE permissions on scan_reports for in-place reevaluation
+        async with admin_engine.begin() as conn:
+            await conn.execute(text("""
+                DO $$
+                BEGIN
+                  IF EXISTS (SELECT FROM pg_roles WHERE rolname = 'lmcs_app') THEN
+                    GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO lmcs_app;
+                    GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO lmcs_app;
+                  END IF;
+                END$$;
+            """))
+        print(">>> Database permissions and tables ensured in Neon PostgreSQL", flush=True)
     except Exception as exc:
         print(f">>> Table setup note: {exc}", flush=True)
 
@@ -130,47 +141,31 @@ def create_app() -> FastAPI:
 
     captures_dir = Path(__file__).resolve().parent.parent / "captures"
     captures_dir.mkdir(parents=True, exist_ok=True)
-    app.mount("/captures", StaticFiles(directory=str(captures_dir)), name="captures")
-
-    @app.get("/scans/{file_path:path}")
-    async def serve_scan_file(file_path: str):
-        clean_name = file_path.lstrip("/")
-        # Check local disk
-        candidates = [
-            captures_dir / clean_name,
-            captures_dir / "scans" / clean_name,
-        ]
-        parts = clean_name.split("/")
-        if len(parts) >= 2:
-            candidates.append(captures_dir / parts[0] / parts[-1])
-        for c in candidates:
-            if c.is_file():
-                mime = "image/png" if c.suffix.lower() == ".png" else "image/jpeg"
-                return Response(content=c.read_bytes(), media_type=mime, headers={"Cache-Control": "public, max-age=86400"})
-
-        # Fetch from Supabase
-        settings = get_settings()
-        storage_path = f"scans/{clean_name}" if not clean_name.startswith("scans/") else clean_name
-        bucket = settings.supabase_bucket or "lmcs-images"
-        result = await download_scan_image(bucket=bucket, storage_path=storage_path, settings=settings)
-        if result:
-            raw_bytes, mime = result
-            try:
-                save_dest = captures_dir / clean_name
-                save_dest.parent.mkdir(parents=True, exist_ok=True)
-                save_dest.write_bytes(raw_bytes)
-            except Exception:
-                pass
-            return Response(content=raw_bytes, media_type=mime, headers={"Cache-Control": "public, max-age=86400"})
-
-        return Response(status_code=404, content=b"Scan image not found")
 
     @app.api_route("/health", methods=["GET", "HEAD"])
     async def health() -> dict[str, Any]:
         settings = get_settings()
         from app.storage import is_supabase_configured
+        from app.cache import cache
+
+        # Non-blocking DB pool warm-up so Neon compute is awake and ready before login
+        import asyncio
+        async def _warm_db():
+            try:
+                from app.db import AdminSessionLocal
+                from sqlalchemy import text
+                async with AdminSessionLocal() as session:
+                    await session.execute(text("SELECT 1"))
+            except Exception:
+                pass
+        try:
+            asyncio.create_task(_warm_db())
+        except Exception:
+            pass
+
         return {
             "status": "ok",
+            "redis_active": cache.is_redis_active,
             "supabase_configured": is_supabase_configured(settings),
             "supabase_bucket": settings.supabase_bucket,
         }

@@ -40,9 +40,13 @@ class SessionRow(Base):
         DateTime(timezone=True), nullable=True
     )
 
+    _table_ensured: bool = False
+
     @classmethod
     async def ensure_table(cls) -> None:
         """Executes DDL statements individually to guarantee sessions table exists in Neon."""
+        if cls._table_ensured:
+            return
         from sqlalchemy import text
         from app.db import admin_engine
 
@@ -74,9 +78,13 @@ class SessionRow(Base):
             END$$;
             """,
         ]
-        async with admin_engine.begin() as conn:
-            for stmt in statements:
-                await conn.execute(text(stmt))
+        try:
+            async with admin_engine.begin() as conn:
+                for stmt in statements:
+                    await conn.execute(text(stmt))
+            cls._table_ensured = True
+        except Exception:
+            pass
 
     @classmethod
     async def create(
@@ -101,16 +109,15 @@ class SessionRow(Base):
         session.add(row)
         try:
             await session.commit()
-            await session.refresh(row)
             return row
         except Exception as exc:
             await session.rollback()
             err_msg = str(exc).lower()
             if "relation \"sessions\" does not exist" in err_msg or "undefinedtableerror" in err_msg:
+                cls._table_ensured = False
                 await cls.ensure_table()
                 session.add(row)
                 await session.commit()
-                await session.refresh(row)
                 return row
             raise
 

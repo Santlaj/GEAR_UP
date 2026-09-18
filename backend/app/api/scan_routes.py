@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import get_current_scope, require_roles
 from app.config import Settings, get_settings
 from app.controllers import scan_controller
-from app.db import get_admin_session, get_session
+from app.db import get_session
 from app.schema import JurisdictionScope, OverallVerdict, Role, ScanRecord, ScanSource
 
 scans_router = APIRouter(prefix="/scans", tags=["scans"])
@@ -172,11 +172,13 @@ async def get_scan_images(
 @scans_router.get("/{scan_id}/evidence-image")
 async def get_scan_evidence_image(
     scan_id: str,
+    scope: JurisdictionScope = Depends(get_current_scope),
     session: AsyncSession = Depends(get_session),
     settings: Settings = Depends(get_settings),
 ) -> Response:
     return await scan_controller.get_scan_evidence_image_bytes(
         scan_id=scan_id,
+        scope=scope,
         session=session,
         settings=settings,
     )
@@ -228,44 +230,48 @@ async def confirm_field_missing(
 @scans_router.get("/{scan_id}/report.pdf")
 async def get_scan_report_pdf(
     scan_id: str,
-    session: AsyncSession = Depends(get_admin_session),
+    scope: JurisdictionScope = Depends(get_current_scope),
+    session: AsyncSession = Depends(get_session),
     settings: Settings = Depends(get_settings),
 ) -> FileResponse:
     return await scan_controller.get_report_pdf(
-        scan_id=scan_id, session=session, settings=settings
+        scan_id=scan_id, scope=scope, session=session, settings=settings
     )
 
 
 @scans_router.get("/{scan_id}/report.docx")
 async def get_scan_report_docx(
     scan_id: str,
-    session: AsyncSession = Depends(get_admin_session),
+    scope: JurisdictionScope = Depends(get_current_scope),
+    session: AsyncSession = Depends(get_session),
     settings: Settings = Depends(get_settings),
 ) -> FileResponse:
     return await scan_controller.get_report_docx(
-        scan_id=scan_id, session=session, settings=settings
+        scan_id=scan_id, scope=scope, session=session, settings=settings
     )
 
 
 @scans_router.get("/{scan_id}/report.html")
 async def get_scan_report_html(
     scan_id: str,
-    session: AsyncSession = Depends(get_admin_session),
+    scope: JurisdictionScope = Depends(get_current_scope),
+    session: AsyncSession = Depends(get_session),
     settings: Settings = Depends(get_settings),
 ) -> Response:
     return await scan_controller.get_report_html(
-        scan_id=scan_id, session=session, settings=settings
+        scan_id=scan_id, scope=scope, session=session, settings=settings
     )
 
 
 @scans_router.get("/{scan_id}/verify")
 async def verify_scan_integrity(
     scan_id: str,
-    session: AsyncSession = Depends(get_admin_session),
+    scope: JurisdictionScope = Depends(get_current_scope),
+    session: AsyncSession = Depends(get_session),
     settings: Settings = Depends(get_settings),
 ) -> dict[str, Any]:
     return await scan_controller.verify_scan_integrity(
-        scan_id=scan_id, session=session, settings=settings
+        scan_id=scan_id, scope=scope, session=session, settings=settings
     )
 
 
@@ -273,7 +279,9 @@ async def verify_scan_integrity(
 async def issue_compounding_notice(
     scan_id: str,
     body: IssueNoticeRequest,
-    scope: JurisdictionScope = Depends(get_current_scope),
+    scope: JurisdictionScope = Depends(
+        require_roles(Role.district_officer, Role.state_admin, Role.national_admin)
+    ),
     session: AsyncSession = Depends(get_session),
     settings: Settings = Depends(get_settings),
 ) -> dict[str, Any]:

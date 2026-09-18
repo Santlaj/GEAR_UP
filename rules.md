@@ -16,10 +16,10 @@ codebase harder to navigate, not easier — it does not automatically mean
 
 Before creating a new file, ask, in order:
 
-1. *Is this a genuine runtime/deployment boundary?* (a separate service, a
+1. _Is this a genuine runtime/deployment boundary?_ (a separate service, a
    separate frontend app, a separate worker/lambda). If yes → new file/module
    is justified.
-2. *Will this be imported by three or more unrelated modules?* If yes → it
+2. _Will this be imported by three or more unrelated modules?_ If yes → it
    likely deserves its own file so those modules share one implementation
    instead of copy-pasting.
 3. **Does it represent one cohesive domain concept that a teammate would
@@ -27,7 +27,7 @@ Before creating a new file, ask, in order:
    jurisdiction-scope.ts)? If yes → its own file is fine, but put ALL
    closely related functions for that concept in it, don't split further.
 
-*If the answer to all three is no* — e.g. a single helper function, a
+_If the answer to all three is no_ — e.g. a single helper function, a
 single small class, a single route handler, a single Pydantic/type
 definition that's only used in one place — it belongs inside the most
 relevant existing file, not in a new one. A file whose entire content could
@@ -35,19 +35,20 @@ be described as "one small function used by one caller" should not exist as
 a separate file.
 
 Concrete anti-patterns to avoid:
+
 - One file per Pydantic/TypeScript model when the models form one cohesive
   domain (e.g. don't split Declaration, Product, Ingredient,
   ScanRecord into four files — they belong in one schema.py/schema.ts
   together, exactly as the shared schema in the master prompt describes).
 - One file per API route handler when a group of routes shares a resource
-  (e.g. all /scans/* routes belong in one router file, not five).
+  (e.g. all /scans/\* routes belong in one router file, not five).
 - Wrapping a single library call in its own "service" file with no added
   logic, just to have a service layer.
 - A utils/ folder full of one-function files. Group related utilities into
   one file by theme (e.g. hash-utils.ts with all hashing-related helpers
   together).
 
-*The reverse failure mode also applies and is equally bad*: do not cram
+_The reverse failure mode also applies and is equally bad_: do not cram
 unrelated domains into one giant file either (e.g. do not put rule-engine
 logic and report-PDF-rendering logic in the same file just to reduce file
 count — those are two different cohesive concepts per rule 3 above). The
@@ -129,3 +130,70 @@ version instead.
 Skim the relevant section of the master prompt and this file. If what you're
 about to build conflicts with either, resolve the conflict in favor of these
 documents and flag it in your response rather than proceeding silently.
+
+# LMCS PROJECT RULES — NEON DATABASE AND SAFE IMPLEMENTATION
+
+You are working on my LMCS/PRAMAAN project.
+
+## Project structure
+
+- `new_frontend/` = active inspector frontend. Preserve its working integration.
+- `admin/` = separate state-admin frontend.
+- `backend/` = shared FastAPI backend.
+- `frontend/` = old inspector frontend. Do not merge new functionality into it.
+
+## Production database rule
+
+My actual application database is hosted on Neon PostgreSQL.
+
+Changing local code, ORM models, schema definitions, or migration files DOES NOT mean the hosted Neon database has been updated.
+
+Whenever a task requires a database schema or data change, you MUST:
+
+1. Identify the exact schema change required and why.
+2. Inspect the existing local schema, migration history, and available database configuration.
+3. Distinguish local development DB from hosted Neon production DB.
+4. Identify whether the change is additive, destructive, or data-transforming.
+5. Create a versioned SQL migration file in the project's established migration system.
+6. Provide the complete SQL migration contents in your final response.
+7. Provide exact instructions for applying it to the correct Neon project, branch, and database through Neon SQL Editor or the project's established migration runner.
+8. Never claim the Neon database has been changed unless execution was actually performed and verified.
+9. Never assume local migrations automatically run against Neon.
+10. Never print, request, or expose database passwords, connection strings, API keys, or service-role secrets.
+
+## Before applying a migration
+
+- Check existing tables, columns, constraints, indexes, extensions, roles, and RLS policies.
+- Check for existing records and compatibility.
+- Avoid DROP, TRUNCATE, destructive renames, or data deletion unless explicitly approved.
+- Prefer backward-compatible, additive migrations.
+- Include pre-migration checks and post-migration verification SQL.
+- Include rollback guidance, explaining if rollback could lose data.
+- Do not execute a production migration without my explicit approval.
+
+## Database migration output is mandatory
+
+For every database-affecting phase, report:
+
+A. Does Neon schema need to change? YES/NO.
+B. Exact reason.
+C. Exact migration filename.
+D. Full SQL migration.
+E. Exact Neon Console steps:
+Project → correct branch → correct database → SQL Editor → execute.
+F. Verification SQL and expected result.
+G. Rollback plan and risks.
+H. Whether application deployment must happen before or after migration.
+I. Whether local migration state and Neon migration state are synchronized.
+
+If no schema change is required, explicitly say:
+"No Neon schema migration is required for this phase."
+
+## Phase discipline
+
+Every phase must start with requirements discovery and a read-only audit.
+Do not implement until I approve the phase requirements.
+Do not silently expand the phase scope.
+Do not break existing inspector login, sessions, RBAC, scans, reports, image retrieval, or ComplianceEngine.
+
+Never claim a phase is complete merely because code was written. Provide test evidence and clearly list anything not verified.

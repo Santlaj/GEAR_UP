@@ -44,9 +44,13 @@ class ScanImageRow(Base):
         DateTime(timezone=True), server_default=func.now()
     )
 
+    _table_ensured: bool = False
+
     @classmethod
     async def ensure_table(cls) -> None:
         """Executes DDL statements individually to guarantee scan_images table exists in Neon."""
+        if cls._table_ensured:
+            return
         from sqlalchemy import text
         from app.db import admin_engine
 
@@ -84,9 +88,13 @@ class ScanImageRow(Base):
             END$$;
             """,
         ]
-        async with admin_engine.begin() as conn:
-            for stmt in statements:
-                await conn.execute(text(stmt))
+        try:
+            async with admin_engine.begin() as conn:
+                for stmt in statements:
+                    await conn.execute(text(stmt))
+            cls._table_ensured = True
+        except Exception:
+            pass
 
     @classmethod
     async def create_images(

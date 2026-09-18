@@ -15,7 +15,9 @@ import {
   AlertTriangle,
   Scale,
   X,
+  MapPin,
 } from 'lucide-react';
+import { acquireDeviceGps, getStoredOrFallbackGps } from '../../lib/gps';
 
 interface LiveLabelScanViewProps {
   scanRecord: ScanRecord;
@@ -288,17 +290,50 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
     handleStartCamera(nextMode);
   };
 
-  // Submit scan to backend with genuine image file
+  // Real-time Device GPS Telemetry
+  const [liveGpsText, setLiveGpsText] = useState<string>(() => {
+    if (scanRecord.gps?.lat != null && scanRecord.gps?.lng != null) {
+      return `${scanRecord.gps.lat.toFixed(4)}° N, ${scanRecord.gps.lng.toFixed(4)}° E`;
+    }
+    return getStoredOrFallbackGps().statusText;
+  });
+  const [isAcquiringGps, setIsAcquiringGps] = useState<boolean>(false);
+
+  const refreshLiveGps = async () => {
+    setIsAcquiringGps(true);
+    try {
+      const loc = await acquireDeviceGps(true);
+      setLiveGpsText(loc.statusText);
+    } catch (e) {
+      console.warn('GPS refresh error:', e);
+    } finally {
+      setIsAcquiringGps(false);
+    }
+  };
+
+  useEffect(() => {
+    acquireDeviceGps(false)
+      .then((loc) => {
+        setLiveGpsText(loc.statusText);
+      })
+      .catch(() => {});
+  }, []);
+
+  // Submit scan to backend with genuine image file and live device GPS
   const handleUploadAndScan = async (file: File) => {
     stopCameraStream();
     setIsScanning(true);
-    setScanStep(lang === 'hi' ? 'छवि सर्वर पर भेजी जा रही है एवं नियम मूल्यांकन जारी है...' : 'UPLOADING TO BACKEND & RUNNING COMPLIANCE ENGINE...');
+    setScanStep(lang === 'hi' ? 'जीपीएस कैप्चर एवं नियम मूल्यांकन जारी है...' : 'ACQUIRING DEVICE GPS & RUNNING COMPLIANCE ENGINE...');
 
     try {
+      // 1. Capture real-time device GPS coordinates
+      const loc = await acquireDeviceGps(false);
+      setLiveGpsText(loc.statusText);
+
       const formData = new FormData();
       formData.append('images', file);
-      formData.append('gps_lat', scanRecord.gps?.lat ? scanRecord.gps.lat.toString() : '18.5204');
-      formData.append('gps_lng', scanRecord.gps?.lng ? scanRecord.gps.lng.toString() : '73.8567');
+      formData.append('gps_lat', loc.lat.toString());
+      formData.append('gps_lng', loc.lng.toString());
       formData.append('source', 'photo');
       formData.append('geometry_json', '{}');
 
@@ -386,6 +421,15 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
           <div className="bg-[#0f2744] text-white px-3 sm:px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
             <div className="font-bold flex items-center gap-2">
               <span className="uppercase tracking-wide font-extrabold">{t('optical_viewport_title')}</span>
+              <div
+                onClick={refreshLiveGps}
+                className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-950/90 border border-cyan-500/40 rounded text-[11px] font-mono text-cyan-200 cursor-pointer hover:bg-blue-900 transition-colors shadow-2xs"
+                title="On-site device GPS telemetry. Click to refresh."
+              >
+                <MapPin className="w-3 h-3 text-cyan-400 shrink-0" />
+                <span className="truncate max-w-[210px]">{liveGpsText}</span>
+                {isAcquiringGps && <RefreshCw className="w-2.5 h-2.5 animate-spin text-cyan-300" />}
+              </div>
             </div>
             
             <div className="flex flex-wrap items-center gap-1.5">

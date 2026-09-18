@@ -21,7 +21,7 @@ auth_router = APIRouter(prefix="/auth", tags=["auth"])
 class LoginRequest(BaseModel):
     email: str
     password: str
-    portal: str = Field(pattern="^(inspector|admin)$")
+    portal: str = Field(default="auto", pattern="^(inspector|admin|auto)$")
 
 
 class LoginResponse(BaseModel):
@@ -29,6 +29,8 @@ class LoginResponse(BaseModel):
     token_type: str = "bearer"
     scope: JurisdictionScope
     session_id: str | None = None
+    portal: str = "inspector"
+    user: dict[str, Any] | None = None
 
 
 class LogoutResponse(BaseModel):
@@ -46,7 +48,7 @@ async def login(
     user_agent = request.headers.get("user-agent")
     client_ip = request.client.host if request.client else None
 
-    token, scope, session_id = await auth_controller.login(
+    token, scope, session_id, effective_portal, profile = await auth_controller.login(
         email=body.email,
         password=body.password,
         portal=body.portal,
@@ -55,7 +57,14 @@ async def login(
         user_agent=user_agent,
         ip_address=client_ip,
     )
-    return LoginResponse(access_token=token, scope=scope, session_id=session_id)
+    user_payload = profile.get("user") if (isinstance(profile, dict) and "user" in profile) else profile
+    return LoginResponse(
+        access_token=token,
+        scope=scope,
+        session_id=session_id,
+        portal=effective_portal,
+        user=user_payload,
+    )
 
 
 @auth_router.post("/logout", response_model=LogoutResponse)

@@ -7,25 +7,20 @@ interface LoginViewProps {
 }
 
 export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
-  const [portal, setPortal] = useState<'inspector' | 'admin'>('inspector');
-  const [email, setEmail] = useState('vaishnavi@lmcs.gov.in');
-  const [password, setPassword] = useState('DevPassword@123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isHumanVerified, setIsHumanVerified] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handlePortalSwitch = (newPortal: 'inspector' | 'admin') => {
-    setPortal(newPortal);
-    if (newPortal === 'inspector') {
-      setEmail('vaishnavi@lmcs.gov.in');
-      setPassword('DevPassword@123');
-    } else {
-      setEmail('santlaj@lmcs.gov.in');
-      setPassword('DevPassword@123');
-    }
-    setErrorMsg(null);
-  };
+  React.useEffect(() => {
+    // Proactively warm up backend connection while user enters credentials
+    fetch('/api/health').catch(() => {});
+  }, []);
+
+  const adminPortalUrl =
+    (import.meta as any).env?.VITE_ADMIN_PORTAL_URL || 'http://localhost:5174';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,10 +47,22 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       const session = await loginOfficer({
         email: email.trim(),
         password: password.trim(),
-        portal,
+        portal: 'auto',
       });
 
-      onLoginSuccess(session.user, portal);
+      const role = session.scope?.role || session.user?.role;
+      const isInspector = role === 'inspector' || session.portal === 'inspector';
+
+      if (isInspector) {
+        onLoginSuccess(session.user, 'inspector');
+      } else {
+        const roleLabel = (role || 'Administrative Officer')
+          .replace(/_/g, ' ')
+          .toUpperCase();
+        setErrorMsg(
+          `Access Restricted: This portal is exclusively for Field Enforcement Officers. You are signed in with an Administrative account (${roleLabel}). Please access your separate Administrative Portal.`
+        );
+      }
     } catch (err: any) {
       setErrorMsg(
         err.message || 'Authentication failed. Please verify your credentials.'
@@ -88,8 +95,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               Legal Metrology Compliance System
             </div>
           </div>
-
-          
         </div>
 
         <div className="tricolor-line" aria-hidden="true">
@@ -100,31 +105,13 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       </header>
 
       <main className="login-area">
-        <section className="login-card" aria-label="Officer login">
+        <section className="login-card" aria-label="Inspector login">
           <div className="login-heading">
-            <h1>Officer Login</h1>
+            <h1>Inspector Login</h1>
             <p>Legal Metrology Compliance System</p>
           </div>
 
           <div className="heading-divider" />
-
-          <div className="portal-tabs">
-            <button
-              type="button"
-              className={portal === 'inspector' ? 'portal-tab active' : 'portal-tab'}
-              onClick={() => handlePortalSwitch('inspector')}
-            >
-              Field Inspector
-            </button>
-
-            <button
-              type="button"
-              className={portal === 'admin' ? 'portal-tab active' : 'portal-tab'}
-              onClick={() => handlePortalSwitch('admin')}
-            >
-              Designated Officer
-            </button>
-          </div>
 
           {errorMsg && (
             <div className="login-error" role="alert">
@@ -171,14 +158,14 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               </div>
             </div>
 
-            <label className="verification-row">
+            {/* <label className="verification-row">
               <input
                 type="checkbox"
                 checked={isHumanVerified}
                 onChange={(e) => setIsHumanVerified(e.target.checked)}
               />
-              <span>Officer verification check</span>
-            </label>
+              <span>Inspector verification check</span>
+            </label> */}
 
             <button
               type="submit"
@@ -187,6 +174,26 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
             >
               {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
+
+            <div style={{ marginTop: '18px', textAlign: 'center' }}>
+              <a
+                href={adminPortalUrl}
+                style={{
+                  color: '#12385f',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+              >
+                <span>Admin Login</span>
+                <span aria-hidden="true">&rarr;</span>
+              </a>
+            </div>
           </form>
         </section>
       </main>

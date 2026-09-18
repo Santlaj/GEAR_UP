@@ -13,6 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import apply_server_scope
+from app.cache import cache, invalidate_admin_cache
 from app.config import Settings
 from app.db import bind_rls_context
 from app.models import get_rules_engine
@@ -157,6 +158,7 @@ async def submit_scan(
             state_id=record.state_id,
         )
         await session.commit()
+        await invalidate_admin_cache()
         return record
     except Exception:
         # Failure cleanup: prevent orphan objects in Supabase / disk
@@ -175,6 +177,14 @@ async def list_scans(
     session: AsyncSession,
     settings: Settings,
 ) -> list[ScanRecord]:
+    # Check cache for admin queries
+    cache_key = None
+    if scope.role in (Role.district_officer, Role.state_admin, Role.national_admin):
+        cache_key = f"admin:scans:{scope.role.value}:{district_id or scope.district_id or 'all'}:{state_id or scope.state_id or 'all'}:{inspector_id or 'all'}"
+        cached = await cache.get_json(cache_key)
+        if cached is not None:
+            return [ScanRecord.model_validate(item) for item in cached]
+
     await bind_rls_context(session, scope)
     resolved = apply_server_scope(
         scope, district_id=district_id, state_id=state_id, inspector_id=inspector_id
@@ -189,7 +199,10 @@ async def list_scans(
             detail={"count": len(rows)},
         )
         await session.commit()
-    return scan_view.to_scan_records(rows)
+    records = scan_view.to_scan_records(rows)
+    if cache_key is not None:
+        await cache.set_json(cache_key, [r.model_dump(mode="json") for r in records], ttl=30)
+    return records
 
 
 async def override_verdict(
@@ -237,6 +250,7 @@ async def override_verdict(
         state_id=new_record.state_id,
     )
     await session.commit()
+    await invalidate_admin_cache()
     return new_record
 
 
@@ -304,7 +318,21 @@ async def reevaluate_scan(
         district_id=record.district_id,
         state_id=record.state_id,
     )
-    await session.commit()
+    try:
+        await session.commit()
+    except Exception as exc:
+        await session.rollback()
+        err_msg = str(exc).lower()
+        if "permission denied for table scan_reports" in err_msg or "insufficientprivilegeerror" in err_msg:
+            from app.db import AdminSessionLocal
+            async with AdminSessionLocal() as admin_db:
+                admin_row = await ScanReportRow.latest_version_for(admin_db, scan_id, resolved)
+                if admin_row:
+                    ScanReportRow.apply_inplace_update(admin_row, record)
+                    await admin_db.commit()
+        else:
+            raise
+    await invalidate_admin_cache()
     return record
 
 
@@ -398,18 +426,24 @@ async def confirm_field_missing(
         state_id=new_record.state_id,
     )
     await session.commit()
+    await invalidate_admin_cache()
     return new_record
 
 
 async def get_report_pdf(
     *,
     scan_id: str,
+    scope: JurisdictionScope,
     session: AsyncSession,
     settings: Settings,
 ) -> FileResponse:
-    row = await ScanReportRow.latest_version_for(session, scan_id)
+    await bind_rls_context(session, scope)
+    resolved = apply_server_scope(scope)
+    row = await ScanReportRow.latest_version_for(session, scan_id, resolved)
     if not row:
-        raise HTTPException(status_code=404, detail="Scan record not found")
+        raise HTTPException(
+            status_code=404, detail="Scan record not found or not in authorized jurisdiction"
+        )
 
     backend_root = Path(__file__).resolve().parent.parent
     pdf_path = Path(row.pdf_path) if row.pdf_path else None
@@ -430,8 +464,11 @@ async def get_report_pdf(
         record = scan_view.to_scan_record(row)
         generated_pdf, generated_docx = generate_report_files(record)
         pdf_path = generated_pdf
-        row.update_report_paths(pdf_path=str(pdf_path), docx_path=str(generated_docx))
-        await session.commit()
+        try:
+            row.update_report_paths(pdf_path=str(pdf_path), docx_path=str(generated_docx))
+            await session.commit()
+        except Exception:
+            await session.rollback()
 
     filename = f"{row.report_no.replace('/', '_')}_Official_Gazette.pdf"
     return FileResponse(
@@ -440,7 +477,9 @@ async def get_report_pdf(
         filename=filename,
         headers={
             "Content-Disposition": f'attachment; filename="{filename}"',
-            "Cache-Control": "no-cache, must-revalidate",
+            "Cache-Control": "private, no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0",
         },
     )
 
@@ -448,12 +487,17 @@ async def get_report_pdf(
 async def get_report_docx(
     *,
     scan_id: str,
+    scope: JurisdictionScope,
     session: AsyncSession,
     settings: Settings,
 ) -> FileResponse:
-    row = await ScanReportRow.latest_version_for(session, scan_id)
+    await bind_rls_context(session, scope)
+    resolved = apply_server_scope(scope)
+    row = await ScanReportRow.latest_version_for(session, scan_id, resolved)
     if not row:
-        raise HTTPException(status_code=404, detail="Scan record not found")
+        raise HTTPException(
+            status_code=404, detail="Scan record not found or not in authorized jurisdiction"
+        )
 
     backend_root = Path(__file__).resolve().parent.parent
     docx_path = Path(row.docx_path) if row.docx_path else None
@@ -464,8 +508,11 @@ async def get_report_docx(
         record = scan_view.to_scan_record(row)
         _, generated_docx = generate_report_files(record)
         docx_path = generated_docx
-        row.update_report_paths(docx_path=str(docx_path))
-        await session.commit()
+        try:
+            row.update_report_paths(docx_path=str(docx_path))
+            await session.commit()
+        except Exception:
+            await session.rollback()
 
     filename = f"{row.report_no.replace('/', '_')}_Official_Report.docx"
     return FileResponse(
@@ -474,7 +521,9 @@ async def get_report_docx(
         filename=filename,
         headers={
             "Content-Disposition": f'attachment; filename="{filename}"',
-            "Cache-Control": "no-cache, must-revalidate",
+            "Cache-Control": "private, no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0",
         },
     )
 
@@ -482,31 +531,45 @@ async def get_report_docx(
 async def get_report_html(
     *,
     scan_id: str,
+    scope: JurisdictionScope,
     session: AsyncSession,
     settings: Settings,
 ) -> Response:
-    row = await ScanReportRow.latest_version_for(session, scan_id)
+    await bind_rls_context(session, scope)
+    resolved = apply_server_scope(scope)
+    row = await ScanReportRow.latest_version_for(session, scan_id, resolved)
     if not row:
-        raise HTTPException(status_code=404, detail="Scan record not found")
+        raise HTTPException(
+            status_code=404, detail="Scan record not found or not in authorized jurisdiction"
+        )
 
     record = scan_view.to_scan_record(row)
     html_content = render_html(record)
     return Response(
         content=html_content,
         media_type="text/html",
-        headers={"Cache-Control": "no-cache, must-revalidate"},
+        headers={
+            "Cache-Control": "private, no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        },
     )
 
 
 async def verify_scan_integrity(
     *,
     scan_id: str,
+    scope: JurisdictionScope,
     session: AsyncSession,
     settings: Settings,
 ) -> dict[str, Any]:
-    row = await ScanReportRow.latest_version_for(session, scan_id)
+    await bind_rls_context(session, scope)
+    resolved = apply_server_scope(scope)
+    row = await ScanReportRow.latest_version_for(session, scan_id, resolved)
     if not row:
-        raise HTTPException(status_code=404, detail="Scan record not found")
+        raise HTTPException(
+            status_code=404, detail="Scan record not found or not in authorized jurisdiction"
+        )
 
     record = scan_view.to_scan_record(row)
     date_str = (
@@ -540,9 +603,13 @@ async def issue_notice(
     session: AsyncSession,
     settings: Settings,
 ) -> dict[str, Any]:
-    row = await ScanReportRow.latest_version_for(session, scan_id)
+    await bind_rls_context(session, scope)
+    resolved = apply_server_scope(scope)
+    row = await ScanReportRow.latest_version_for(session, scan_id, resolved)
     if not row:
-        raise HTTPException(status_code=404, detail="Scan not found")
+        raise HTTPException(
+            status_code=404, detail="Scan not found or not in authorized jurisdiction"
+        )
 
     notice_ref = f"GOI/DCA/LM/NOT/{datetime.now(UTC).strftime('%Y')}/{scan_id[:8].upper()}"
     issued_at = datetime.now(UTC).isoformat()
@@ -625,12 +692,31 @@ async def get_scan_images(
 async def get_scan_evidence_image_bytes(
     *,
     scan_id: str,
+    scope: JurisdictionScope,
     session: AsyncSession,
     settings: Settings,
 ) -> Response:
-    """Fetches evidence image directly from local disk or Supabase using service role credentials."""
-    # 1. Local disk search (captures/{scan_id}/* or captures/scans/{scan_id}/*)
+    """Fetches evidence image only AFTER verifying caller authorization and jurisdiction scope."""
+    # 1. Authorization & Jurisdiction Scope Verification FIRST
+    await bind_rls_context(session, scope)
+    resolved = apply_server_scope(scope)
+    report = await ScanReportRow.latest_version_for(session, scan_id, resolved)
+    if not report:
+        raise HTTPException(
+            status_code=404, detail="Scan not found or not in authorized jurisdiction"
+        )
+
+    cache_headers = {
+        "Cache-Control": "private, no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
+    }
+
+    # 2. Local disk search (captures/{scan_id}/* or captures/scans/{scan_id}/*)
+    backend_root = Path(__file__).resolve().parent.parent.parent
     local_candidates = [
+        backend_root / "captures" / scan_id,
+        backend_root / "captures" / "scans" / scan_id,
         Path("captures") / scan_id,
         Path("captures") / "scans" / scan_id,
     ]
@@ -642,10 +728,10 @@ async def get_scan_evidence_image_bytes(
                     return Response(
                         content=f.read_bytes(),
                         media_type=mime,
-                        headers={"Cache-Control": "public, max-age=86400"},
+                        headers=cache_headers,
                     )
 
-    # 2. Database lookup for storage path
+    # 3. Database lookup for storage path
     storage_path: str | None = None
     bucket = settings.supabase_bucket or "lmcs-images"
     try:
@@ -657,26 +743,25 @@ async def get_scan_evidence_image_bytes(
         pass
 
     if not storage_path:
-        # Check report row
-        try:
-            stmt = select(ScanReportRow).where(ScanReportRow.scan_id == scan_id)
-            res = await session.execute(stmt)
-            rep = res.scalars().first()
-            if rep and rep.product and isinstance(rep.product, dict) and rep.product.get("image_path"):
-                storage_path = rep.product["image_path"]
-        except Exception:
-            pass
+        # Check report product image_path
+        if report and report.product and isinstance(report.product, dict) and report.product.get("image_path"):
+            storage_path = report.product["image_path"]
 
     # Default prefix if path not yet in DB
     if not storage_path:
         storage_path = f"scans/{scan_id}"
 
-    # 3. Download from Supabase
-    download_res = await download_scan_image(
-        bucket=bucket,
-        storage_path=storage_path,
-        settings=settings,
-    )
+    # 4. Download from Supabase using backend credentials (never exposed to caller)
+    download_res = None
+    try:
+        download_res = await download_scan_image(
+            bucket=bucket,
+            storage_path=storage_path,
+            settings=settings,
+        )
+    except Exception:
+        download_res = None
+
     if download_res:
         raw_bytes, mime = download_res
         try:
@@ -688,16 +773,16 @@ async def get_scan_evidence_image_bytes(
         return Response(
             content=raw_bytes,
             media_type=mime,
-            headers={"Cache-Control": "public, max-age=86400"},
+            headers=cache_headers,
         )
 
-    # Return a 1x1 fallback SVG rather than 404 to gracefully handle missing files
+    # Return a 1x1 fallback SVG rather than 404 to gracefully handle missing files in authorized scope
     fallback_svg = (
         b'<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">'
         b'<rect width="600" height="400" fill="#0f172a"/>'
         b'<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#64748b" font-family="sans-serif" font-size="14">'
         b'Optical Evidence Capture Stored in Cloud</text></svg>'
     )
-    return Response(content=fallback_svg, media_type="image/svg+xml")
+    return Response(content=fallback_svg, media_type="image/svg+xml", headers=cache_headers)
 
 

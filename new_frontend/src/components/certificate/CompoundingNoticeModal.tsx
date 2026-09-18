@@ -44,19 +44,30 @@ export const CompoundingNoticeModal: React.FC<CompoundingNoticeModalProps> = ({ 
     ? `${scanRecord.district_id} Enforcement Circle`
     : 'District Enforcement Circle';
 
-  const handleIssueNotice = async () => {
+  const handleRecommendNotice = async () => {
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      const res = await issueNoticeApi(scanRecord.scan_id, {
+      const refYear = new Date().getFullYear();
+      const scanSuffix = (scanRecord.scan_id || '00000000').slice(0, 8).toUpperCase();
+      const noticeRef = `REC/DCA/LM/${refYear}/${scanSuffix}`;
+      const issuedAt = new Date().toISOString();
+
+      setIssuedResult({
+        success: true,
+        notice_ref: noticeRef,
+        scan_id: scanRecord.scan_id,
+        report_no: scanRecord.report_no,
         recipient: recipient.trim(),
         fine_amount: penaltyAmount,
         reason: memoReason.trim(),
+        statutory_clause: 'Section 36(1) read with Section 48 of Legal Metrology Act, 2011',
+        issued_at: issuedAt,
+        status: 'RECOMMENDED_FOR_CONTROLLER_DISPATCH',
       });
-      setIssuedResult(res);
     } catch (err: any) {
-      console.error('Failed to issue compounding notice:', err);
-      setSubmitError(err.message || 'Unable to issue notice through central registry.');
+      console.error('Failed to log compounding recommendation:', err);
+      setSubmitError(err.message || 'Unable to log recommendation.');
     } finally {
       setIsSubmitting(false);
     }
@@ -86,16 +97,19 @@ export const CompoundingNoticeModal: React.FC<CompoundingNoticeModalProps> = ({ 
           {issuedResult ? (
             <div className="bg-emerald-50 border border-emerald-300 p-4 rounded text-center my-3">
               <h3 className="font-extrabold text-emerald-900 text-sm">
-                Statutory Notice Successfully Issued &amp; Dispatched
+                Compounding Notice Formally Recommended
               </h3>
               <p className="text-emerald-800 mt-1">
-                Notice Ref: <strong className="font-mono font-bold">{issuedResult.notice_ref}</strong>
+                Recommendation Ref: <strong className="font-mono font-bold">{issuedResult.notice_ref}</strong>
               </p>
-              <div className="mt-3 text-[11px] text-slate-600">
-                Summons to appear before District Controller within 15 statutory days or compound offense under Section 48 upon deposit of ₹{issuedResult.fine_amount.toLocaleString('en-IN')} into Consolidated Treasury Account.
+              <div className="mt-3 text-[11px] text-slate-600 leading-relaxed">
+                Dossier recommendation of ₹{issuedResult.fine_amount.toLocaleString('en-IN')} logged for {districtName}. Adjudicating Controller will review evidentiary record #{issuedResult.report_no} to issue and dispatch statutory summons under Section 36(1) / Section 48 upon Treasury challan generation.
+              </div>
+              <div className="mt-2 text-[10px] text-amber-700 bg-amber-50 border border-amber-200 p-1.5 rounded">
+                Note: Non-persistent field placeholder — recommendation is not yet saved to backend or transmitted to State Admin.
               </div>
               <div className="mt-2 font-mono text-[10px] text-slate-500">
-                DISPATCH STATUS: {issuedResult.status} • ISSUED: {issuedResult.issued_at}
+                DISPATCH STATUS: {issuedResult.status} • LOGGED: {issuedResult.issued_at}
               </div>
               <button
                 onClick={onClose}
@@ -111,6 +125,11 @@ export const CompoundingNoticeModal: React.FC<CompoundingNoticeModalProps> = ({ 
                   {submitError}
                 </div>
               )}
+
+              {/* Administrative Authority Notice Banner */}
+              <div className="bg-amber-50 border border-amber-300 text-amber-900 p-2.5 rounded text-[11px] leading-relaxed">
+                <strong>Administrative Authority Notice:</strong> Under Section 36(1) read with Section 48 of the Legal Metrology Act, 2011, statutory compounding notices are formally adjudicated and issued by the District Controller or State Admin. As a field officer, submit your verified inspection grounds below to recommend formal compounding notice dispatch. <em>(Advisory placeholder: Recommendation is recorded locally for demonstration and is not yet persisted to the central database or transmitted to State Admin.)</em>
+              </div>
 
               <div className="bg-red-50 border border-red-200 p-3 rounded">
                 <div className="font-bold text-red-900 text-[11px] uppercase">
@@ -179,11 +198,11 @@ export const CompoundingNoticeModal: React.FC<CompoundingNoticeModalProps> = ({ 
                   Cancel
                 </button>
                 <button
-                  onClick={handleIssueNotice}
+                  onClick={handleRecommendNotice}
                   disabled={isSubmitting}
-                  className="bg-red-700 hover:bg-red-800 text-white font-semibold text-xs px-4 py-1.5 rounded transition-colors shadow-sm flex items-center cursor-pointer disabled:opacity-50"
+                  className="bg-amber-700 hover:bg-amber-800 text-white font-semibold text-xs px-4 py-1.5 rounded transition-colors shadow-sm flex items-center cursor-pointer disabled:opacity-50"
                 >
-                  <span>{isSubmitting ? 'Issuing Notice...' : 'Confirm & Issue Notice U/S 36'}</span>
+                  <span>{isSubmitting ? 'Submitting Recommendation...' : 'Recommend Notice for Controller Dispatch'}</span>
                 </button>
               </div>
             </div>

@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     verify_base_url: str = "https://verify.lmcs.example.gov.in/r"
     report_storage_dir: str = "storage/reports"
 
+    # ── Redis Cache settings ───────────────────────────────────────────
+    redis_url: str = "redis://localhost:6379/0"
+
     # ── Supabase Storage settings ──────────────────────────────────────
     supabase_url: str = ""
     supabase_service_role_key: str = ""

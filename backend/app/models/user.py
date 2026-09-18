@@ -37,8 +37,28 @@ class UserRow(Base):
 
     @classmethod
     async def get_by_email(cls, session: AsyncSession, email: str) -> UserRow | None:
-        result = await session.execute(select(cls).where(cls.email == email))
-        return result.scalar_one_or_none()
+        clean = email.strip().lower()
+
+        # 1. Direct query in database for the exact email
+        result = await session.execute(select(cls).where(func.lower(cls.email) == clean))
+        user = result.scalar_one_or_none()
+        if user is not None:
+            return user
+
+        # 2. Secondary domain swap (@pramaan.gov.in <-> @lmcs.gov.in) if user typed other domain
+        alt = None
+        if "@pramaan.gov.in" in clean:
+            alt = clean.replace("@pramaan.gov.in", "@lmcs.gov.in")
+        elif "@lmcs.gov.in" in clean:
+            alt = clean.replace("@lmcs.gov.in", "@pramaan.gov.in")
+
+        if alt:
+            result = await session.execute(select(cls).where(func.lower(cls.email) == alt))
+            user = result.scalar_one_or_none()
+            if user is not None:
+                return user
+
+        return None
 
     @classmethod
     async def get_by_id(cls, session: AsyncSession, user_id: str) -> UserRow | None:

@@ -114,7 +114,21 @@ export async function apiFetch<T>(
 
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   const url = `${API_BASE}${cleanPath}`;
-  const res = await fetch(url, { ...init, headers });
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
+  let res: Response;
+  try {
+    res = await fetch(url, { ...init, headers, signal: init.signal || controller.signal });
+  } catch (err: any) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      throw new ApiError(408, 'Request timed out. Please try again.');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!res.ok) {
     // Handle 401 without infinite page reload loops
