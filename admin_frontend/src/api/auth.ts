@@ -2,7 +2,7 @@
  * Authentication and session service for PRAMAAN Admin Frontend.
  */
 
-import { apiFetch, setToken, clearSession } from './client';
+import { apiFetch, setToken, clearSession, getToken } from './client';
 
 export interface UserScope {
   role: 'district_officer' | 'state_admin' | 'national_admin' | 'auditor' | 'inspector' | string;

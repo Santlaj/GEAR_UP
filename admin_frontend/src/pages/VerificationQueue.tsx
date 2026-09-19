@@ -16,7 +16,6 @@ import {
   ZoomIn,
   ShieldCheck
 } from 'lucide-react';
-import { MOCK_TRIAGE_CASES } from '../data/mockData';
 import type { TriageCase } from '../data/mockData';
 import { fetchScans, scanRecordToTriageCase } from '../api';
 
@@ -56,12 +55,11 @@ export const VerificationQueue: React.FC<VerificationQueueProps> = ({
           }
         }
       } catch (err: any) {
-        console.warn('Live triage queue fetch error, falling back to demo cases:', err);
+        console.warn('Live triage queue fetch error:', err);
         if (isMounted) {
-          const demoCases = MOCK_TRIAGE_CASES.map((c) => ({ ...c, isDemo: true }));
-          setCases(demoCases);
-          setSelectedCaseId(demoCases[0].id);
-          setIsDemoData(true);
+          setCases([]);
+          setSelectedCaseId('');
+          setIsDemoData(false);
           setError(err.message || 'Unable to connect to backend review queue.');
         }
       } finally {
@@ -142,11 +140,11 @@ export const VerificationQueue: React.FC<VerificationQueueProps> = ({
         </div>
       </div>
 
-      {/* Demo / Offline Mode Banner */}
-      {isDemoData && (
-        <div className="bg-amber-50 border border-amber-300 text-amber-900 p-3 rounded text-xs mb-3 flex items-center justify-between shadow-2xs">
+      {/* Error Banner */}
+      {error && (
+        <div className="bg-red-50 border border-red-300 text-red-900 p-3 rounded text-xs mb-3 flex items-center justify-between shadow-2xs">
           <div>
-            <strong>⚠️ DEMO REVIEW QUEUE ACTIVE:</strong> {error ? `${error} ` : ''}Showing reference demonstration triage records. Administrative review actions taken on demo cases will update optimistic local state only and cannot be filed into the central statutory registry.
+            <strong>CONNECTION ERROR:</strong> {error}
           </div>
         </div>
       )}

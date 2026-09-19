@@ -77,11 +77,10 @@ export const AllReports: React.FC<AllReportsProps> = ({ onViewReport }) => {
         throw new Error('Unexpected non-array response from /scans endpoint');
       }
     } catch (err: any) {
-      console.warn('Scans fetch error, falling back to demo records:', err);
+      console.warn('Scans fetch error:', err);
       setError(err.message || 'Failed to connect to backend scan ledger.');
-      const punjabMock = MOCK_REPORTS.filter(isPunjabRecord).map((r) => ({ ...r, isDemo: true }));
-      setReports(punjabMock);
-      setIsDemoData(true);
+      setReports([]);
+      setIsDemoData(false);
     } finally {
       setLoading(false);
     }
@@ -319,15 +318,15 @@ export const AllReports: React.FC<AllReportsProps> = ({ onViewReport }) => {
         </div>
       </div>
 
-      {/* State Banner: Live, Empty, or Demo Mode */}
-      {isDemoData && (
-        <div className="bg-amber-50 border border-amber-300 text-amber-900 px-4 py-3 rounded text-xs flex items-center justify-between mb-4 shadow-2xs">
+      {/* State Banner: Live, Empty, or Error */}
+      {error && (
+        <div className="bg-red-50 border border-red-300 text-red-900 px-4 py-3 rounded text-xs flex items-center justify-between mb-4 shadow-2xs">
           <div>
-            <strong>⚠️ DEMO/OFFLINE DATA ACTIVE:</strong> {error ? `${error} ` : ''}Displaying demonstration reference records. Official gazette downloads require live records with valid backend <code>scan_id</code>s.
+            <strong>CONNECTION ERROR:</strong> {error}
           </div>
           <button
             onClick={loadScans}
-            className="ml-3 px-2.5 py-1 bg-amber-200 hover:bg-amber-300 text-amber-950 font-semibold rounded text-[11px] flex items-center gap-1 cursor-pointer whitespace-nowrap"
+            className="ml-3 px-2.5 py-1 bg-red-200 hover:bg-red-300 text-red-950 font-semibold rounded text-[11px] flex items-center gap-1 cursor-pointer whitespace-nowrap"
           >
             <RefreshCw className="w-3 h-3" /> Retry Live
           </button>

@@ -43,99 +43,7 @@ interface Inspection {
   isDemo?: boolean;
 }
 
-/* ─── Reference / Demo Inspection Data (Sample Coordinates) ─── */
-const INSPECTIONS: Inspection[] = [
-  {
-    id: 'LM-2026-00456',
-    reportNo: 'LM-2026-00456',
-    district: 'Ludhiana',
-    godown: 'Gill Road Mandi',
-    latitude: 30.8942,
-    longitude: 75.8611,
-    issue: 'Unit Sale Price Missing + Font Height Deficit',
-    date: '15 Sep 2026',
-    status: 'non-compliant',
-    business: 'Singla Wholesale & Kirana',
-    inspector: 'INS-014 (Sh. R. K. Sharma)',
-    violations: ['Rule 6(1)(h) Unit Sale Price Missing', 'Rule 12 Font Height Deficit on Mandatory Declarations'],
-    isDemo: true,
-  },
-  {
-    id: 'LM-2026-00451',
-    reportNo: 'LM-2026-00451',
-    district: 'Ludhiana',
-    godown: 'Focal Point Industrial Area',
-    latitude: 30.9100,
-    longitude: 75.8900,
-    issue: 'Quantity mismatch',
-    date: '14 Sep 2026',
-    status: 'non-compliant',
-    business: 'Patel Packagers Pvt. Ltd.',
-    inspector: 'INS-008 (Sh. M. P. Verma)',
-    violations: ['Rule 6(1)(a) Net Quantity Mismatch beyond tolerance'],
-    isDemo: true,
-  },
-  {
-    id: 'LM-2026-00472',
-    reportNo: 'LM-2026-00472',
-    district: 'Ludhiana',
-    godown: 'Model Town Extension',
-    latitude: 30.9050,
-    longitude: 75.8450,
-    issue: 'Damaged packaging / Font size audit pending',
-    date: '16 Sep 2026',
-    status: 'needs-review',
-    business: 'Gupta Packaging House',
-    inspector: 'INS-012 (Smt. K. Kaur)',
-    violations: ['Rule 7 – Font size audit pending lab verification'],
-    isDemo: true,
-  },
-  {
-    id: 'LM-2026-00430',
-    reportNo: 'LM-2026-00430',
-    district: 'Ludhiana',
-    godown: 'Meharban Village Market',
-    latitude: 30.9200,
-    longitude: 75.8700,
-    issue: 'All compliant',
-    date: '13 Sep 2026',
-    status: 'compliant',
-    business: 'Harpreet General Store',
-    inspector: 'INS-014 (Sh. R. K. Sharma)',
-    violations: [],
-    isDemo: true,
-  },
-  {
-    id: 'LM-2026-00435',
-    reportNo: 'LM-2026-00435',
-    district: 'Kapurthala',
-    godown: 'Kapurthala Godown A',
-    latitude: 31.3796,
-    longitude: 75.3840,
-    issue: 'Product quality issue',
-    date: '15 Sep 2026',
-    status: 'non-compliant',
-    business: 'Kapurthala Traders',
-    inspector: 'INS-014 (Sh. R. K. Sharma)',
-    violations: ['Rule 6(1)(h) Unit Sale Price Missing'],
-    isDemo: true,
-  },
-  {
-    id: 'LM-2026-00439',
-    reportNo: 'LM-2026-00439',
-    district: 'Amritsar',
-    godown: 'Amritsar Godown A',
-    latitude: 31.6340,
-    longitude: 74.8723,
-    issue: 'Damaged packaging',
-    date: '13 Sep 2026',
-    status: 'non-compliant',
-    business: 'Clock Tower Chowk Traders',
-    inspector: 'INS-008 (Sh. M. P. Verma)',
-    violations: ['Rule 6(1)(c) Date of Packaging discrepancy'],
-    isDemo: true,
-  },
-];
+
 
 /* ─── Map Controller (zoom/fly to state on selection & open pin popup) ─── */
 interface MapControllerProps {
@@ -236,10 +144,10 @@ export const EnforcementMap: React.FC<EnforcementMapProps> = ({ onViewReport }) 
   const [showNeedsReview, setShowNeedsReview] = useState(true);
   const [showCompliant, setShowCompliant] = useState(false);
   const [showOnlyViolations, setShowOnlyViolations] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('Gill Road Mandi');
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Selected pin for popup
-  const [selectedPinId, setSelectedPinId] = useState<string | null>('LM-2026-00456');
+  const [selectedPinId, setSelectedPinId] = useState<string | null>(null);
   const [highlightTrigger, setHighlightTrigger] = useState<number>(0);
   const markerRefs = useRef<Map<string, L.CircleMarker>>(new Map());
 
@@ -290,11 +198,11 @@ export const EnforcementMap: React.FC<EnforcementMapProps> = ({ onViewReport }) 
         }
       }
     } catch (err) {
-      console.warn('Map live data load failed, falling back to demo coordinates:', err);
+      console.warn('Map live data load failed:', err);
       setIsOfflineDemo(true);
       setIsLive(false);
-      setInspections(INSPECTIONS);
-      setFeedItems(MOCK_FEED_ITEMS);
+      setInspections([]);
+      setFeedItems([]);
     } finally {
       setIsLoading(false);
     }
@@ -417,20 +325,20 @@ export const EnforcementMap: React.FC<EnforcementMapProps> = ({ onViewReport }) 
 
   return (
     <div className="max-w-[1720px] mx-auto px-4 sm:px-6 py-3 space-y-2.5 text-left">
-      {/* Live Scope or Demo Warning Banners */}
+      {/* Live Scope or Error Banners */}
       {isOfflineDemo && (
-        <div className="bg-amber-50 border border-amber-300 px-4 py-2.5 rounded-sm text-xs text-amber-900 flex items-center justify-between shadow-2xs">
+        <div className="bg-red-50 border border-red-300 px-4 py-2.5 rounded-sm text-xs text-red-900 flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-2">
-            <span className="bg-amber-200 text-amber-800 font-bold px-1.5 py-0.5 rounded-2xs text-[10px] uppercase">
-              OFFLINE / DEMO GIS
+            <span className="bg-red-200 text-red-800 font-bold px-1.5 py-0.5 rounded-2xs text-[10px] uppercase">
+              CONNECTION ERROR
             </span>
             <span>
-              Backend live scan endpoint unreachable. Displaying sample geographic reference pins for UI demonstration.
+              Failed to load live inspection coordinates from backend.
             </span>
           </div>
           <button
             onClick={loadBackendData}
-            className="underline font-bold text-amber-900 hover:text-amber-950 cursor-pointer"
+            className="underline font-bold text-red-900 hover:text-red-950 cursor-pointer"
           >
             Retry Connection
           </button>
@@ -708,10 +616,10 @@ export const EnforcementMap: React.FC<EnforcementMapProps> = ({ onViewReport }) 
                         <button
                           onClick={() => {
                             const targetReport = reportsMap.get(insp.id) 
-                              || (insp.reportNo ? reportsMap.get(insp.reportNo) : undefined)
-                              || MOCK_REPORTS.find((r) => r.reportNo === insp.id || r.scanId === insp.id) 
-                              || MOCK_REPORTS[0];
-                            onViewReport(targetReport);
+                              || (insp.reportNo ? reportsMap.get(insp.reportNo) : undefined);
+                            if (targetReport) {
+                              onViewReport(targetReport);
+                            }
                           }}
                           className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-black border border-slate-300 text-xs font-medium cursor-pointer"
                         >
@@ -827,10 +735,10 @@ export const EnforcementMap: React.FC<EnforcementMapProps> = ({ onViewReport }) 
 
                       <button
                         onClick={() => {
-                          const targetReport = reportsMap.get(item.id) 
-                            || MOCK_REPORTS.find((r) => r.reportNo === item.id || r.scanId === item.id) 
-                            || MOCK_REPORTS[0];
-                          onViewReport(targetReport);
+                          const targetReport = reportsMap.get(item.id);
+                          if (targetReport) {
+                            onViewReport(targetReport);
+                          }
                         }}
                         className="flex items-center justify-center gap-1 px-2.5 py-1 text-xs font-medium text-black bg-white hover:bg-slate-50 border border-slate-300 cursor-pointer"
                       >
