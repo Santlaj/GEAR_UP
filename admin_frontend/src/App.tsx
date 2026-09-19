@@ -192,7 +192,7 @@ export function App() {
   }
 
   return (
-    <div className={`min-h-screen flex flex-col text-black font-sans ${activeTab === 'queue' ? 'bg-white' : 'bg-[#f4f7fb]'}`}>
+    <div className={`min-h-screen flex flex-col text-black font-sans ${activeTab === 'queue' ? 'bg-white h-screen overflow-hidden' : 'bg-[#f4f7fb]'}`}>
       {/* 1. Official Government Header */}
       <Header 
         onNotificationClick={() => setActiveTab('queue')} 
@@ -208,7 +208,7 @@ export function App() {
       />
 
       {/* 3. Main Views Container */}
-      <main className="flex-1 w-full">
+      <main className={`flex-1 w-full ${activeTab === 'queue' ? 'min-h-0 flex flex-col overflow-hidden' : ''}`}>
         {activeTab === 'dashboard' && (
           <Dashboard onNavigate={setActiveTab} />
         )}
@@ -233,8 +233,8 @@ export function App() {
         )}
       </main>
 
-      {/* 4. Official Regulatory Footer */}
-      <Footer detailed={activeTab === 'map'} />
+      {/* 4. Official Regulatory Footer (Omitted on full-desk Queue view to give maximum vertical workspace) */}
+      {activeTab !== 'queue' && <Footer detailed={activeTab === 'map'} />}
 
       {/* Detailed Report Modal */}
       <ReportModal 

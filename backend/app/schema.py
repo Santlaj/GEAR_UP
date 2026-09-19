@@ -166,6 +166,11 @@ class ScanRecord(BaseModel):
     review_status: ScanReviewStatus
     override: OverrideInfo | None = None
     compliance_detail: dict[str, Any] | None = None
+    inspector_name: str | None = None
+    inspector_badge: str | None = None
+    inspector_cadre: str | None = None
+    district_name: str | None = None
+    state_name: str | None = None
 
 
 class JurisdictionScope(BaseModel):

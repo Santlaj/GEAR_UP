@@ -34,11 +34,25 @@ export const TriplicateMemoModal: React.FC<TriplicateMemoModalProps> = ({ scanRe
   const nonCompliantDecls = declarations.filter((d) => d.status !== 'pass');
   const isCompliant = scanRecord.overall_verdict === 'compliant';
 
-  const inspectorTitle = scanRecord.inspector_id
-    ? `Sh. ${scanRecord.inspector_id.toUpperCase()}`
-    : 'Authorized Legal Metrology Inspector';
-  const inspectorBadge = scanRecord.inspector_id ? scanRecord.inspector_id.toUpperCase() : 'LMI-CADRE';
-  const circleName = scanRecord.district_id ? `${scanRecord.district_id} Enforcement Circle` : 'District Enforcement Circle';
+  const inspectorTitle = scanRecord.inspector_name || (
+    scanRecord.inspector_id === 'insp-pb-ludhiana-02' ? 'Sh. Harpreet Singh Gill' :
+    scanRecord.inspector_id === 'insp-pb-ludhiana-01' ? 'Sh. Gurpreet Singh' :
+    scanRecord.inspector_id === 'insp-mh-pune-01' ? 'Smt. Vaishnavi Kulkarni' :
+    scanRecord.inspector_id === 'insp-mh-pune-02' ? 'Sh. Vedant Deshmukh' :
+    (scanRecord.inspector_id ? `Sh. ${scanRecord.inspector_id.replace(/^insp-[a-z]+-/, '').replace(/-/g, ' ').toUpperCase()}` : 'Authorized Legal Metrology Inspector')
+  );
+  const inspectorBadge = scanRecord.inspector_badge || (
+    scanRecord.inspector_id === 'insp-pb-ludhiana-02' ? 'LMI-PB-LDH-0105' :
+    scanRecord.inspector_id === 'insp-pb-ludhiana-01' ? 'LMI-PB-LDH-0104' :
+    scanRecord.inspector_id === 'insp-mh-pune-01' ? 'LMI-MH-PUN-0201' :
+    scanRecord.inspector_id === 'insp-mh-pune-02' ? 'LMI-MH-PUN-0202' :
+    (scanRecord.inspector_id ? scanRecord.inspector_id.toUpperCase() : 'LMI-CADRE')
+  );
+  const circleName = scanRecord.district_name || (
+    scanRecord.district_id === 'D-LUDHIANA' ? 'Ludhiana Circle' :
+    scanRecord.district_id === 'D-PUNE' ? 'Pune Circle' :
+    scanRecord.district_id ? `${scanRecord.district_id} Enforcement Circle` : 'District Enforcement Circle'
+  );
   const stateAuthority = scanRecord.state_id
     ? `GOVERNMENT OF ${scanRecord.state_id.toUpperCase()} • DIRECTORATE OF LEGAL METROLOGY`
     : 'GOVERNMENT OF INDIA • DIRECTORATE OF LEGAL METROLOGY';

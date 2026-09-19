@@ -6,8 +6,15 @@ import {
   Scale, 
   Radio
 } from 'lucide-react';
-import { fetchCurrentScope, logoutAdmin } from '../api/auth';
-import type { UserScope } from '../api/auth';
+import { 
+  fetchCurrentScope, 
+  fetchCurrentUser, 
+  getStoredScope, 
+  getStoredUser, 
+  formatOfficerName, 
+  logoutAdmin 
+} from '../api/auth';
+import type { UserScope, StoredUser } from '../api/auth';
 
 interface InspectorProfileViewProps {
   onBack: () => void;
@@ -15,11 +22,16 @@ interface InspectorProfileViewProps {
 }
 
 export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({ onBack, onLogout }) => {
-  const [scope, setScope] = useState<UserScope | null>(null);
+  const [scope, setScope] = useState<UserScope | null>(() => getStoredScope());
+  const [user, setUser] = useState<StoredUser | null>(() => getStoredUser());
 
   useEffect(() => {
     fetchCurrentScope().then((s) => {
       if (s) setScope(s);
+    }).catch(() => {});
+
+    fetchCurrentUser().then((u) => {
+      if (u) setUser(u);
     }).catch(() => {});
   }, []);
 
@@ -32,125 +44,125 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({ onBa
     }
   };
 
-  const officerTitle = scope 
-    ? (scope.role === 'state_admin' ? 'State Administrator' : scope.role === 'district_officer' ? 'District Admin' : scope.role.replace('_', ' ').toUpperCase())
-    : 'State Admin (Demo Officer)';
+  const officerName = formatOfficerName(user, scope);
 
-  const cadreSubtitle = scope
-    ? (scope.role === 'state_admin' ? 'STATE CONTROLLER OF LEGAL METROLOGY (ADMIN)' : 'DISTRICT CONTROLLER OF LEGAL METROLOGY (ADMIN)')
-    : 'ADMINISTRATIVE CONTROL CADRE (DEMO)';
+  const officialDesignation = scope?.role === 'national_admin'
+    ? 'National Administrator & Apex Controller General'
+    : scope?.role === 'state_admin'
+    ? 'State Controller of Legal Metrology'
+    : scope?.role === 'district_officer'
+    ? 'District Controller of Legal Metrology (Admin)'
+    : 'Gazetted Regulatory Controller';
 
-  const circleText = scope
-    ? (scope.district_id ? `${scope.district_id} Enforcement Circle` : (scope.state_id ? `Statewide Administration (${scope.state_id})` : 'All Jurisdictions'))
-    : 'PB-North / Ludhiana Circle (Sample)';
+  const cadreSubtitle = user?.cadre || (scope?.role === 'national_admin'
+    ? 'Central Legal Metrology Administration (Apex Cadre)'
+    : 'Gazetted Administrative Control (DCLM Cadre)');
 
-  const stateText = scope
-    ? (scope.state_id === 'PB' ? 'Punjab' : scope.state_id === 'MH' ? 'Maharashtra' : scope.state_id || 'Punjab')
-    : 'Punjab (Sample)';
+  const circleText = user?.district_name
+    ? `${user.district_name} District Circle`
+    : (scope?.district_id
+      ? `${scope.district_id} Enforcement Circle`
+      : (user?.state_name
+        ? `Statewide Administration (${user.state_name})`
+        : (scope?.state_id
+          ? `Statewide Administration (${scope.state_id})`
+          : 'All Jurisdictions (National Apex)')));
+
+  const stateText = user?.state_name || (scope?.state_id === 'MH' ? 'Maharashtra' : scope?.state_id === 'PB' ? 'Punjab' : scope?.state_id || 'Central Headquarters, New Delhi');
+
+  const officerBadge = user?.badge_number || user?.badge || (scope?.district_id ? `LMA-${scope.district_id}-001` : 'LMA-NAT-001');
+
+  const officerEmail = user?.email || 'officer@pramaan.gov.in';
 
   return (
     <div className="max-w-[1720px] mx-auto px-4 sm:px-6 py-5 select-none text-left">
 
-      {/* Demo Dossier Disclaimer Banner */}
-      <div className="mb-4 p-3.5 bg-amber-50 border border-amber-300 rounded text-xs text-amber-900 flex items-center justify-between shadow-2xs">
-        <div className="flex items-center gap-2">
-          <span className="bg-amber-200 text-amber-800 font-bold px-1.5 py-0.5 rounded-2xs text-[10px] uppercase tracking-wider">
-            REFERENCE DOSSIER • DEMO
-          </span>
-          <span>
-            Officer credential and personnel profile view is a regulatory layout template. The backend does not maintain officer profile endpoints.
-          </span>
-        </div>
-      </div>
-
-      {/* 1. Top Header Bar Card */}
-      <div className="bg-white border border-slate-200 rounded-lg p-4 mb-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onBack}
-            title="Return to previous view"
-            className="p-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded transition-colors cursor-pointer shadow-2xs flex items-center justify-center"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="bg-[#0B192C] text-[#facc15] text-[10.5px] font-bold px-2 py-0.5 rounded-2xs uppercase tracking-wider">
-                ADMIN CADRE DOSSIER
-              </span>
-              <span className="text-slate-500 text-[10.5px] font-bold uppercase tracking-wider">
-                GAZETTE NOTIFICATION NO. DCA/LM-2024/G-88
-              </span>
-            </div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight mt-0.5">
-              {officerTitle} Statutory Authority &amp; Credentials
-            </h1>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <button
-            onClick={onBack}
-            className="inline-flex items-center gap-1.5 bg-[#0B192C] hover:bg-slate-800 text-white text-xs font-bold px-3.5 py-2 rounded transition-colors cursor-pointer shadow-2xs"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Active Console</span>
-          </button>
-
-          <div className="inline-flex items-center gap-1.5 bg-[#ecfdf5] text-[#065f46] border border-[#a7f3d0] text-xs font-bold px-3 py-2 rounded shadow-2xs">
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#059669]" />
-            <span>AADHAAR E-SIGN VERIFIED</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Main Two-Column Layout */}
+      {/* Main Two-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         
         {/* Left Column: Official Profile Card (4 cols) */}
         <div className="lg:col-span-4 bg-white border border-slate-200 rounded-lg p-6 shadow-2xs flex flex-col items-center text-center">
-          {/* Circular Silhouette Avatar */}
-          <div className="w-24 h-24 rounded-full border-4 border-[#0B192C] bg-[#e2e8f0] flex items-center justify-center mb-3 shadow-inner">
-            <User className="w-14 h-14 text-slate-500 fill-slate-500" />
+          {/* Circular Silhouette Avatar with GoI status badge */}
+          <div className="relative mb-3">
+            <div className="w-24 h-24 rounded-full border-4 border-[#0B192C] bg-gradient-to-b from-slate-100 to-slate-200 flex items-center justify-center shadow-inner overflow-hidden">
+              <User className="w-14 h-14 text-[#0B192C] fill-[#0B192C]/10" />
+            </div>
+            <div className="absolute -bottom-0.5 -right-0.5 bg-[#16a34a] text-white p-1 rounded-full border-2 border-white shadow-xs" title="Official Gazetted Officer">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+            </div>
           </div>
 
-          {/* Title & Designation */}
-          <h2 className="text-lg font-bold text-slate-900 tracking-tight">
-            {officerTitle}
+          <div className="text-[10px] font-bold text-amber-800 tracking-wider uppercase mb-1 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200/80">
+            GOVERNMENT OF INDIA GAZETTED OFFICER
+          </div>
+
+          {/* Officer Name & Designation */}
+          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight mt-1">
+            {officerName}
           </h2>
-          <div className="text-[11px] font-bold text-slate-500 tracking-wider mt-0.5 uppercase">
+          <div className="text-xs font-bold text-[#0B192C] tracking-wide mt-0.5">
+            {officialDesignation}
+          </div>
+          <div className="text-[11px] font-medium text-slate-500 tracking-tight mt-0.5">
             {cadreSubtitle}
           </div>
 
           {/* Table / Key-Value Details */}
-          <div className="w-full border-t border-slate-100 mt-5 pt-4 text-xs space-y-3 text-left">
-            <div className="flex items-center justify-between py-0.5">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">CADRE:</span>
-              <span className="font-bold text-slate-900 text-right">Gazetted Administrative Control (DCLM Cadre)</span>
+          <div className="w-full border-t border-slate-200 mt-5 pt-4 text-xs space-y-2.5 text-left">
+            <div className="flex items-center justify-between py-1 border-b border-slate-100">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">OFFICER NAME:</span>
+              <span className="font-bold text-slate-900 text-right">{officerName}</span>
             </div>
-            <div className="flex items-center justify-between py-0.5">
+            <div className="flex items-center justify-between py-1 border-b border-slate-100">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">OFFICIAL EMAIL:</span>
+              <span className="font-semibold text-slate-800 text-right font-mono text-[11.5px]">{officerEmail}</span>
+            </div>
+            <div className="flex items-center justify-between py-1 border-b border-slate-100">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">BADGE / ID NO:</span>
+              <span className="font-bold text-blue-900 bg-blue-50 px-2 py-0.5 rounded text-[11px] font-mono border border-blue-200">{officerBadge}</span>
+            </div>
+            <div className="flex items-center justify-between py-1 border-b border-slate-100">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">DESIGNATION:</span>
+              <span className="font-bold text-slate-900 text-right">{officialDesignation}</span>
+            </div>
+            <div className="flex items-center justify-between py-1 border-b border-slate-100">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">CADRE:</span>
+              <span className="font-semibold text-slate-800 text-right">{cadreSubtitle}</span>
+            </div>
+            <div className="flex items-center justify-between py-1 border-b border-slate-100">
               <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">CIRCLE:</span>
               <span className="font-bold text-slate-900 text-right">{circleText}</span>
             </div>
-            <div className="flex items-center justify-between py-0.5">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">STATE:</span>
+            <div className="flex items-center justify-between py-1 border-b border-slate-100">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">STATE / ZONE:</span>
               <span className="font-bold text-slate-900 text-right">{stateText}</span>
             </div>
-            <div className="flex items-center justify-between py-0.5">
+            <div className="flex items-center justify-between py-1">
               <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">STATUS:</span>
-              <span className="font-bold text-[#16a34a] text-right tracking-wide">
-                {scope ? 'ACTIVE SESSION' : 'DEMO TEMPLATE'}
+              <span className="font-bold text-[#16a34a] bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded text-[11px] text-right tracking-wide flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                ACTIVE GAZETTED SESSION
               </span>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="mt-6 w-full py-2 px-3 text-sm font-medium text-black bg-white border border-slate-300 rounded hover:bg-slate-50 cursor-pointer"
-          >
-            Sign Out
-          </button>
+          <div className="flex items-center gap-2.5 w-full mt-6">
+            <button
+              type="button"
+              onClick={onBack}
+              className="flex-1 py-2 px-3 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded cursor-pointer flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Console</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="flex-1 py-2 px-3 text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded cursor-pointer transition-colors shadow-2xs"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
 
         {/* Right Column: Statutory Powers & Terminal Hardware (8 cols) */}
@@ -170,7 +182,7 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({ onBa
                   Section 15: Powers of Inspection, Search &amp; Seizure Oversight
                 </h3>
                 <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
-                  Vested with plenary supervisory authority to authorize search, seizure, and inspection operations across commercial premises, manufacturing plants, packaging warehouses, and wholesale mandis within Ludhiana North Industrial Belt.
+                  Vested with plenary supervisory authority to authorize search, seizure, and inspection operations across commercial premises, manufacturing plants, packaging warehouses, and wholesale mandis within {circleText}.
                 </p>
               </div>
 
@@ -180,7 +192,7 @@ export const InspectorProfileView: React.FC<InspectorProfileViewProps> = ({ onBa
                   Section 36 &amp; Section 48: Compounding, Notice Issuance &amp; Penalty Cognizance
                 </h3>
                 <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
-                  Empowered to adjudicate non-compliant packaged commodities, sanction compounding notices under Form-V, issue Section 36 summons orders, and direct field enforcement squads for Ludhiana District.
+                  Empowered to adjudicate non-compliant packaged commodities, sanction compounding notices under Form-V, issue Section 36 summons orders, and direct field enforcement squads for {circleText}.
                 </p>
               </div>
             </div>

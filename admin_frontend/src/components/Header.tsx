@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
-import { fetchCurrentScope } from '../api/auth';
-import type { UserScope } from '../api/auth';
+import { fetchCurrentScope, fetchCurrentUser, getStoredUser, formatOfficerName } from '../api/auth';
+import type { UserScope, StoredUser } from '../api/auth';
 
 interface HeaderProps {
   onNotificationClick?: () => void;
@@ -11,6 +11,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onNotificationClick, onProfileClick, pendingCount = 3 }) => {
   const [scope, setScope] = useState<UserScope | null>(null);
+  const [user, setUser] = useState<StoredUser | null>(() => getStoredUser());
 
   useEffect(() => {
     fetchCurrentScope().then((s) => {
@@ -18,15 +19,21 @@ export const Header: React.FC<HeaderProps> = ({ onNotificationClick, onProfileCl
     }).catch(() => {
       // Offline or unauthenticated session
     });
+
+    fetchCurrentUser().then((u) => {
+      if (u) setUser(u);
+    }).catch(() => {});
   }, []);
 
+  const officerName = formatOfficerName(user, scope);
+
   const roleTitle = scope 
-    ? (scope.role === 'state_admin' ? 'State Admin' : scope.role === 'district_officer' ? 'District Admin' : scope.role.replace('_', ' ').toUpperCase())
-    : 'State Admin (Demo)';
+    ? (scope.role === 'state_admin' ? 'State Controller' : scope.role === 'district_officer' ? 'District Controller' : scope.role === 'national_admin' ? 'National Administrator' : scope.role.replace('_', ' ').toUpperCase())
+    : 'Administrative Controller';
 
   const jurisdictionSubtitle = scope
-    ? (scope.district_id ? `${scope.district_id} • ${scope.state_id || 'State'}` : (scope.state_id ? `State Portal • ${scope.state_id}` : 'Authorized Scope'))
-    : 'PB • Punjab (Offline)';
+    ? (scope.district_id ? `${user?.district_name || scope.district_id} • ${user?.state_name || scope.state_id || 'State'}` : (scope.state_id ? `${user?.state_name || scope.state_id} State` : 'Apex National Cadre'))
+    : 'Authorized Scope';
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-xs">
@@ -98,10 +105,10 @@ export const Header: React.FC<HeaderProps> = ({ onNotificationClick, onProfileCl
               />
               <div className="flex flex-col text-left">
                 <span className="text-xs font-bold text-slate-900 leading-tight group-hover:text-blue-700 transition-colors">
-                  {roleTitle}
+                  {officerName}
                 </span>
                 <span className="text-[10px] font-medium text-slate-500 tracking-tight group-hover:text-slate-700">
-                  {jurisdictionSubtitle}
+                  {roleTitle} • {jurisdictionSubtitle}
                 </span>
               </div>
             </button>

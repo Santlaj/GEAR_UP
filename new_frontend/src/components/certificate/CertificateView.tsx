@@ -72,9 +72,25 @@ export const CertificateView: React.FC<CertificateViewProps> = ({
   const dateDecl = declarations.find((d) => d.field === 'date_of_manufacture' || d.field === 'month_year_packing');
   const batchDecl = declarations.find((d) => d.field === 'batch_number');
 
-  const inspectorName = scanRecord.inspector_id ? `Insp. ${scanRecord.inspector_id.toUpperCase()}` : 'Authorized Field Inspector';
-  const inspectorBadge = scanRecord.inspector_id ? scanRecord.inspector_id.toUpperCase() : 'LMI-CADRE';
-  const districtName = scanRecord.district_id ? `${scanRecord.district_id} Enforcement Circle` : 'District Enforcement Circle';
+  const inspectorName = scanRecord.inspector_name || (
+    scanRecord.inspector_id === 'insp-pb-ludhiana-02' ? 'Sh. Harpreet Singh Gill' :
+    scanRecord.inspector_id === 'insp-pb-ludhiana-01' ? 'Sh. Gurpreet Singh' :
+    scanRecord.inspector_id === 'insp-mh-pune-01' ? 'Smt. Vaishnavi Kulkarni' :
+    scanRecord.inspector_id === 'insp-mh-pune-02' ? 'Sh. Vedant Deshmukh' :
+    (scanRecord.inspector_id ? `Sh. ${scanRecord.inspector_id.replace(/^insp-[a-z]+-/, '').replace(/-/g, ' ').toUpperCase()}` : 'Authorized Field Inspector')
+  );
+  const inspectorBadge = scanRecord.inspector_badge || (
+    scanRecord.inspector_id === 'insp-pb-ludhiana-02' ? 'LMI-PB-LDH-0105' :
+    scanRecord.inspector_id === 'insp-pb-ludhiana-01' ? 'LMI-PB-LDH-0104' :
+    scanRecord.inspector_id === 'insp-mh-pune-01' ? 'LMI-MH-PUN-0201' :
+    scanRecord.inspector_id === 'insp-mh-pune-02' ? 'LMI-MH-PUN-0202' :
+    (scanRecord.inspector_id ? scanRecord.inspector_id.toUpperCase() : 'LMI-CADRE')
+  );
+  const districtName = scanRecord.district_name || (
+    scanRecord.district_id === 'D-LUDHIANA' ? 'Ludhiana Circle' :
+    scanRecord.district_id === 'D-PUNE' ? 'Pune Circle' :
+    scanRecord.district_id ? `${scanRecord.district_id} Enforcement Circle` : 'District Enforcement Circle'
+  );
 
   const handleDownloadDocx = () => {
     if (onDownloadDocx) {

@@ -22,12 +22,20 @@ export interface LoginResponse {
 }
 
 export interface StoredUser {
-  email: string;
-  name: string;
-  badge: string;
-  role: string;
-  district: string;
-  state: string;
+  id?: string;
+  email?: string;
+  name?: string;
+  full_name?: string;
+  badge?: string;
+  badge_number?: string;
+  role?: string;
+  district?: string;
+  district_id?: string;
+  district_name?: string;
+  state?: string;
+  state_id?: string;
+  state_name?: string;
+  cadre?: string;
 }
 
 export function getStoredScope(): UserScope | null {
@@ -44,6 +52,57 @@ export function setStoredScope(scope: UserScope): void {
   try {
     localStorage.setItem('lmcs_scope', JSON.stringify(scope));
   } catch {}
+}
+
+export function getStoredUser(): StoredUser | null {
+  try {
+    const raw = localStorage.getItem('pramaan_admin_user');
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredUser(user: StoredUser): void {
+  try {
+    localStorage.setItem('pramaan_admin_user', JSON.stringify(user));
+  } catch {}
+}
+
+export function formatOfficerName(
+  user?: StoredUser | null,
+  scope?: UserScope | null
+): string {
+  const rawName = user?.full_name || user?.name;
+  if (rawName && rawName.trim()) {
+    const trimmed = rawName.trim();
+    if (/^(sh\.|shri|smt\.|smt|dr\.|dr|mr\.|mr|ms\.)/i.test(trimmed)) {
+      return trimmed;
+    }
+    return `Sh. ${trimmed}`;
+  }
+
+  const email = user?.email;
+  if (email && email.includes('@')) {
+    const localPart = email.split('@')[0].replace(/[._0-9]+/g, ' ').trim();
+    if (localPart) {
+      const capitalized = localPart
+        .split(' ')
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(' ');
+      return `Sh. ${capitalized}`;
+    }
+  }
+
+  const role = user?.role || scope?.role;
+  if (role) {
+    if (role === 'national_admin') return 'Sh. National Controller';
+    if (role === 'state_admin') return 'Sh. State Controller';
+    if (role === 'district_officer') return 'Sh. District Controller';
+  }
+
+  return 'Authorized Officer';
 }
 
 export async function loginAdmin(
@@ -66,9 +125,7 @@ export async function loginAdmin(
       setStoredScope(data.scope);
     }
     if ((data as any).user) {
-      try {
-        localStorage.setItem('pramaan_admin_user', JSON.stringify((data as any).user));
-      } catch {}
+      setStoredUser((data as any).user);
     }
   }
   return data;
@@ -78,9 +135,33 @@ export async function fetchCurrentScope(): Promise<UserScope | null> {
   const token = getToken();
   if (!token) return null;
   try {
-    return await apiFetch<UserScope>('/auth/me');
+    const data = await apiFetch<any>('/auth/me');
+    if (data && data.user) {
+      setStoredUser(data.user);
+    }
+    if (data && data.scope) {
+      setStoredScope(data.scope);
+      return data.scope;
+    }
+    return data as UserScope;
   } catch {
     return null;
+  }
+}
+
+export async function fetchCurrentUser(): Promise<StoredUser | null> {
+  const token = getToken();
+  const stored = getStoredUser();
+  if (!token) return stored;
+  try {
+    const data = await apiFetch<any>('/auth/me');
+    if (data && data.user) {
+      setStoredUser(data.user);
+      return data.user;
+    }
+    return stored;
+  } catch {
+    return stored;
   }
 }
 

@@ -141,7 +141,8 @@
   display: flex;
   flex-direction: column;
   background: var(--pramaan-bg);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .pramaan-header {

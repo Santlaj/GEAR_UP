@@ -4,8 +4,8 @@
 
 import type { BackendScanRecord } from './scans';
 import type { MapPointResponse } from './dashboard';
-import type { ReportRecord, TriageCase } from '../data/mockData';
-import { resolveAssetUrl } from './client';
+import type { ReportRecord, TriageCase, CaseDeclaration } from '../data/mockData';
+import { resolveAssetUrl, API_BASE } from './client';
 
 export function normalizeVerdict(verdict: string): 'NON-COMPLIANT' | 'COMPLIANT' | 'NEEDS REVIEW' {
   const v = (verdict || '').toUpperCase().replace(/_/g, '-');
@@ -18,45 +18,74 @@ export function resolveInspectionCoordinates(scan: BackendScanRecord): { lat: nu
   const rawLat = scan.gps?.lat;
   const rawLng = scan.gps?.lng;
 
-  // Check if raw coordinates are the legacy Pune default seed coordinates (~18.52° N, 73.85° E)
-  const isLegacyPuneSeed =
+  // Use genuine recorded GPS coordinates directly without hardcoded overrides or fake hashing
+  if (
     rawLat != null &&
     rawLng != null &&
-    rawLat >= 18.45 &&
-    rawLat <= 18.58 &&
-    rawLng >= 73.75 &&
-    rawLng <= 73.95;
-
-  const isPunjab = 
-    scan.state_id === 'PB' ||
-    Boolean(scan.district_id && scan.district_id.toUpperCase().includes('LUDHIANA')) ||
-    Boolean(scan.district_id && scan.district_id.toUpperCase().includes('AMRITSAR')) ||
-    Boolean(scan.district_id && scan.district_id.toUpperCase().includes('JALANDHAR')) ||
-    Boolean(scan.district_id && scan.district_id.toUpperCase().includes('PB')) ||
-    Boolean(scan.inspector_id && scan.inspector_id.toLowerCase().includes('pb'));
-
-  // If coordinates are missing or explicitly the legacy Pune seed on a Punjab jurisdiction record,
-  // map to realistic commercial hub points in Ludhiana.
-  if (isPunjab && (rawLat == null || rawLng == null || isLegacyPuneSeed)) {
-    // Generate realistic, deterministic coordinates distributed across commercial hubs in Ludhiana
-    const seedStr = `${scan.scan_id || ''}-${scan.report_no || ''}-${scan.product?.name || ''}`;
-    let hash = 0;
-    for (let i = 0; i < seedStr.length; i++) {
-      hash = (hash * 31 + seedStr.charCodeAt(i)) & 0xffffffff;
-    }
-    // Ludhiana commercial hub coordinates: ~30.89 to 30.93 N, ~75.83 to 75.88 E
-    const offsetLat = ((Math.abs(hash) % 70) - 35) * 0.0007; 
-    const offsetLng = ((Math.abs(hash >> 3) % 70) - 35) * 0.0007;
+    !isNaN(rawLat) &&
+    !isNaN(rawLng) &&
+    rawLat >= -90 &&
+    rawLat <= 90 &&
+    rawLng >= -180 &&
+    rawLng <= 180
+  ) {
     return {
-      lat: Number((30.9010 + offsetLat).toFixed(4)),
-      lng: Number((75.8573 + offsetLng).toFixed(4)),
+      lat: Number(rawLat.toFixed(6)),
+      lng: Number(rawLng.toFixed(6)),
     };
   }
 
+  // Explicit zero coordinates when no genuine GPS fix exists on record
   return {
-    lat: rawLat ?? 30.9010,
-    lng: rawLng ?? 75.8573,
+    lat: 0,
+    lng: 0,
   };
+}
+
+export function resolveOfficerDetails(scan: BackendScanRecord): {
+  name: string;
+  badge: string;
+  cadre: string;
+  district: string;
+  state: string;
+} {
+  const district = scan.district_name || (
+    scan.district_id === 'D-LUDHIANA' ? 'Ludhiana' :
+    scan.district_id === 'D-PUNE' ? 'Pune' :
+    scan.district_id === 'D-MUMBAI' ? 'Mumbai' :
+    scan.district_id === 'D-JALANDHAR' ? 'Jalandhar' :
+    scan.district_id || 'District Jurisdiction'
+  );
+
+  const state = scan.state_name || (
+    scan.state_id === 'PB' ? 'Punjab' :
+    scan.state_id === 'MH' ? 'Maharashtra' :
+    scan.state_id || 'State'
+  );
+
+  const name = scan.inspector_name || (
+    scan.inspector_id === 'insp-pb-ludhiana-02' ? 'Sh. Harpreet Singh Gill' :
+    scan.inspector_id === 'insp-pb-ludhiana-01' ? 'Sh. Gurpreet Singh' :
+    scan.inspector_id === 'insp-mh-pune-01' ? 'Smt. Vaishnavi Kulkarni' :
+    scan.inspector_id === 'insp-mh-pune-02' ? 'Sh. Vedant Deshmukh' :
+    scan.inspector_id ? `Inspector (${scan.inspector_id})` : 'Legal Metrology Inspector'
+  );
+
+  const badge = scan.inspector_badge || (
+    scan.inspector_id === 'insp-pb-ludhiana-02' ? 'LMI-PB-LDH-0105' :
+    scan.inspector_id === 'insp-pb-ludhiana-01' ? 'LMI-PB-LDH-0104' :
+    scan.inspector_id === 'insp-mh-pune-01' ? 'LMI-MH-PUN-0201' :
+    scan.inspector_id === 'insp-mh-pune-02' ? 'LMI-MH-PUN-0202' :
+    (scan.inspector_id ? scan.inspector_id.toUpperCase() : 'LMI-CADRE')
+  );
+
+  const cadre = scan.inspector_cadre || (
+    scan.inspector_id === 'insp-pb-ludhiana-02' ? 'Legal Metrology Enforcement Squad (Ludhiana Circle)' :
+    scan.inspector_id === 'insp-pb-ludhiana-01' ? 'Legal Metrology Inspectorate Cadre (Ludhiana Zone)' :
+    `Legal Metrology Enforcement Squad (${district} Circle)`
+  );
+
+  return { name, badge, cadre, district, state };
 }
 
 export function scanRecordToReportRecord(scan: BackendScanRecord): ReportRecord {
@@ -67,7 +96,10 @@ export function scanRecordToReportRecord(scan: BackendScanRecord): ReportRecord 
   const coords = resolveInspectionCoordinates(scan);
   const lat = coords.lat;
   const lng = coords.lng;
-  const gpsStr = `${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E`;
+  const hasGps = lat !== 0 || lng !== 0;
+  const gpsStr = hasGps ? `${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E` : 'GPS Not Recorded';
+
+  const officer = resolveOfficerDetails(scan);
 
   const violations = (scan.declarations || [])
     .filter((dec) => dec.status === 'non_compliant' || dec.status === 'missing' || dec.status === 'fail' || dec.status === 'below_min')
@@ -83,11 +115,13 @@ export function scanRecordToReportRecord(scan: BackendScanRecord): ReportRecord 
     reportNo: scan.report_no || scan.scan_id,
     date: dateStr,
     time: timeStr,
-    inspectorId: scan.inspector_id || 'INS-PRAMAAN',
-    inspectorName: `Officer (${scan.inspector_id || 'Jurisdiction'})`,
+    inspectorId: officer.badge,
+    inspectorName: officer.name,
+    inspectorBadge: officer.badge,
+    inspectorCadre: officer.cadre,
     districtId: scan.district_id,
     stateId: scan.state_id,
-    location: `${scan.district_id || 'District'}, ${scan.state_id || 'State'}`,
+    location: `${officer.district}, ${officer.state}`,
     product: scan.product?.name || 'Packaged Commodity',
     sku: scan.product?.net_quantity ? `Net Wt: ${scan.product.net_quantity}` : 'Standard SKU',
     verdict: normalizeVerdict(scan.overall_verdict),
@@ -99,9 +133,50 @@ export function scanRecordToReportRecord(scan: BackendScanRecord): ReportRecord 
     lng,
     accuracy: scan.gps?.accuracy ? `±${Math.round(scan.gps.accuracy)}m Confirmed` : '±3m Confirmed',
     business: scan.product?.manufacturer || 'Retail Establishment',
-    address: `${scan.district_id || 'District'} Central Market`,
+    address: `${officer.district} Central Market`,
     isDemo: false,
   };
+}
+
+function formatDeclarationDisplayName(field: string): string {
+  const f = field.toLowerCase().replace(/[-_]/g, ' ').trim();
+  if (f.includes('mrp') || f.includes('price')) return 'Maximum Retail Price (MRP)';
+  if (f.includes('net') || f.includes('quantity')) return 'Net Quantity & Units';
+
+  // Specific manufacturer and packer identity / address rules MUST come before generic "manufacture" / "packing" date checks
+  if (f.includes('address') && (f.includes('mfr') || f.includes('manufactur') || f.includes('producer'))) {
+    return 'Manufacturer Complete Address';
+  }
+  if (f.includes('address') && (f.includes('pack') || f.includes('import'))) {
+    return 'Packer / Importer Address';
+  }
+  if (f.includes('address')) {
+    return 'Registered Facility Address';
+  }
+  if (f.includes('mfr') || f.includes('manufactur') || f.includes('producer')) {
+    return 'Manufacturer Identity & Name';
+  }
+  if (f.includes('packer') || f.includes('imported') || f.includes('importer')) {
+    return 'Packer / Importer Details';
+  }
+
+  // Date of Manufacture / Expiry checks
+  if (f.includes('expir') || f.includes('best before') || f.includes('use by')) {
+    return 'Best Before / Expiry Date';
+  }
+  if (f.includes('mfg') || f.includes('date of') || f.includes('packing date') || f.includes('manufacture date') || f === 'date') {
+    return 'Date of Manufacture / Packing';
+  }
+
+  if (f.includes('consumer') || f.includes('care') || f.includes('helpline')) return 'Consumer Care Helpline & Address';
+  if (f.includes('fssai') || f.includes('licence') || f.includes('license')) return 'FSSAI License / Registration No.';
+  if (f.includes('country') || f.includes('origin')) return 'Country of Origin';
+  if (f.includes('commodity') || f.includes('generic') || f.includes('product name')) return 'Generic / Common Commodity Name';
+  if (f.includes('batch') || f.includes('lot')) return 'Batch / Lot Number';
+  if (f.includes('usp') || f.includes('unit sale')) return 'Unit Sale Price (USP)';
+  return field
+    .replace(/[_-]/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 export function scanRecordToTriageCase(scan: BackendScanRecord): TriageCase {
@@ -117,14 +192,36 @@ export function scanRecordToTriageCase(scan: BackendScanRecord): TriageCase {
   const coords = resolveInspectionCoordinates(scan);
   const lat = coords.lat;
   const lng = coords.lng;
-  const gpsStr = `${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E`;
+  const hasGps = lat !== 0 || lng !== 0;
+  const gpsStr = hasGps ? `${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E` : 'GPS Not Recorded';
 
-  const primaryViolation = (scan.declarations || []).find(
+  const rawDeclarations = scan.declarations || [];
+
+  const mappedDeclarations: CaseDeclaration[] = rawDeclarations.map((dec: any) => {
+    const fieldKey = dec.field || dec.field_name || 'declaration';
+    const cleanDisplayName = dec.display_name || formatDeclarationDisplayName(fieldKey);
+    return {
+      field: fieldKey,
+      displayName: cleanDisplayName,
+      detectedValue: dec.detected_value != null ? String(dec.detected_value) : null,
+      status: dec.status || 'compliant',
+      ruleCitation: dec.rule_citation || dec.statutory_basis || dec.infraction_rule || null,
+      rejectionReason: dec.rejection_reason || dec.remark || null,
+      remark: dec.remark || null,
+      fontSizeMm: dec.font_size_mm != null ? Number(dec.font_size_mm) : null,
+      confidence: dec.confidence != null ? Number(dec.confidence) : undefined,
+    };
+  });
+
+  const primaryViolation = mappedDeclarations.find(
     (dec) => dec.status === 'non_compliant' || dec.status === 'missing' || dec.status === 'ambiguous' || dec.status === 'fail'
   );
 
-  const flagReason = primaryViolation?.rejection_reason
-    || `Automated check flagged ${scan.infractions_count || 1} infractions requiring verification`;
+  const flagReason = (scan as any).remarks_summary 
+    || primaryViolation?.rejectionReason
+    || (scan.infractions_count && scan.infractions_count > 0 
+        ? `Automated check flagged ${scan.infractions_count} infractions requiring verification`
+        : 'Docket pending administrative verification');
 
   let flagReasonType: 'dual_mrp' | 'ocr_low' | 'unit_abbr' = 'dual_mrp';
   const rLower = flagReason.toLowerCase();
@@ -134,13 +231,34 @@ export function scanRecordToTriageCase(scan: BackendScanRecord): TriageCase {
     flagReasonType = 'unit_abbr';
   }
 
-  // Evidence image
-  const firstImage = scan.images && scan.images.length > 0 ? scan.images[0].url : null;
-  const evidencePhoto = resolveAssetUrl(firstImage) || '/evidence_dual_mrp.jpg';
+  // Authoritative evidence photo: always use the backend evidence-image endpoint that serves the genuine scan photo from captures disk
+  const evidencePhoto = scan.scan_id
+    ? `${API_BASE}/scans/${encodeURIComponent(scan.scan_id)}/evidence-image`
+    : (resolveAssetUrl((scan.images && scan.images.length > 0) ? scan.images[0].url : (scan.product as any)?.image_path) || '');
 
   let triageStatus: 'UNDER REVIEW' | 'NON-COMPLIANT' | 'COMPLIANT' = 'UNDER REVIEW';
-  if (scan.review_status === 'approved') triageStatus = 'COMPLIANT';
-  else if (scan.review_status === 'rejected') triageStatus = 'NON-COMPLIANT';
+  if (scan.review_status === 'approved' || scan.overall_verdict === 'COMPLIANT') {
+    triageStatus = 'COMPLIANT';
+  } else if (scan.review_status === 'rejected' || scan.overall_verdict === 'NON_COMPLIANT') {
+    triageStatus = 'NON-COMPLIANT';
+  }
+
+  // Check if there is an actual Dual MRP infraction
+  const isDualMrpInfraction = 
+    flagReason.toLowerCase().includes('dual') ||
+    flagReason.toLowerCase().includes('sticker') ||
+    flagReason.toLowerCase().includes('overlay') ||
+    (primaryViolation?.rejectionReason || '').toLowerCase().includes('dual') ||
+    (primaryViolation?.rejectionReason || '').toLowerCase().includes('overlay');
+
+  const mrpDec = mappedDeclarations.find(d => d.field.toLowerCase().includes('mrp') || d.field.toLowerCase().includes('price'));
+  const declaredMRP = mrpDec?.detectedValue || scan.product?.mrp || '₹ --';
+  const overlayMRP = isDualMrpInfraction ? declaredMRP : 'None Affixed';
+  const underlyingMRP = isDualMrpInfraction ? (scan.product?.mrp || declaredMRP) : declaredMRP;
+  const priceMargin = isDualMrpInfraction ? 'FLAGGED DUAL STICKER' : (scan.infractions_count > 0 ? `${scan.infractions_count} INFRACTIONS` : 'COMPLIANT');
+
+  const officer = resolveOfficerDetails(scan);
+  const locationDisplay = `${officer.district}, ${officer.state}`;
 
   return {
     id: scan.scan_id,
@@ -148,33 +266,51 @@ export function scanRecordToTriageCase(scan: BackendScanRecord): TriageCase {
     status: triageStatus,
     timestamp: timeFormatted,
     productName: scan.product?.name || 'Packaged Commodity',
-    location: `${scan.district_id || 'District'}, ${scan.state_id || 'State'}`,
+    productDetails: {
+      manufacturer: scan.product?.manufacturer,
+      category: scan.product?.category,
+      netQuantity: scan.product?.net_quantity,
+      mrp: scan.product?.mrp,
+      batchNo: scan.product?.batch_no,
+      barcode: scan.product?.barcode,
+    },
+    districtId: scan.district_id,
+    stateId: scan.state_id,
+    location: locationDisplay,
     gps: gpsStr,
     lat,
     lng,
-    fieldOfficer: scan.inspector_id || 'Field Officer',
+    fieldOfficer: officer.name,
+    fieldOfficerBadge: officer.badge,
+    fieldSquad: officer.cadre,
     flagReason,
     flagReasonType,
     isDemo: false,
     evidencePhoto,
-    photoId: `IMG-${(scan.report_no || scan.scan_id).slice(-4)}-EVID Captured`,
-    photoCaption: `Captured package surface inspected in ${scan.district_id || 'jurisdiction'}.`,
+    photoId: `EXHIBIT-${(scan.report_no || scan.scan_id).slice(-6).toUpperCase()}`,
+    photoCaption: `Packaging exhibit seized on-site by ${officer.name} (${officer.badge}) in ${officer.district}, ${officer.state}.`,
+    declarations: mappedDeclarations,
     extractedData: {
-      topOverlayMRP: scan.product?.mrp || '₹ --',
-      underlyingPrintedMRP: scan.product?.mrp || '₹ --',
-      priceDiscrepancyMargin: scan.infractions_count > 0 ? 'FLAGGED' : '₹ 0.00',
-      identifiedLabelIssue: primaryViolation?.display_name
-        ? `${primaryViolation.display_name.toUpperCase()} DEFICIT`
-        : 'MANDATORY DECLARATION VERIFICATION',
+      topOverlayMRP: overlayMRP,
+      underlyingPrintedMRP: underlyingMRP,
+      priceDiscrepancyMargin: priceMargin,
+      identifiedLabelIssue: primaryViolation?.displayName
+        ? `${primaryViolation.displayName.toUpperCase()} ${primaryViolation.status === 'missing' ? 'OMISSION' : 'CONTRAVENTION'}`
+        : (scan.infractions_count > 0 ? `${scan.infractions_count} STATUTORY INFRACTIONS DETECTED` : 'MANDATORY DECLARATIONS VERIFIED'),
+      hasDualMrp: isDualMrpInfraction,
     },
     statutoryRule: {
       act: 'LEGAL METROLOGY (PACKAGED COMMODITIES) RULES, 2011',
-      ruleCitation: primaryViolation?.rule_citation
+      ruleCitation: primaryViolation?.ruleCitation
         || 'Rule 6: Mandatory declarations on pre-packaged commodities required prior to commercial retail sale.',
     },
-    inspectorNote: `"Recorded by inspector ${scan.inspector_id} during on-site market inspection."`,
-    inspectorNoteMeta: `Recorded by ${scan.inspector_id} at ${timeFormatted} IST`,
-    requestRescanOfficer: scan.inspector_id || 'INS-012',
+    inspectorNote: (scan as any).remarks_summary
+      ? `"${(scan as any).remarks_summary}"`
+      : (primaryViolation?.rejectionReason
+        ? `"Seizure Memo by ${officer.name} (${officer.badge}): ${primaryViolation.rejectionReason} detected on physical packaging. Seized under Section 15 of Legal Metrology Act, 2009 for verification."`
+        : `"Recorded by ${officer.name} (${officer.badge}) during on-site market surveillance in ${officer.district}, ${officer.state}."`),
+    inspectorNoteMeta: `Recorded by ${officer.name} (${officer.badge}) • ${timeFormatted} IST • Circle: ${locationDisplay}`,
+    requestRescanOfficer: officer.name,
   };
 }
 
@@ -207,6 +343,8 @@ export function scanRecordToMapInspection(scan: BackendScanRecord): MapInspectio
   const lat = coords.lat;
   const lng = coords.lng;
 
+  const officer = resolveOfficerDetails(scan);
+
   const violations = (scan.declarations || [])
     .filter((dec) => dec.status === 'non_compliant' || dec.status === 'missing' || dec.status === 'fail' || dec.status === 'below_min')
     .map((dec) => dec.rule_citation || `${dec.display_name || dec.field_name}: ${dec.rejection_reason || 'Infraction'}`);
@@ -214,15 +352,15 @@ export function scanRecordToMapInspection(scan: BackendScanRecord): MapInspectio
   return {
     id: scan.scan_id,
     reportNo: scan.report_no || scan.scan_id,
-    district: scan.district_id || 'Jurisdiction',
-    godown: `${scan.district_id || 'Jurisdiction'} Field Inspection`,
+    district: officer.district,
+    godown: `${officer.district} Field Inspection`,
     latitude: lat,
     longitude: lng,
     issue: status === 'compliant' ? 'All mandatory declarations compliant' : (violations[0] || `Infraction flagged (${scan.product?.name || 'Product'})`),
     date: dateStr,
     status,
     business: scan.product?.manufacturer || scan.product?.name || 'Retail Establishment',
-    inspector: scan.inspector_id || 'Field Inspector',
+    inspector: officer.name,
     violations,
     isDemo: false,
   };
@@ -241,6 +379,8 @@ export function scanRecordToFeedItem(scan: BackendScanRecord) {
   const lat = coords.lat;
   const lng = coords.lng;
 
+  const officer = resolveOfficerDetails(scan);
+
   const infractions = (scan.non_compliant_fields || []).join(', ') ||
     (scan.infractions_count > 0 ? `${scan.infractions_count} infractions flagged` : 'Zero infractions recorded');
 
@@ -248,9 +388,9 @@ export function scanRecordToFeedItem(scan: BackendScanRecord) {
     id: scan.scan_id,
     status,
     business: scan.product?.manufacturer || scan.product?.name || 'Retail Establishment',
-    subtitle: `${scan.district_id || 'Jurisdiction'} • ${scan.product?.name || 'Packaged Commodity'}`,
+    subtitle: `${officer.district} • ${scan.product?.name || 'Packaged Commodity'}`,
     infraction: infractions,
-    inspector: scan.inspector_id || 'Field Inspector',
+    inspector: officer.name,
     timeAgo,
     lat,
     lng,

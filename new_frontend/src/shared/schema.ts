@@ -100,8 +100,13 @@ export interface ScanRecord {
   date_scanned: string;
   gps: GpsCoordinates;
   inspector_id: string;
+  inspector_name?: string | null;
+  inspector_badge?: string | null;
+  inspector_cadre?: string | null;
   district_id: string;
+  district_name?: string | null;
   state_id: string;
+  state_name?: string | null;
   source: ScanSource;
   source_url: string | null;
   product: Product;

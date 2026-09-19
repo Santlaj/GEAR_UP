@@ -93,8 +93,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({ report, onClose, onVie
               <div className="text-slate-400 font-medium flex items-center gap-1.5 mb-1">
                 <User className="w-3.5 h-3.5" /> Field Officer
               </div>
-              <div className="font-semibold text-slate-800">{report.inspectorId}</div>
-              <div className="text-[11px] text-slate-500">{report.inspectorName}</div>
+              <div className="font-semibold text-slate-800">{report.inspectorName || report.inspectorId}</div>
+              <div className="text-[11px] font-mono text-slate-500">{report.inspectorBadge || report.inspectorId}</div>
             </div>
 
             <div className="p-3 bg-white border border-slate-200 rounded-md col-span-2 sm:col-span-1">
@@ -116,8 +116,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({ report, onClose, onVie
                 <h4 className="text-sm font-bold text-slate-900">{report.product}</h4>
                 <div className="text-xs text-slate-500 font-medium mt-0.5">{report.sku}</div>
               </div>
-              <span className="text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-300">
-                LUDHIANA TERRITORIAL CIRCLE
+              <span className="text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-300 uppercase">
+                {report.districtId ? `${report.districtId} Circle` : (report.location ? `${report.location.split(',')[0].trim()} Circle` : 'Territorial Circle')}
               </span>
             </div>
           </div>

@@ -36,20 +36,7 @@ const getReportDistrict = (r: ReportRecord): string => {
     const parts = r.location.split(',');
     return parts[0].trim();
   }
-  return 'D-LUDHIANA';
-};
-
-const isPunjabRecord = (r: ReportRecord): boolean => {
-  if (r.stateId) return r.stateId.toUpperCase() === 'PB';
-  if (r.location) {
-    const loc = r.location.toUpperCase();
-    // Exclude foreign state jurisdictions like Maharashtra/Pune
-    if (loc.includes(', MH') || loc.includes('MAHARASHTRA') || loc.includes('PUNE') || loc.includes('NASHIK')) {
-      return false;
-    }
-    return loc.includes('PB') || loc.includes('PUNJAB') || loc.includes('LUDHIANA') || loc.includes('JALANDHAR') || loc.includes('AMRITSAR');
-  }
-  return true;
+  return 'Other';
 };
 
 export const AllReports: React.FC<AllReportsProps> = ({ onViewReport }) => {
@@ -67,11 +54,10 @@ export const AllReports: React.FC<AllReportsProps> = ({ onViewReport }) => {
     setLoading(true);
     setError(null);
     try {
-      const live = await fetchScans({ stateId: 'PB' });
+      const live = await fetchScans();
       if (Array.isArray(live)) {
         const adapted = live.map(scanRecordToReportRecord);
-        const punjabRecords = adapted.filter(isPunjabRecord);
-        setReports(punjabRecords);
+        setReports(adapted);
         setIsDemoData(false);
       } else {
         throw new Error('Unexpected non-array response from /scans endpoint');
@@ -115,6 +101,16 @@ export const AllReports: React.FC<AllReportsProps> = ({ onViewReport }) => {
     });
     return Array.from(set).sort();
   }, [reports, districtFilter]);
+
+  const inspectorNameMap = useMemo(() => {
+    const map = new Map<string, string>();
+    reports.forEach((r) => {
+      if (r.inspectorId && r.inspectorName) {
+        map.set(r.inspectorId, r.inspectorName);
+      }
+    });
+    return map;
+  }, [reports]);
 
   const handleDistrictChange = (newDistrict: string) => {
     setDistrictFilter(newDistrict);
@@ -297,11 +293,14 @@ export const AllReports: React.FC<AllReportsProps> = ({ onViewReport }) => {
               <option value="All Inspectors">
                 {districtFilter === 'All Districts' ? 'All Inspectors' : `All in ${formatDistrictName(districtFilter)}`}
               </option>
-              {uniqueInspectors.map((insp) => (
-                <option key={insp} value={insp}>
-                  {insp}
-                </option>
-              ))}
+              {uniqueInspectors.map((insp) => {
+                const name = inspectorNameMap.get(insp);
+                return (
+                  <option key={insp} value={insp}>
+                    {name ? `${name} (${insp})` : insp}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
@@ -415,8 +414,8 @@ export const AllReports: React.FC<AllReportsProps> = ({ onViewReport }) => {
                     </td>
 
                     <td className="py-3 px-4 whitespace-nowrap">
-                      <div className="font-medium text-black">{row.inspectorId}</div>
-                      <div className="text-[11px] text-slate-500">{row.inspectorName}</div>
+                      <div className="font-semibold text-black">{row.inspectorName || row.inspectorId}</div>
+                      <div className="text-[11px] text-slate-500 font-mono">{row.inspectorBadge || row.inspectorId}</div>
                     </td>
 
                     <td className="py-3 px-4">

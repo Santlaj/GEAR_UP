@@ -3,7 +3,7 @@ import { ScanRecord, UserContext } from '../../shared/schema';
 import { submitScan } from '../../api/scans';
 import { ApiError } from '../../api/client';
 import { acquireDeviceGps, DeviceGpsResult } from '../../lib/gps';
-import { X, MapPin, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { X, MapPin, MapPinOff, RefreshCw, AlertTriangle } from 'lucide-react';
 
 interface NewScanModalProps {
   user: UserContext;
@@ -27,31 +27,28 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // GPS state
-  const [gpsLat, setGpsLat] = useState<number>(30.9010);
-  const [gpsLng, setGpsLng] = useState<number>(75.8573);
-  const [gpsStatus, setGpsStatus] = useState<string>('Acquiring real-time device GPS...');
+  // Real device GPS state — strictly required, no fake fallbacks
+  const [gpsLoc, setGpsLoc] = useState<DeviceGpsResult | null>(null);
+  const [gpsError, setGpsError] = useState<string | null>(null);
   const [isAcquiringGps, setIsAcquiringGps] = useState<boolean>(true);
-  const [gpsMethod, setGpsMethod] = useState<string>('pending');
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Acquire GPS on mount & support manual refresh
+  // Acquire real-time GPS on mount & support manual reconnect
   const handleFetchGps = useCallback(async (force = false) => {
     setIsAcquiringGps(true);
-    setGpsStatus('Acquiring high-precision device coordinates...');
+    setGpsError(null);
     try {
       const loc = await acquireDeviceGps(force);
-      setGpsLat(loc.lat);
-      setGpsLng(loc.lng);
-      setGpsStatus(loc.statusText);
-      setGpsMethod(loc.method);
-    } catch (e) {
-      console.warn('GPS acquisition error:', e);
-      setGpsStatus('30.9010° N, 75.8573° E (Ludhiana Jurisdiction Beat)');
+      setGpsLoc(loc);
+      setGpsError(null);
+    } catch (e: any) {
+      console.warn('GPS acquisition failed:', e);
+      setGpsLoc(null);
+      setGpsError(e?.message || 'Location access is required to verify statutory inspection coordinates. Please grant location permissions in your browser and tap Reconnect.');
     } finally {
       setIsAcquiringGps(false);
     }
@@ -179,21 +176,23 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
     setIsProcessing(true);
 
     try {
-      // Ensure latest real-time coordinates are acquired
-      let currentLat = gpsLat;
-      let currentLng = gpsLng;
-      try {
-        const freshLoc = await acquireDeviceGps(false);
-        currentLat = freshLoc.lat;
-        currentLng = freshLoc.lng;
-      } catch (err) {
-        console.warn('Using existing coordinates for submission:', err);
+      // Strictly require genuine real-time location before submission
+      let activeLoc = gpsLoc;
+      if (!activeLoc) {
+        try {
+          activeLoc = await acquireDeviceGps(false);
+          setGpsLoc(activeLoc);
+        } catch (err: any) {
+          setSubmitError('Mandatory Location Access: System cannot evaluate commodity without verified real-time location. Please click "Allow / Reconnect Location" above and grant browser permissions.');
+          setIsProcessing(false);
+          return;
+        }
       }
 
       // Build FormData matching the backend contract (routes.py submit_scan)
       const formData = new FormData();
-      formData.append('gps_lat', currentLat.toString());
-      formData.append('gps_lng', currentLng.toString());
+      formData.append('gps_lat', activeLoc.lat.toString());
+      formData.append('gps_lng', activeLoc.lng.toString());
       formData.append('source', sourceType);
       formData.append('geometry_json', '{}');
 
@@ -409,39 +408,58 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
             </div>
           )}
 
-          {/* GPS Telemetry Banner with Status and Refresh Button */}
-          <div className="text-xs bg-slate-50 border border-slate-300 p-2.5 rounded flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                isAcquiringGps
-                  ? 'bg-amber-500 animate-ping'
-                  : gpsMethod === 'high_accuracy_gps'
-                  ? 'bg-emerald-600'
-                  : 'bg-blue-600'
-              }`} />
-              <div>
-                <div className="font-bold text-slate-800 flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-slate-600" />
-                  <span>ON-SITE GPS TELEMETRY:</span>
-                  <span className="font-mono text-slate-900">{gpsStatus}</span>
-                </div>
-                <div className="text-[10.5px] text-slate-500 mt-0.5">
-                  Evidentiary statutory coordinate log for Cadre Officer #{user.badge_number}
+          {/* GPS Telemetry Banner with Mandatory Reconnect Button */}
+          {!gpsLoc ? (
+            <div className="p-3.5 bg-red-50 border border-red-300 rounded text-xs text-red-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+              <div className="flex items-start gap-2.5">
+                <MapPinOff className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-red-800 uppercase tracking-wide flex items-center gap-1.5">
+                    <span>MANDATORY STATUTORY LOCATION REQUIRED</span>
+                  </div>
+                  <p className="text-red-700 text-[11px] mt-0.5 leading-snug">
+                    {gpsError || 'System will not let you scan without verified device location access. Tap Reconnect to allow browser permissions.'}
+                  </p>
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={() => handleFetchGps(true)}
+                disabled={isAcquiringGps}
+                className="px-3.5 py-2 bg-red-700 hover:bg-red-800 text-white font-bold text-xs rounded flex items-center gap-1.5 shrink-0 cursor-pointer shadow-xs disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isAcquiringGps ? 'animate-spin' : ''}`} />
+                <span>{isAcquiringGps ? 'Connecting GPS...' : 'Allow / Reconnect Location'}</span>
+              </button>
             </div>
+          ) : (
+            <div className="text-xs bg-emerald-50 border border-emerald-300 p-2.5 rounded flex items-center justify-between gap-3 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 shrink-0 animate-pulse" />
+                <div>
+                  <div className="font-bold text-emerald-950 flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>VERIFIED ON-SITE GPS:</span>
+                    <span className="font-mono font-bold text-emerald-900">{gpsLoc.statusText}</span>
+                  </div>
+                  <div className="text-[10.5px] text-emerald-800 mt-0.5">
+                    Statutory coordinates locked for Cadre Officer #{user.badge_number} (Accuracy: ±{gpsLoc.accuracy}m)
+                  </div>
+                </div>
+              </div>
 
-            <button
-              type="button"
-              onClick={() => handleFetchGps(true)}
-              disabled={isAcquiringGps}
-              className="px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded flex items-center gap-1 shrink-0 cursor-pointer shadow-2xs disabled:opacity-50"
-              title="Refresh device coordinates"
-            >
-              <RefreshCw className={`w-3 h-3 ${isAcquiringGps ? 'animate-spin' : ''}`} />
-              <span>{isAcquiringGps ? 'Locking...' : 'Refresh GPS'}</span>
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={() => handleFetchGps(true)}
+                disabled={isAcquiringGps}
+                className="px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-300 rounded flex items-center gap-1 shrink-0 cursor-pointer shadow-2xs disabled:opacity-50"
+                title="Refresh device coordinates"
+              >
+                <RefreshCw className={`w-3 h-3 ${isAcquiringGps ? 'animate-spin' : ''}`} />
+                <span>{isAcquiringGps ? 'Locking...' : 'Refresh GPS'}</span>
+              </button>
+            </div>
+          )}
 
           {/* Error Display */}
           {submitError && (
@@ -461,10 +479,16 @@ export const NewScanModal: React.FC<NewScanModalProps> = ({
             </button>
             <button
               type="submit"
-              disabled={isProcessing || !isOnline}
+              disabled={isProcessing || !isOnline || !gpsLoc}
               className="bg-[#0f2744] hover:bg-[#1a385c] text-white font-bold text-sm px-5 py-2 rounded transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
-              <span>{isProcessing ? 'Submitting to Backend...' : 'Submit Scan to Server'}</span>
+              <span>
+                {isProcessing
+                  ? 'Submitting to Backend...'
+                  : !gpsLoc
+                  ? 'Location Access Required to Scan'
+                  : 'Submit Scan to Server'}
+              </span>
             </button>
           </div>
 

@@ -48,7 +48,37 @@ async def lifespan(_app: FastAPI):
                   END IF;
                 END$$;
             """))
-        print(">>> Database permissions and tables ensured in Neon PostgreSQL", flush=True)
+
+            # Ensure official Gazetted Officer names and credentials in database
+            await conn.execute(text("""
+                UPDATE users SET 
+                    full_name = CASE 
+                        WHEN id = 'insp-pb-ludhiana-01' THEN 'Sh. Gurpreet Singh'
+                        WHEN id = 'insp-pb-ludhiana-02' THEN 'Sh. Harpreet Singh Gill'
+                        WHEN id = 'insp-mh-pune-01' THEN 'Smt. Vaishnavi Kulkarni'
+                        WHEN id = 'insp-mh-pune-02' THEN 'Sh. Vedant Deshmukh'
+                        WHEN id = 'admin-pb-ludhiana' THEN 'Sh. Adarsh Sharma'
+                        WHEN id = 'admin-mh-pune' THEN 'Sh. Santlaj Kumar Mehta'
+                        WHEN id = 'admin-national-01' THEN 'Smt. Ayenisha Sen'
+                        ELSE full_name
+                    END,
+                    badge_number = CASE
+                        WHEN id = 'insp-pb-ludhiana-01' THEN 'LMI-PB-LDH-0104'
+                        WHEN id = 'insp-pb-ludhiana-02' THEN 'LMI-PB-LDH-0105'
+                        WHEN id = 'insp-mh-pune-01' THEN 'LMI-MH-PUN-0201'
+                        WHEN id = 'insp-mh-pune-02' THEN 'LMI-MH-PUN-0202'
+                        ELSE badge_number
+                    END,
+                    cadre = CASE
+                        WHEN id = 'insp-pb-ludhiana-01' THEN 'Legal Metrology Inspectorate Cadre (Ludhiana Zone)'
+                        WHEN id = 'insp-pb-ludhiana-02' THEN 'Legal Metrology Enforcement Squad (Ludhiana Circle)'
+                        WHEN id = 'insp-mh-pune-01' THEN 'Legal Metrology Inspectorate Cadre (Pune Circle)'
+                        WHEN id = 'insp-mh-pune-02' THEN 'Legal Metrology Enforcement Squad (Pune Circle)'
+                        ELSE cadre
+                    END
+                WHERE id IN ('insp-pb-ludhiana-01', 'insp-pb-ludhiana-02', 'insp-mh-pune-01', 'insp-mh-pune-02', 'admin-pb-ludhiana', 'admin-mh-pune', 'admin-national-01');
+            """))
+        print(">>> Database permissions, tables, and officer credentials ensured in Neon PostgreSQL", flush=True)
     except Exception as exc:
         print(f">>> Table setup note: {exc}", flush=True)
 
@@ -139,8 +169,10 @@ def create_app() -> FastAPI:
         app.include_router(dashboard_router, prefix=prefix)
         app.include_router(jurisdictions_router, prefix=prefix)
 
+    from starlette.staticfiles import StaticFiles
     captures_dir = Path(__file__).resolve().parent.parent / "captures"
     captures_dir.mkdir(parents=True, exist_ok=True)
+    app.mount("/captures", StaticFiles(directory=str(captures_dir)), name="captures")
 
     @app.api_route("/health", methods=["GET", "HEAD"])
     async def health() -> dict[str, Any]:

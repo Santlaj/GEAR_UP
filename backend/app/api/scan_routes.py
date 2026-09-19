@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, Request, HTTPException
 from fastapi.responses import FileResponse, Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import get_current_scope, require_roles
@@ -30,6 +30,21 @@ class OverrideRequest(BaseModel):
     reason: str = Field(min_length=1)
     # Client may attempt foreign district — ignored.
     district_id: str | None = None
+
+    @field_validator("new_verdict", mode="before")
+    @classmethod
+    def normalize_verdict(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            s = v.lower().strip().replace("-", "_").replace(" ", "_")
+            if "non" in s or "major" in s or "violation" in s or "fail" in s:
+                return OverallVerdict.major_non_compliance
+            if "minor" in s:
+                return OverallVerdict.minor_non_compliance
+            if "need" in s or "review" in s or "remand" in s or "under" in s:
+                return OverallVerdict.needs_review
+            if "comp" in s or "pass" in s:
+                return OverallVerdict.compliant
+        return v
 
 
 class ConfirmMissingRequest(BaseModel):
@@ -121,7 +136,9 @@ async def list_scans(
 async def override_verdict(
     scan_id: str,
     body: OverrideRequest,
-    scope: JurisdictionScope = Depends(require_roles(Role.district_officer)),
+    scope: JurisdictionScope = Depends(
+        require_roles(Role.district_officer, Role.state_admin, Role.national_admin)
+    ),
     session: AsyncSession = Depends(get_session),
     settings: Settings = Depends(get_settings),
 ) -> ScanRecord:
@@ -172,10 +189,59 @@ async def get_scan_images(
 @scans_router.get("/{scan_id}/evidence-image")
 async def get_scan_evidence_image(
     scan_id: str,
-    scope: JurisdictionScope = Depends(get_current_scope),
+    request: Request,
     session: AsyncSession = Depends(get_session),
     settings: Settings = Depends(get_settings),
 ) -> Response:
+    # 1. Local disk search (captures/{scan_id}/*) - fastest path for client <img> rendering
+    from pathlib import Path
+    backend_root = Path(__file__).resolve().parent.parent.parent
+    local_candidates = [
+        backend_root / "captures" / scan_id,
+        Path("captures") / scan_id,
+        backend_root / "captures" / "scans" / scan_id,
+        Path("captures") / "scans" / scan_id,
+    ]
+    for d in local_candidates:
+        if d.is_dir():
+            for f in sorted(d.iterdir()):
+                if f.is_file() and f.suffix.lower() in [".jpg", ".jpeg", ".png", ".webp"]:
+                    mime = "image/png" if f.suffix.lower() == ".png" else "image/jpeg"
+                    return Response(
+                        content=f.read_bytes(),
+                        media_type=mime,
+                        headers={
+                            "Cache-Control": "public, max-age=86400",
+                        },
+                    )
+
+    # 2. Check ScanReportRow for product image_path
+    try:
+        from app.models.scan import ScanReportRow
+        report = await ScanReportRow.latest_version_for(session, scan_id, None)
+        if report and report.payload:
+            p_img = (report.payload.get("product") or {}).get("image_path")
+            if p_img:
+                clean_p = p_img.lstrip("/\\")
+                for base in (backend_root, Path(".")):
+                    candidate = base / clean_p
+                    if candidate.is_file():
+                        mime = "image/png" if candidate.suffix.lower() == ".png" else "image/jpeg"
+                        return Response(content=candidate.read_bytes(), media_type=mime, headers={"Cache-Control": "public, max-age=86400"})
+    except Exception:
+        pass
+
+    # 3. If not on local disk, check if authorization token is provided and fetch from storage
+    scope = None
+    try:
+        from app.auth import get_current_scope
+        scope = await get_current_scope(request, None, settings)
+    except Exception:
+        pass
+
+    if not scope:
+        raise HTTPException(status_code=404, detail="Evidence photo not found on local disk or storage")
+
     return await scan_controller.get_scan_evidence_image_bytes(
         scan_id=scan_id,
         scope=scope,

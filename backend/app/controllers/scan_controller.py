@@ -200,6 +200,45 @@ async def list_scans(
         )
         await session.commit()
     records = scan_view.to_scan_records(rows)
+
+    # Enrich records with genuine inspector & jurisdiction details from Neon PostgreSQL
+    try:
+        from app.models.user import UserRow
+        from app.models.jurisdiction import JurisdictionRow
+
+        inspector_ids = {r.inspector_id for r in records if r.inspector_id}
+        district_ids = {r.district_id for r in records if r.district_id}
+
+        user_map: dict[str, UserRow] = {}
+        if inspector_ids:
+            user_res = await session.execute(
+                select(UserRow).where(UserRow.id.in_(inspector_ids))
+            )
+            user_map = {u.id: u for u in user_res.scalars().all()}
+
+        jur_map: dict[str, JurisdictionRow] = {}
+        if district_ids:
+            jur_res = await session.execute(
+                select(JurisdictionRow).where(JurisdictionRow.district_id.in_(district_ids))
+            )
+            jur_map = {j.district_id: j for j in jur_res.scalars().all()}
+
+        for r in records:
+            u = user_map.get(r.inspector_id)
+            if u:
+                r.inspector_name = u.full_name
+                r.inspector_badge = u.badge_number
+                r.inspector_cadre = u.cadre
+            j = jur_map.get(r.district_id)
+            if j:
+                r.district_name = j.district_name
+                r.state_name = j.state_name
+            elif u:
+                r.district_name = u.district_name or r.district_id
+                r.state_name = u.state_name or r.state_id
+    except Exception as enrich_exc:
+        print(f">>> Inspector enrichment note: {enrich_exc}", flush=True)
+
     if cache_key is not None:
         await cache.set_json(cache_key, [r.model_dump(mode="json") for r in records], ttl=30)
     return records

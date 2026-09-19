@@ -54,6 +54,7 @@ interface MapControllerProps {
   selectedPinId: string | null;
   highlightTrigger: number;
   markerRefs: React.MutableRefObject<Map<string, L.CircleMarker>>;
+  inspections: Inspection[];
 }
 
 const MapController: React.FC<MapControllerProps> = ({
@@ -64,15 +65,25 @@ const MapController: React.FC<MapControllerProps> = ({
   selectedPinId,
   highlightTrigger,
   markerRefs,
+  inspections,
 }) => {
   const map = useMap();
 
-  // Default Ludhiana-centered view (matching existing enforcement map center)
+  // Dynamically fit map bounds to actual genuine inspection pins anywhere in India
   useEffect(() => {
     if (!selectedState && resetTrigger === 0 && !flyToCoords) {
-      map.setView([30.9010, 75.8573], 12);
+      const validPoints = inspections.filter((i) => i.latitude !== 0 && i.longitude !== 0);
+      if (validPoints.length > 0) {
+        const bounds = L.latLngBounds(validPoints.map((i) => [i.latitude, i.longitude]));
+        if (bounds.isValid()) {
+          map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
+          return;
+        }
+      }
+      // Default to overview of India
+      map.setView([22.5937, 78.9629], 5);
     }
-  }, [selectedState, map]);
+  }, [selectedState, inspections, map, resetTrigger, flyToCoords]);
 
   // When a state is selected, zoom to that state's districts
   useEffect(() => {
@@ -91,12 +102,20 @@ const MapController: React.FC<MapControllerProps> = ({
     }
   }, [selectedState, districts, map]);
 
-  // Reset to default view
+  // Reset to auto-fit view
   useEffect(() => {
     if (resetTrigger > 0) {
-      map.setView([30.9010, 75.8573], 12);
+      const validPoints = inspections.filter((i) => i.latitude !== 0 && i.longitude !== 0);
+      if (validPoints.length > 0) {
+        const bounds = L.latLngBounds(validPoints.map((i) => [i.latitude, i.longitude]));
+        if (bounds.isValid()) {
+          map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
+          return;
+        }
+      }
+      map.setView([22.5937, 78.9629], 5);
     }
-  }, [resetTrigger, map]);
+  }, [resetTrigger, inspections, map]);
 
   // Fly to specific coordinates and OPEN POPUP every time an inspection is highlighted
   useEffect(() => {
@@ -171,8 +190,11 @@ export const EnforcementMap: React.FC<EnforcementMapProps> = ({ onViewReport }) 
     setIsLoading(true);
     try {
       const scope = getStoredScope();
-      const stateParam = scope?.state_id || 'PB';
-      const rawScans = await fetchScans({ stateId: stateParam });
+      // If national admin (or no specific state restriction), fetch all national scans
+      const fetchParams = (scope?.role === 'national_admin' || !scope?.state_id)
+        ? undefined
+        : { stateId: scope.state_id };
+      const rawScans = await fetchScans(fetchParams);
       if (Array.isArray(rawScans)) {
         const liveInspections = rawScans.map(scanRecordToMapInspection);
         const liveFeed = rawScans.map(scanRecordToFeedItem);
@@ -191,9 +213,10 @@ export const EnforcementMap: React.FC<EnforcementMapProps> = ({ onViewReport }) 
         setIsLive(true);
         setIsOfflineDemo(false);
 
-        if (liveInspections.length > 0) {
-          setSelectedPinId(liveInspections[0].id);
-          setFlyToCoords([liveInspections[0].latitude, liveInspections[0].longitude]);
+        const validPins = liveInspections.filter((i) => i.latitude !== 0 && i.longitude !== 0);
+        if (validPins.length > 0) {
+          setSelectedPinId(validPins[0].id);
+          setFlyToCoords([validPins[0].latitude, validPins[0].longitude]);
           setHighlightTrigger((p) => p + 1);
         }
       }
@@ -250,6 +273,7 @@ export const EnforcementMap: React.FC<EnforcementMapProps> = ({ onViewReport }) 
 
   // Filter inspections based on checkboxes (always keep selected pin visible so popup can be rendered)
   const filteredInspections = inspections.filter((insp) => {
+    if (insp.latitude === 0 && insp.longitude === 0) return false;
     if (insp.id === selectedPinId || (insp.reportNo && insp.reportNo === selectedPinId)) return true;
     if (insp.status === 'non-compliant' && !showNonCompliant) return false;
     if (insp.status === 'needs-review' && !showNeedsReview) return false;
@@ -425,7 +449,7 @@ export const EnforcementMap: React.FC<EnforcementMapProps> = ({ onViewReport }) 
             onClick={() => {
               setSelectedState(null);
               setResetTrigger((p) => p + 1);
-              setFlyToCoords([30.9010, 75.8573]);
+              setFlyToCoords(null);
             }}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-black border border-slate-300 text-[11px] font-medium cursor-pointer"
           >
@@ -443,8 +467,8 @@ export const EnforcementMap: React.FC<EnforcementMapProps> = ({ onViewReport }) 
           {/* Real Leaflet Map */}
           <div className="relative flex-1 w-full h-full">
             <MapContainer
-              center={[30.9010, 75.8573]}
-              zoom={12}
+              center={[22.5937, 78.9629]}
+              zoom={5}
               scrollWheelZoom={true}
               className="w-full h-full"
               style={{ minHeight: '580px' }}
@@ -477,6 +501,7 @@ export const EnforcementMap: React.FC<EnforcementMapProps> = ({ onViewReport }) 
                 selectedPinId={selectedPinId}
                 highlightTrigger={highlightTrigger}
                 markerRefs={markerRefs}
+                inspections={inspections}
               />
 
               {/* State Boundaries */}
@@ -650,7 +675,7 @@ export const EnforcementMap: React.FC<EnforcementMapProps> = ({ onViewReport }) 
               onClick={() => {
                 setSelectedState(null);
                 setResetTrigger((p) => p + 1);
-                setFlyToCoords([30.9010, 75.8573]);
+                setFlyToCoords(null);
               }}
               title="Recenter Map"
               className="p-2 bg-white border border-slate-300 hover:bg-slate-50 text-black cursor-pointer flex items-center justify-center"

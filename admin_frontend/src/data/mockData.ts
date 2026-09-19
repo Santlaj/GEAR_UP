@@ -9,6 +9,8 @@ export interface ReportRecord {
   time: string;
   inspectorId: string;
   inspectorName: string;
+  inspectorBadge?: string;
+  inspectorCadre?: string;
   districtId?: string;
   stateId?: string;
   location: string;
@@ -27,27 +29,53 @@ export interface ReportRecord {
   isDemo?: boolean;
 }
 
+export interface CaseDeclaration {
+  field: string;
+  displayName: string;
+  detectedValue: string | null;
+  status: 'compliant' | 'non_compliant' | 'missing' | 'ambiguous' | string;
+  ruleCitation?: string | null;
+  rejectionReason?: string | null;
+  remark?: string | null;
+  fontSizeMm?: number | null;
+  confidence?: number;
+}
+
 export interface TriageCase {
   id: string;
   scanId?: string; // Authoritative backend scan UUID/ID
   status: 'UNDER REVIEW' | 'NON-COMPLIANT' | 'COMPLIANT';
   timestamp: string;
   productName: string;
+  productDetails?: {
+    manufacturer?: string;
+    category?: string;
+    netQuantity?: string;
+    mrp?: string;
+    batchNo?: string;
+    barcode?: string;
+  };
+  districtId?: string;
+  stateId?: string;
   location: string;
   gps: string;
   lat: number;
   lng: number;
   fieldOfficer: string;
+  fieldOfficerBadge?: string;
+  fieldSquad?: string;
   flagReason: string;
   flagReasonType: 'dual_mrp' | 'ocr_low' | 'unit_abbr';
   evidencePhoto: string;
   photoId: string;
   photoCaption: string;
+  declarations?: CaseDeclaration[];
   extractedData: {
     topOverlayMRP: string;
     underlyingPrintedMRP: string;
     priceDiscrepancyMargin: string;
     identifiedLabelIssue: string;
+    hasDualMrp?: boolean;
   };
   statutoryRule: {
     act: string;

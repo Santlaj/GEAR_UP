@@ -21,8 +21,13 @@ export interface BackendScanRecord {
   report_no: string;
   report_version: number;
   inspector_id: string;
+  inspector_name?: string;
+  inspector_badge?: string;
+  inspector_cadre?: string;
   district_id: string;
+  district_name?: string;
   state_id: string;
+  state_name?: string;
   date_scanned: string;
   overall_verdict: 'COMPLIANT' | 'NON_COMPLIANT' | 'NEEDS_REVIEW' | string;
   review_status: 'pending' | 'approved' | 'rejected' | 'needs_review' | string;
@@ -163,4 +168,50 @@ export async function downloadReportDocx(scanId: string, filename?: string): Pro
   a.click();
   window.URL.revokeObjectURL(objectUrl);
   document.body.removeChild(a);
+}
+
+export async function overrideScanVerdict(
+  scanId: string,
+  newVerdict: 'COMPLIANT' | 'NON_COMPLIANT' | 'NEEDS_REVIEW' | 'compliant' | 'minor_non_compliance' | 'major_non_compliance' | 'needs_review' | string,
+  reason: string,
+  districtId?: string
+): Promise<BackendScanRecord> {
+  invalidateFrontendScanCache();
+  const v = String(newVerdict).toLowerCase().replace(/[-\s]/g, '_');
+  let canonicalVerdict = 'compliant';
+  if (v.includes('non') || v.includes('major') || v.includes('violation') || v.includes('fail')) {
+    canonicalVerdict = 'major_non_compliance';
+  } else if (v.includes('minor')) {
+    canonicalVerdict = 'minor_non_compliance';
+  } else if (v.includes('need') || v.includes('review') || v.includes('remand') || v.includes('under')) {
+    canonicalVerdict = 'needs_review';
+  } else {
+    canonicalVerdict = 'compliant';
+  }
+
+  return apiFetch<BackendScanRecord>(`/scans/${encodeURIComponent(scanId)}/override`, {
+    method: 'POST',
+    body: JSON.stringify({
+      new_verdict: canonicalVerdict,
+      reason,
+      district_id: districtId,
+    }),
+  });
+}
+
+export async function issueScanNotice(
+  scanId: string,
+  recipient: string,
+  fineAmount: number,
+  reason: string
+): Promise<any> {
+  invalidateFrontendScanCache();
+  return apiFetch(`/scans/${encodeURIComponent(scanId)}/notice`, {
+    method: 'POST',
+    body: JSON.stringify({
+      recipient,
+      fine_amount: fineAmount,
+      reason,
+    }),
+  });
 }

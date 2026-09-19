@@ -41,6 +41,12 @@ export const NavBar: React.FC<NavBarProps> = ({ activeTab, onSelectTab, flaggedC
             );
           })}
         </div>
+
+        {/* Right side live system status */}
+        <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span className="font-semibold text-slate-700">Live Metrology Enforcement Register</span>
+        </div>
       </div>
     </nav>
   );

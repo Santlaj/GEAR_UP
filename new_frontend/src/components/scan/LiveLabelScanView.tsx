@@ -16,8 +16,9 @@ import {
   Scale,
   X,
   MapPin,
+  MapPinOff,
 } from 'lucide-react';
-import { acquireDeviceGps, getStoredOrFallbackGps } from '../../lib/gps';
+import { acquireDeviceGps, DeviceGpsResult } from '../../lib/gps';
 
 interface LiveLabelScanViewProps {
   scanRecord: ScanRecord;
@@ -290,50 +291,68 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
     handleStartCamera(nextMode);
   };
 
-  // Real-time Device GPS Telemetry
+  // Real-time Device GPS Telemetry — strictly required, no fake fallbacks
+  const [gpsLoc, setGpsLoc] = useState<DeviceGpsResult | null>(null);
+  const [gpsError, setGpsError] = useState<string | null>(null);
   const [liveGpsText, setLiveGpsText] = useState<string>(() => {
     if (scanRecord.gps?.lat != null && scanRecord.gps?.lng != null) {
-      return `${scanRecord.gps.lat.toFixed(4)}° N, ${scanRecord.gps.lng.toFixed(4)}° E`;
+      return `${scanRecord.gps.lat.toFixed(4)}° N, ${scanRecord.gps.lng.toFixed(4)}° E (Prior Record)`;
     }
-    return getStoredOrFallbackGps().statusText;
+    return 'Acquiring device GPS...';
   });
-  const [isAcquiringGps, setIsAcquiringGps] = useState<boolean>(false);
+  const [isAcquiringGps, setIsAcquiringGps] = useState<boolean>(true);
 
-  const refreshLiveGps = async () => {
+  const refreshLiveGps = async (force = false): Promise<DeviceGpsResult | null> => {
     setIsAcquiringGps(true);
+    setGpsError(null);
     try {
-      const loc = await acquireDeviceGps(true);
+      const loc = await acquireDeviceGps(force);
+      setGpsLoc(loc);
       setLiveGpsText(loc.statusText);
-    } catch (e) {
-      console.warn('GPS refresh error:', e);
+      setGpsError(null);
+      return loc;
+    } catch (e: any) {
+      console.warn('GPS acquisition error:', e);
+      setGpsLoc(null);
+      setGpsError(e?.message || 'Location access is required. Please enable device location in your browser and tap Reconnect.');
+      setLiveGpsText('Location Access Blocked');
+      return null;
     } finally {
       setIsAcquiringGps(false);
     }
   };
 
   useEffect(() => {
-    acquireDeviceGps(false)
-      .then((loc) => {
-        setLiveGpsText(loc.statusText);
-      })
-      .catch(() => {});
+    refreshLiveGps(false);
   }, []);
 
-  // Submit scan to backend with genuine image file and live device GPS
+  // Submit scan to backend with genuine image file and strictly verified device GPS
   const handleUploadAndScan = async (file: File) => {
     stopCameraStream();
+
+    // Strictly enforce real GPS access before proceeding
+    let activeLoc = gpsLoc;
+    if (!activeLoc) {
+      activeLoc = await refreshLiveGps(false);
+    }
+
+    if (!activeLoc) {
+      alert(
+        lang === 'hi'
+          ? 'वैधानिक आवश्यकता: स्थान अनुमति के बिना स्कैनिंग संभव नहीं है। कृपया ब्राउज़र में स्थान अनुमति दें और "स्थान पुनः कनेक्ट करें" पर क्लिक करें।'
+          : 'Mandatory Statutory Requirement: Scanning is not permitted without verified device location access. Please grant location permissions and tap "Allow / Reconnect Location".'
+      );
+      return;
+    }
+
     setIsScanning(true);
-    setScanStep(lang === 'hi' ? 'जीपीएस कैप्चर एवं नियम मूल्यांकन जारी है...' : 'ACQUIRING DEVICE GPS & RUNNING COMPLIANCE ENGINE...');
+    setScanStep(lang === 'hi' ? 'जीपीएस सत्यापित • नियम मूल्यांकन जारी है...' : 'GPS LOCKED • RUNNING COMPLIANCE ENGINE...');
 
     try {
-      // 1. Capture real-time device GPS coordinates
-      const loc = await acquireDeviceGps(false);
-      setLiveGpsText(loc.statusText);
-
       const formData = new FormData();
       formData.append('images', file);
-      formData.append('gps_lat', loc.lat.toString());
-      formData.append('gps_lng', loc.lng.toString());
+      formData.append('gps_lat', activeLoc.lat.toString());
+      formData.append('gps_lng', activeLoc.lng.toString());
       formData.append('source', 'photo');
       formData.append('geometry_json', '{}');
 
@@ -410,6 +429,34 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
 
   return (
     <div className="w-full px-2 sm:px-6 py-3 sm:py-4 select-none">
+
+      {/* Statutory GPS Permission Banner when Location is Denied / Missing */}
+      {!gpsLoc && (
+        <div className="mb-3.5 p-3.5 bg-red-50 border border-red-300 rounded text-xs text-red-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-start gap-2.5">
+            <MapPinOff className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <div>
+              <div className="font-bold text-red-800 uppercase tracking-wide flex items-center gap-1.5">
+                <span>{lang === 'hi' ? 'वैधानिक स्थान अनुमति आवश्यक है — नया स्कैन अवरुद्ध' : 'STATUTORY LOCATION REQUIRED — SCANNING BLOCKED'}</span>
+              </div>
+              <p className="text-red-700 text-[11.5px] mt-0.5 leading-snug">
+                {gpsError || (lang === 'hi' 
+                  ? 'स्थान अनुमति के बिना सिस्टम आपको पैकेज स्कैन नहीं करने देगा। वास्तविक डिवाइस स्थान सत्यापित करने के लिए पुनः कनेक्ट दबाएं।'
+                  : 'System will not let you scan commodities without verified device location access. Tap Reconnect to allow browser permissions.')}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => refreshLiveGps(true)}
+            disabled={isAcquiringGps}
+            className="px-3.5 py-2 bg-red-700 hover:bg-red-800 text-white font-bold text-xs rounded flex items-center gap-1.5 shrink-0 cursor-pointer shadow-xs disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isAcquiringGps ? 'animate-spin' : ''}`} />
+            <span>{isAcquiringGps ? (lang === 'hi' ? 'कनेक्ट हो रहा है...' : 'Connecting GPS...') : (lang === 'hi' ? 'स्थान पुनः कनेक्ट करें' : 'Allow / Reconnect Location')}</span>
+          </button>
+        </div>
+      )}
       
       {/* ── Main 2-Column Operational Grid ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
@@ -436,7 +483,16 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
               
               {/* BUTTON 1: Open Live Camera */}
               <button
-                onClick={() => (isCameraActive ? stopCameraStream() : handleStartCamera('environment'))}
+                onClick={() => {
+                  if (!gpsLoc) {
+                    refreshLiveGps(true);
+                  }
+                  if (isCameraActive) {
+                    stopCameraStream();
+                  } else {
+                    handleStartCamera('environment');
+                  }
+                }}
                 disabled={isCameraStarting}
                 className={`text-xs font-bold px-3 py-1.5 rounded transition-all flex items-center cursor-pointer shadow-xs border ${
                   isCameraActive
@@ -451,6 +507,9 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
               {/* BUTTON 2: Choose File */}
               <button
                 onClick={() => {
+                  if (!gpsLoc) {
+                    refreshLiveGps(true);
+                  }
                   stopCameraStream();
                   fileInputRef.current?.click();
                 }}
