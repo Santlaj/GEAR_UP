@@ -9,6 +9,7 @@ import { GovFooter } from './components/layout/GovFooter';
 import {
   getStoredSession,
   getStoredToken,
+  saveSession,
   logoutOfficer,
   clearAuthSession,
   AuthSession,
