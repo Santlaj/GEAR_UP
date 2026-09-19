@@ -22,7 +22,44 @@ export function App() {
   const [selectedReport, setSelectedReport] = useState<ReportRecord | null>(null);
   const [showGuidelines, setShowGuidelines] = useState(false);
   const [flaggedCount, setFlaggedCount] = useState<number>(3);
+  // Synchronously consume SSO credentials from query parameters if redirected from shared login
   const [currentUserScope, setCurrentUserScope] = useState<UserScope | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const ssoToken = params.get('token');
+        const ssoScopeStr = params.get('scope');
+        const ssoUserStr = params.get('user');
+
+        if (ssoToken) {
+          setToken(ssoToken);
+          let parsedScope: UserScope | null = null;
+          if (ssoScopeStr) {
+            try {
+              parsedScope = JSON.parse(ssoScopeStr);
+              if (parsedScope) {
+                setStoredScope(parsedScope);
+              }
+            } catch {}
+          }
+          if (ssoUserStr) {
+            try {
+              localStorage.setItem('pramaan_admin_user', ssoUserStr);
+            } catch {}
+          }
+          // Remove sensitive query params from address bar without reloading
+          const cleanUrl = window.location.pathname + window.location.hash;
+          window.history.replaceState({}, document.title, cleanUrl);
+
+          if (parsedScope && parsedScope.role !== 'inspector') {
+            return parsedScope;
+          }
+        }
+      } catch (e) {
+        console.error('Error parsing SSO credentials:', e);
+      }
+    }
+
     const token = getToken();
     if (!token) return null;
     const scope = getStoredScope();

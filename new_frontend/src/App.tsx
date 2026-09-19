@@ -100,6 +100,61 @@ export function App() {
 
   // Hydrate & validate session on mount without flashing login
   useEffect(() => {
+    // 0. Support incoming SSO credentials if redirected from admin portal
+    if (typeof window !== 'undefined') {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const ssoToken = urlParams.get('token');
+        const ssoScopeStr = urlParams.get('scope');
+        const ssoUserStr = urlParams.get('user');
+
+        if (ssoToken) {
+          const parsedScope = ssoScopeStr ? JSON.parse(ssoScopeStr) : null;
+          const parsedUser = ssoUserStr ? JSON.parse(ssoUserStr) : null;
+
+          if (!parsedScope || parsedScope.role === 'inspector') {
+            const initialUser: UserContext = parsedUser || {
+              id: parsedScope?.user_id || 'officer',
+              name: 'Field Officer',
+              role: 'inspector',
+              district_id: parsedScope?.district_id || 'DL-CENTRAL',
+              district_name: 'Central District',
+              state_id: parsedScope?.state_id || 'DL',
+              state_name: 'Delhi',
+              badge_number: 'INSP-DL-01',
+            };
+
+            const ssoSession: AuthSession = {
+              access_token: ssoToken,
+              token_type: 'bearer',
+              user: initialUser,
+              scope: parsedScope || {
+                user_id: initialUser.id,
+                role: 'inspector',
+                district_id: initialUser.district_id,
+                state_id: initialUser.state_id,
+              },
+              portal: 'inspector',
+              logged_at: new Date().toISOString(),
+            };
+
+            saveSession(ssoSession);
+            setAuthSession(ssoSession);
+            setCurrentUser(initialUser);
+
+            const cleanUrl = window.location.pathname + window.location.hash;
+            window.history.replaceState({}, document.title, cleanUrl);
+
+            loadRecords();
+            setIsHydrating(false);
+            return;
+          }
+        }
+      } catch (e) {
+        console.error('SSO credential parsing error:', e);
+      }
+    }
+
     const token = getStoredToken();
     if (!token) {
       setIsHydrating(false);

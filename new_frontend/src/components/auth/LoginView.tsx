@@ -19,8 +19,16 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     fetch('/api/health').catch(() => {});
   }, []);
 
+  const isLocal =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+  const defaultAdminUrl = isLocal
+    ? 'http://localhost:5174'
+    : 'https://adminfrontend-drab.vercel.app';
+
   const adminPortalUrl =
-    (import.meta as any).env?.VITE_ADMIN_PORTAL_URL || 'http://localhost:5174';
+    (import.meta as any).env?.VITE_ADMIN_PORTAL_URL || defaultAdminUrl;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,12 +64,21 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       if (isInspector) {
         onLoginSuccess(session.user, 'inspector');
       } else {
-        const roleLabel = (role || 'Administrative Officer')
-          .replace(/_/g, ' ')
-          .toUpperCase();
-        setErrorMsg(
-          `Access Restricted: This portal is exclusively for Field Enforcement Officers. You are signed in with an Administrative account (${roleLabel}). Please access your separate Administrative Portal.`
-        );
+        // Administrative account signed in via shared portal:
+        // Seamlessly transfer session and redirect to Admin Dashboard
+        try {
+          const targetUrl = new URL(adminPortalUrl, window.location.origin);
+          targetUrl.searchParams.set('token', session.access_token);
+          if (session.scope) {
+            targetUrl.searchParams.set('scope', JSON.stringify(session.scope));
+          }
+          if (session.user) {
+            targetUrl.searchParams.set('user', JSON.stringify(session.user));
+          }
+          window.location.href = targetUrl.toString();
+        } catch {
+          window.location.href = adminPortalUrl;
+        }
       }
     } catch (err: any) {
       setErrorMsg(

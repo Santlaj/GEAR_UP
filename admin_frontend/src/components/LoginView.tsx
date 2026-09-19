@@ -19,8 +19,16 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     fetch('/api/health').catch(() => {});
   }, []);
 
+  const isLocal =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+  const defaultInspectorUrl = isLocal
+    ? 'http://localhost:5173'
+    : 'https://gear-up-inky-two.vercel.app';
+
   const inspectorPortalUrl =
-    (import.meta as any).env?.VITE_INSPECTOR_PORTAL_URL || 'http://localhost:5173';
+    (import.meta as any).env?.VITE_INSPECTOR_PORTAL_URL || defaultInspectorUrl;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,9 +57,20 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       const isInspector = role === 'inspector' || data.portal === 'inspector';
 
       if (isInspector) {
-        setErrorMsg(
-          'Access Restricted: This console is strictly for Designated Controllers & State Administrators. Please use the Field Inspector Login below.'
-        );
+        // Redirect field inspector to the field inspector portal with credentials
+        try {
+          const targetUrl = new URL(inspectorPortalUrl, window.location.origin);
+          targetUrl.searchParams.set('token', data.access_token);
+          if (data.scope) {
+            targetUrl.searchParams.set('scope', JSON.stringify(data.scope));
+          }
+          if ((data as any).user) {
+            targetUrl.searchParams.set('user', JSON.stringify((data as any).user));
+          }
+          window.location.href = targetUrl.toString();
+        } catch {
+          window.location.href = inspectorPortalUrl;
+        }
       } else {
         onLoginSuccess(data.scope);
       }
