@@ -469,7 +469,7 @@ export const LiveLabelScanView: React.FC<LiveLabelScanViewProps> = ({
             <div className="font-bold flex items-center gap-2">
               <span className="uppercase tracking-wide font-extrabold">{t('optical_viewport_title')}</span>
               <div
-                onClick={refreshLiveGps}
+                onClick={() => refreshLiveGps(true)}
                 className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-950/90 border border-cyan-500/40 rounded text-[11px] font-mono text-cyan-200 cursor-pointer hover:bg-blue-900 transition-colors shadow-2xs"
                 title="On-site device GPS telemetry. Click to refresh."
               >
