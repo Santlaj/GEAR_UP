@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+import httpx
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,6 +23,57 @@ class LoginRequest(BaseModel):
     email: str
     password: str
     portal: str = Field(default="auto", pattern="^(inspector|admin|auto)$")
+    captcha_token: str | None = None
+    captchaToken: str | None = None
+
+    @property
+    def token_value(self) -> str | None:
+        return self.captcha_token or self.captchaToken
+
+
+async def verify_captcha_token(token: str | None, settings: Settings) -> bool:
+    """Verifies CAPTCHA verification token with the CAPTCHA Service.
+    token = Client frontend se aaya hua verificationToken (JWT string).
+    """
+    if not token:
+        return False
+
+    url = f"{settings.captcha_api_url.rstrip('/')}/api/v1/siteverify"
+
+    # Candidates: configured secret, hardcoded default, and dev template secret
+    candidates = [
+        settings.captcha_secret_key,
+        "CDJjrRoDr8lTdRpKKmEvmO+Oyq3WvP9cMj0YmhYsgfs=",
+        "development_only_jwt_secret_key_change_in_production_min32",
+    ]
+    seen = set()
+    secrets = [s for s in candidates if s and not (s in seen or seen.add(s))]
+
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        for secret in secrets:
+            try:
+                response = await client.post(
+                    url,
+                    json={
+                        "secretKey": secret,
+                        "token": token,
+                    },
+                )
+                print(f"[CAPTCHA] Verify with key '{secret[:12]}...': Status {response.status_code}, Response: {response.text}")
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("success"):
+                        return True
+                    errors = data.get("errorCodes", [])
+                    # If invalid-input-secret, try next candidate key
+                    if "invalid-input-secret" in errors:
+                        continue
+                    return False
+            except Exception as e:
+                print(f"[CAPTCHA] Verification request failed with secret '{secret[:12]}...':", e)
+
+    return False
+
 
 
 class LoginResponse(BaseModel):
@@ -45,6 +97,16 @@ async def login(
     session: AsyncSession = Depends(get_admin_session),
     settings: Settings = Depends(get_settings),
 ) -> LoginResponse:
+    # 1. Pehle CAPTCHA token verify karein
+    captcha_token = body.token_value
+    if settings.is_captcha_active or captcha_token:
+        is_human = await verify_captcha_token(captcha_token, settings)
+        if not is_human:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Incorrect captcha",
+            )
+
     user_agent = request.headers.get("user-agent")
     client_ip = request.client.host if request.client else None
 

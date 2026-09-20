@@ -38,10 +38,16 @@ export async function loginApi(
   email: string,
   password: string,
   portal: 'inspector' | 'admin' | 'auto' = 'auto',
+  captchaToken?: string | null,
 ): Promise<LoginResponse> {
   return apiFetch<LoginResponse>('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email, password, portal }),
+    body: JSON.stringify({
+      email,
+      password,
+      portal,
+      captcha_token: captchaToken || undefined,
+    }),
   });
 }
 

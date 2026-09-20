@@ -66,6 +66,7 @@ export interface LoginParams {
   email: string;
   password: string;
   portal?: 'inspector' | 'admin' | 'auto';
+  captchaToken?: string | null;
 }
 
 /**
@@ -74,10 +75,10 @@ export interface LoginParams {
  * and retrieves authoritative user identity via GET /api/auth/me.
  */
 export async function loginOfficer(params: LoginParams): Promise<AuthSession> {
-  const { email, password, portal = 'auto' } = params;
+  const { email, password, portal = 'auto', captchaToken } = params;
 
   // 1. Authenticate against backend and receive bound JWT
-  const data = await loginApi(email.trim(), password.trim(), portal);
+  const data = await loginApi(email.trim(), password.trim(), portal, captchaToken);
 
   // Store token immediately so subsequent requests have Authorization header
   localStorage.setItem('lmcs_token', data.access_token);

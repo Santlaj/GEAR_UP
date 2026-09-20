@@ -175,6 +175,7 @@ def create_app() -> FastAPI:
     app.mount("/captures", StaticFiles(directory=str(captures_dir)), name="captures")
 
     @app.api_route("/health", methods=["GET", "HEAD"])
+    @app.api_route("/api/health", methods=["GET", "HEAD"])
     async def health() -> dict[str, Any]:
         settings = get_settings()
         from app.storage import is_supabase_configured

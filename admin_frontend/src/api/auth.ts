@@ -109,6 +109,7 @@ export async function loginAdmin(
   email: string,
   password: string,
   portal: string = 'auto',
+  captchaToken?: string | null,
 ): Promise<LoginResponse> {
   const data = await apiFetch<LoginResponse>('/auth/login', {
     method: 'POST',
@@ -116,6 +117,7 @@ export async function loginAdmin(
       email: email.trim(),
       password: password.trim(),
       portal,
+      captcha_token: captchaToken || undefined,
     }),
   });
 

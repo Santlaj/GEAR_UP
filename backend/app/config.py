@@ -43,6 +43,16 @@ class Settings(BaseSettings):
     Demo mode exposes raw evaluator results but marks them non-authoritative.
     Production mode blocks unverified rules with NEEDS_REVIEW."""
 
+    # ── CAPTCHA Service settings ───────────────────────────────────────
+    captcha_api_url: str = "https://captcha-service-40xv.onrender.com"
+    captcha_secret_key: str = "CDJjrRoDr8lTdRpKKmEvmO+Oyq3WvP9cMj0YmhYsgfs="
+    captcha_enabled: bool = True
+
+    @property
+    def is_captcha_active(self) -> bool:
+        """Active if explicitly enabled or if a secret key has been configured."""
+        return self.captcha_enabled or bool(self.captcha_secret_key.strip())
+
     @property
     def inspector_hosts(self) -> set[str]:
         return {h.strip().lower() for h in self.inspector_portal_hosts.split(",") if h.strip()}
