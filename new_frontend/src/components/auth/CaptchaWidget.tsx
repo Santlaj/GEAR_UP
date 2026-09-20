@@ -182,35 +182,7 @@ export const CaptchaWidget: React.FC<CaptchaWidgetProps> = ({
       role="region"
       aria-label="Security Verification Box"
     >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '8px',
-        }}
-      >
-        <span
-          style={{
-            fontSize: '11px',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            color: '#12385f',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '5px',
-          }}
-        >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#12385f" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
-          Inspector Verification (सुरक्षा कोड)
-        </span>
-        <span style={{ fontSize: '10px', color: '#64748b' }}>
-          PRAMAAN Shield
-        </span>
-      </div>
+
 
       {status === 'verified' ? (
         <div
