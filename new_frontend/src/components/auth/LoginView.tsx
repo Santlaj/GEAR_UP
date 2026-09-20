@@ -265,9 +265,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                     boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
                   }}
                 >
-                  {isLoadingCaptcha ? (
-                    <span style={{ fontSize: '11px', color: '#8a949e' }}>Loading...</span>
-                  ) : captcha?.image ? (
+                  {captcha?.image ? (
                     <img
                       src={captcha.image}
                       alt="Security digits"
@@ -278,8 +276,12 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                         objectFit: 'contain',
                         pointerEvents: 'none',
                         userSelect: 'none',
+                        opacity: isLoadingCaptcha ? 0.5 : 1,
+                        transition: 'opacity 150ms ease',
                       }}
                     />
+                  ) : isLoadingCaptcha ? (
+                    <span style={{ fontSize: '11px', color: '#8a949e' }}>Loading...</span>
                   ) : (
                     <span style={{ fontSize: '11px', color: '#ef4444' }}>Error</span>
                   )}

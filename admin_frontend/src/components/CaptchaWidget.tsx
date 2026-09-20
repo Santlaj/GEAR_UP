@@ -267,9 +267,7 @@ export const CaptchaWidget: React.FC<CaptchaWidgetProps> = ({
                 justifyContent: 'center',
               }}
             >
-              {status === 'loading' ? (
-                <span style={{ fontSize: '10px', color: '#8a949e' }}>Loading...</span>
-              ) : challenge?.image ? (
+              {challenge?.image ? (
                 <img
                   src={challenge.image}
                   alt="Security verification code"
@@ -279,8 +277,12 @@ export const CaptchaWidget: React.FC<CaptchaWidgetProps> = ({
                     display: 'block',
                     pointerEvents: 'none',
                     userSelect: 'none',
+                    opacity: status === 'loading' ? 0.5 : 1,
+                    transition: 'opacity 150ms ease',
                   }}
                 />
+              ) : status === 'loading' ? (
+                <span style={{ fontSize: '10px', color: '#8a949e' }}>Loading...</span>
               ) : (
                 <span style={{ fontSize: '10px', color: '#ef4444' }}>Unavailable</span>
               )}
