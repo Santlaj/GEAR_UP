@@ -181,21 +181,6 @@ def create_app() -> FastAPI:
         from app.storage import is_supabase_configured
         from app.cache import cache
 
-        # Non-blocking DB pool warm-up so Neon compute is awake and ready before login
-        import asyncio
-        async def _warm_db():
-            try:
-                from app.db import AdminSessionLocal
-                from sqlalchemy import text
-                async with AdminSessionLocal() as session:
-                    await session.execute(text("SELECT 1"))
-            except Exception:
-                pass
-        try:
-            asyncio.create_task(_warm_db())
-        except Exception:
-            pass
-
         return {
             "status": "ok",
             "redis_active": cache.is_redis_active,

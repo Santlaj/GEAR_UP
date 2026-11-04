@@ -1893,3 +1893,4 @@ def merge_geometry_and_fields(
         )
 
     return declarations
+
